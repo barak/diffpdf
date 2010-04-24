@@ -1,3 +1,5 @@
+#ifndef GENERIC_HPP
+#define GENERIC_HPP
 /*
     Copyright (c) 2008-10 Qtrac Ltd. All rights reserved.
     This program or module is free software: you can redistribute it
@@ -10,11 +12,11 @@
     for more details.
 */
 
-#ifndef GENERIC_HPP
-#define GENERIC_HPP
 
 #include <QMetaType>
+#include <QPixmap>
 
+class QColor;
 class QRectF;
 
 
@@ -36,6 +38,10 @@ Q_DECLARE_METATYPE(PagePair)
 
 
 void scaleRect(int dpi, QRectF *rect);
+
+QPixmap colorSwatch(const QColor &color);
+QPixmap brushSwatch(const Qt::BrushStyle style, const QColor &color);
+QPixmap penStyleSwatch(const Qt::PenStyle style, const QColor &color);
 
 #endif // GENERIC_HPP
 

@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
     app.setOrganizationDomain("qtrac.eu");
     app.setApplicationName("DiffPDF");
     app.setWindowIcon(QIcon(":/icon.png"));
+
     QString filename1;
     QString filename2;
     if (argc > 1) {

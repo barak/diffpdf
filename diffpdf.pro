@@ -1,7 +1,7 @@
-HEADERS	    += optionsform.hpp
-SOURCES     += optionsform.cpp
 HEADERS	    += mainwindow.hpp
 SOURCES     += mainwindow.cpp
+HEADERS	    += optionsform.hpp
+SOURCES     += optionsform.cpp
 HEADERS	    += generic.hpp
 SOURCES	    += generic.cpp
 SOURCES     += main.cpp

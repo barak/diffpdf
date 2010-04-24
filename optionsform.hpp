@@ -1,3 +1,5 @@
+#ifndef OPTIONSFORM_HPP
+#define OPTIONSFORM_HPP
 /*
     Copyright (c) 2008-10 Qtrac Ltd. All rights reserved.
     This program or module is free software: you can redistribute it
@@ -10,15 +12,14 @@
     for more details.
 */
 
-#ifndef OPTIONSFORM_HPP
-#define OPTIONSFORM_HPP
 
+#include <QBrush>
 #include <QDialog>
+#include <QPen>
 
-class QColor;
+class QCheckBox;
 class QComboBox;
-class QLabel;
-class QSpinBox;
+class QDialogButtonBox;
 
 
 class OptionsForm : public QDialog
@@ -26,20 +27,33 @@ class OptionsForm : public QDialog
     Q_OBJECT
 
 public:
-    OptionsForm(QWidget *parent=0);
-
+    OptionsForm(QPen *pen, QBrush *brush, bool *showToolTips,
+                QWidget *parent=0);
 
 private slots:
-    void setColor();
+    void updateColor(int index);
+    void updateBrushStyle(int index);
+    void updatePenStyle(int index);
+    void updateUi();
     void accept();
 
 private:
-    void updateLineStyleCombobox();
+    void createWidgets();
+    void createLayout();
+    void createConnections();
+    void updateSwatches();
 
-    QComboBox *lineStyleComboBox;
-    QLabel *highlightColorLabel;
+    QComboBox *colorComboBox;
+    QComboBox *brushStyleComboBox;
+    QComboBox *penStyleComboBox;
+    QCheckBox *showToolTipsCheckBox;
+    QDialogButtonBox *buttonBox;
 
-    QColor highlight_color;
+    QPen *m_pen;
+    QBrush *m_brush;
+    bool *m_showToolTips;
+    QPen pen;
+    QBrush brush;
 };
 
 #endif // OPTIONSFORM_HPP

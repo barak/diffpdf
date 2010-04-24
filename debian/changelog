@@ -1,3 +1,16 @@
+diffpdf (0.5.0-1) unstable; urgency=low
+
+  * New upstream release
+  * debian/control:
+    - bumped Standards-Version to 3.8.4 (no changes needed)
+    - multi-line fields re-formatted
+  * debian/watch: removed spurious comments
+  * debian/source/format: using 3.0 (quilt)
+  * debian/patches/:
+    - 00-fix_typos.patch added, fixes typos in the sourcecode
+
+ -- David Paleino <dapal@debian.org>  Sat, 24 Apr 2010 21:26:55 +0200
+
 diffpdf (0.4.0-1) unstable; urgency=low
 
   * Initial release (Closes: #562070)
