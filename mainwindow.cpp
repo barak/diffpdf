@@ -156,6 +156,9 @@ void MainWindow::createWidgets(const QString &filename1,
     QSettings settings;
     zoomSpinBox->setValue(settings.value("Zoom", 100).toInt());
     zoomSpinBox->setToolTip(zoomLabel->toolTip());
+    statusLabel = new QLabel(tr("Choose files..."));
+    statusLabel->setFrameStyle(QFrame::StyledPanel|QFrame::Sunken);
+    statusLabel->setMaximumHeight(statusLabel->minimumSizeHint().height());
     optionsButton = new QPushButton(tr("&Options..."));
     optionsButton->setToolTip(tr("Click to customize the application."));
     aboutButton = new QPushButton(tr("&About"));
@@ -166,12 +169,12 @@ void MainWindow::createWidgets(const QString &filename1,
     page1Label = new QLabel;
     page1Label->setAlignment(Qt::AlignCenter);
     page1Label->setToolTip(tr("<p>Shows the first (left hand) document's "
-                "page that correponds to the page shown in the "
+                "page that corresponds to the page shown in the "
                 "View Difference combobox."));
     page2Label = new QLabel;
     page2Label->setAlignment(Qt::AlignCenter);
     page2Label->setToolTip(tr("<p>Shows the second (right hand) "
-                "document's page that correponds to the page shown in "
+                "document's page that corresponds to the page shown in "
                 "the View Difference combobox."));
     logEdit = new QPlainTextEdit;
 
@@ -250,6 +253,7 @@ void MainWindow::createDockWidgets()
     zoomLayout->addWidget(zoomLabel);
     zoomLayout->addWidget(zoomSpinBox);
     controlLayout->addLayout(zoomLayout);
+    controlLayout->addWidget(statusLabel);
     controlLayout->addStretch();
     QWidget *widget = new QWidget;
     widget->setLayout(controlLayout);
@@ -270,7 +274,7 @@ void MainWindow::createDockWidgets()
     actionDockWidget->setWidget(widget);
     addDockWidget(actionDockArea, actionDockWidget);
 
-    QDockWidget *logDockWidget = new QDockWidget(tr("Log"), this);
+    logDockWidget = new QDockWidget(tr("Log"), this);
     logDockWidget->setObjectName("Log");
     logDockWidget->setFeatures(features|QDockWidget::DockWidgetClosable);
     logDockWidget->setWidget(logEdit);
@@ -288,6 +292,7 @@ void MainWindow::createConnections()
             area2->horizontalScrollBar(), SLOT(setValue(int)));
     connect(area2->horizontalScrollBar(), SIGNAL(valueChanged(int)),
             area1->horizontalScrollBar(), SLOT(setValue(int)));
+
     connect(viewDiffComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(updateViews(int)));
     connect(setFile1Button, SIGNAL(clicked()), this, SLOT(setFile1()));
@@ -298,16 +303,19 @@ void MainWindow::createConnections()
     connect(optionsButton, SIGNAL(clicked()), this, SLOT(options()));
     connect(aboutButton, SIGNAL(clicked()), this, SLOT(about()));
     connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
+
     connect(controlDockWidget,
             SIGNAL(dockLocationChanged(Qt::DockWidgetArea)),
             this, SLOT(controlDockLocationChanged(Qt::DockWidgetArea)));
-    connect(controlDockWidget, SIGNAL(topLevelChanged(bool)),
-            this, SLOT(controlTopLevelChanged(bool)));
     connect(actionDockWidget,
             SIGNAL(dockLocationChanged(Qt::DockWidgetArea)),
             this, SLOT(actionDockLocationChanged(Qt::DockWidgetArea)));
+    connect(controlDockWidget, SIGNAL(topLevelChanged(bool)),
+            this, SLOT(controlTopLevelChanged(bool)));
     connect(actionDockWidget, SIGNAL(topLevelChanged(bool)),
-            this, SLOT(buttonTopLevelChanged(bool)));
+            this, SLOT(actionTopLevelChanged(bool)));
+    connect(logDockWidget, SIGNAL(topLevelChanged(bool)),
+            this, SLOT(logTopLevelChanged(bool)));
 }
 
 
@@ -363,16 +371,27 @@ void MainWindow::controlTopLevelChanged(bool floating)
     if (QWidget *widget = static_cast<QWidget*>(controlLayout->parent()))
         widget->setFixedSize(floating ? widget->minimumSizeHint()
                 : QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX));
+    controlDockWidget->setWindowTitle(floating ? tr("DiffPDF - Controls")
+                                               : tr("Controls"));
 }
 
 
-void MainWindow::buttonTopLevelChanged(bool floating)
+void MainWindow::actionTopLevelChanged(bool floating)
 {
     actionLayout->setDirection(floating ? QBoxLayout::TopToBottom
                                         : QBoxLayout::LeftToRight);
     if (QWidget *widget = static_cast<QWidget*>(actionLayout->parent()))
         widget->setFixedSize(floating ? widget->minimumSizeHint()
                 : QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX));
+    actionDockWidget->setWindowTitle(floating ? tr("DiffPDF - Actions")
+                                              : tr("Actions"));
+}
+
+
+void MainWindow::logTopLevelChanged(bool floating)
+{
+    logDockWidget->setWindowTitle(floating ? tr("DiffPDF - Log")
+                                           : tr("Log"));
 }
 
 
@@ -603,6 +622,10 @@ void MainWindow::setFile1(QString filename)
         pages1LineEdit->setText(tr("1-%1").arg(page_count));
         currentPath = QFileInfo(filename).canonicalPath();
         setFile2Button->setFocus();
+        if (file2Label->text().isEmpty())
+            statusLabel->setText(tr("Choose second file"));
+        else
+            statusLabel->setText(tr("Ready to compare"));
     }
 }
 
@@ -625,6 +648,10 @@ void MainWindow::setFile2(QString filename)
         pages2LineEdit->setText(tr("1-%1").arg(page_count));
         currentPath = QFileInfo(filename).canonicalPath();
         compareButton->setFocus();
+        if (file1Label->text().isEmpty())
+            statusLabel->setText(tr("Choose first file"));
+        else
+            statusLabel->setText(tr("Ready to compare"));
     }
 }
 
@@ -757,8 +784,8 @@ void MainWindow::compare()
     }
 
     comparePrepareUi();
-    int count = comparePages(filename1, pdf1, filename2, pdf2);
-    compareUpdateUi(count);
+    QPair<int, int> pair = comparePages(filename1, pdf1, filename2, pdf2);
+    compareUpdateUi(pair);
 }
 
 
@@ -770,16 +797,18 @@ void MainWindow::comparePrepareUi()
     compareButton->setFocus();
     viewDiffComboBox->clear();
     viewDiffComboBox->addItem(tr("(Not viewing)"));
+    statusLabel->setText(tr("Ready"));
 }
 
 
-int MainWindow::comparePages(const QString &filename1,
+QPair<int, int> MainWindow::comparePages(const QString &filename1,
         const PdfDocument &pdf1, const QString &filename2,
         const PdfDocument &pdf2)
 {
     QList<int> pages1 = getPageList(1, pdf1);
     QList<int> pages2 = getPageList(2, pdf2);
-    int count = qMin(pages1.count(), pages2.count());
+    int total = qMin(pages1.count(), pages2.count());
+    int count = 0;
     while (!pages1.isEmpty() && !pages2.isEmpty()) {
         int p1 = pages1.takeFirst();
         PdfPage page1(pdf1->page(p1));
@@ -808,27 +837,29 @@ int MainWindow::comparePages(const QString &filename1,
             viewDiffComboBox->addItem(tr("%1 vs. %2").arg(p1 + 1)
                                                      .arg(p2 + 1), v);
         }
+        statusLabel->setText(tr("Comparing %1/%2").arg(++count)
+                                                  .arg(total));
     }
-    return count;
+    return qMakePair(count, total);
 }
 
 
-void MainWindow::compareUpdateUi(int minimum)
+void MainWindow::compareUpdateUi(const QPair<int, int> &pair)
 {
+    int differ = viewDiffComboBox->count() - 1;
     if (!cancel) {
         if (viewDiffComboBox->count() > 1) {
             if (viewDiffComboBox->count() == 2)
                 writeLine(tr("<font color=brown>Files differ on 1 page "
                             "(%1 page%2 compared).</font>")
-                        .arg(minimum)
-                        .arg(minimum == 1 ? tr(" was") : tr("s were")));
+                        .arg(pair.first)
+                        .arg(pair.first == 1 ? tr(" was") : tr("s were")));
             else
                 writeLine(tr("<font color=brown>Files differ on %1 pages "
                             "(%2 page%3 compared).</font>")
-                            .arg(viewDiffComboBox->count() - 1)
-                            .arg(minimum)
-                            .arg(minimum == 1 ? tr(" was")
-                                              : tr("s were")));
+                            .arg(differ).arg(pair.first)
+                            .arg(pair.first == 1 ? tr(" was")
+                                                 : tr("s were")));
             viewDiffComboBox->setFocus();
             viewDiffComboBox->setCurrentIndex(1);
         }
@@ -837,6 +868,8 @@ void MainWindow::compareUpdateUi(int minimum)
     }
 
     compareButton->setText(tr("&Compare"));
+    statusLabel->setText(tr("%1 differ%2 %3/%4 compared").arg(differ)
+            .arg(differ == 1 ? "s" : "").arg(pair.first).arg(pair.second));
     updateUi();
     if (!cancel)
         viewDiffComboBox->setFocus();
@@ -876,7 +909,7 @@ void MainWindow::options()
 
 void MainWindow::about()
 {
-    static const QString version("0.5.0");
+    static const QString version("0.6.0");
 
     QMessageBox::about(this, tr("DiffPDF - About"),
     tr("<p><b>DiffPDF</a> %1</b> by Mark Summerfield."
@@ -885,7 +918,8 @@ void MainWindow::about()
     "<p>This program compares the text (and optionally the visual "
     "appearance) of each page in two PDF files. "
     "It was inspired by an idea "
-    "from Jasmin Blanchette, and incorporates many of his suggestions."
+    "from Jasmin Blanchette, and incorporates many of his suggestions. "
+    "Thanks also to David Paleino."
     "<p>To learn how to use the program click the <b>File #1</b> button "
     "to choose one PDF file and then the <b>File #2</b> button to choose "
     "another (ideally very similar) PDF file, then click the "

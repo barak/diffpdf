@@ -73,7 +73,8 @@ private slots:
     void controlDockLocationChanged(Qt::DockWidgetArea area);
     void actionDockLocationChanged(Qt::DockWidgetArea area);
     void controlTopLevelChanged(bool floating);
-    void buttonTopLevelChanged(bool floating);
+    void actionTopLevelChanged(bool floating);
+    void logTopLevelChanged(bool floating);
 
 private:
     enum Difference {NoDifference, TextualDifference, VisualDifference};
@@ -83,10 +84,11 @@ private:
     void createCentralArea();
     void createDockWidgets();
     void createConnections();
-    int comparePages(const QString &filename1, const PdfDocument &pdf1,
-                     const QString &filename2, const PdfDocument &pdf2);
+    QPair<int, int> comparePages(const QString &filename1,
+            const PdfDocument &pdf1, const QString &filename2,
+            const PdfDocument &pdf2);
     void comparePrepareUi();
-    void compareUpdateUi(int minimum);
+    void compareUpdateUi(const QPair<int, int> &pair);
     int writeFileInfo(const QString &filename);
     void writeLine(const QString &text);
     void writeError(const QString &text);
@@ -123,6 +125,7 @@ private:
     QLabel *viewDiffLabel;
     QPushButton *compareButton;
     QComboBox *viewDiffComboBox;
+    QLabel *statusLabel;
     QLabel *zoomLabel;
     QSpinBox *zoomSpinBox;
     QPushButton *optionsButton;
@@ -134,6 +137,7 @@ private:
     QDockWidget *controlDockWidget;
     QBoxLayout *actionLayout;
     QDockWidget *actionDockWidget;
+    QDockWidget *logDockWidget;
 
     QBrush brush;
     QPen pen;
