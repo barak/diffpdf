@@ -37,6 +37,16 @@ void scaleRect(int dpi, QRectF *rect)
 }
 
 
+Ranges unorderedRange(int end, int start)
+{
+    Q_ASSERT(end >= start);
+    Ranges ranges;
+    while (start < end)
+        ranges.insert(start++);
+    return ranges;
+}
+
+
 QPixmap colorSwatch(const QColor &color)
 {
     QString key = QString("COLORSWATCH:%1").arg(color.name());

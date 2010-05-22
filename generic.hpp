@@ -12,9 +12,10 @@
     for more details.
 */
 
-
 #include <QMetaType>
+#include <QPair>
 #include <QPixmap>
+#include <QSet>
 
 class QColor;
 class QRectF;
@@ -22,27 +23,28 @@ class QRectF;
 
 const int DPI_FACTOR = 72;
 
+typedef QSet<int> Ranges;
+typedef QPair<Ranges, Ranges> RangesPair;
 
 struct PagePair
 {
     PagePair(int l=-1, int r=-1, bool v=false)
-        : left(l), right(r), visual_difference(v) {}
+        : left(l), right(r), hasVisualDifference(v) {}
 
     bool isNull() { return left == -1 || right == -1; }
 
     const int left;
     const int right;
-    const bool visual_difference;
+    const bool hasVisualDifference;
 };
 Q_DECLARE_METATYPE(PagePair)
 
 
 void scaleRect(int dpi, QRectF *rect);
+Ranges unorderedRange(int end, int start=0);
 
 QPixmap colorSwatch(const QColor &color);
 QPixmap brushSwatch(const Qt::BrushStyle style, const QColor &color);
 QPixmap penStyleSwatch(const Qt::PenStyle style, const QColor &color);
 
 #endif // GENERIC_HPP
-
-

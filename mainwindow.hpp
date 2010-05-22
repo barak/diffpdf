@@ -12,7 +12,6 @@
     for more details.
 */
 
-
 #if QT_VERSION >= 0x040600
 #include <QSharedPointer>
 #else
@@ -98,8 +97,11 @@ private:
     void paintOnImage(const QPainterPath &path, QImage *image);
     void updateViews(const PdfDocument &pdf1, const PdfPage &page1,
             const PdfDocument &pdf2, const PdfPage &page2,
-            bool visual_difference);
+            bool hasVisualDifference);
     void computeTextHighlights(QPainterPath *highlighted1,
+            QPainterPath *highlighted2, const PdfPage &page1,
+            const PdfPage &page2, const int DPI);
+    void computeTextHighlightsOld(QPainterPath *highlighted1,
             QPainterPath *highlighted2, const PdfPage &page1,
             const PdfPage &page2, const int DPI);
     void computeVisualHighlights(QPainterPath *highlighted1,
@@ -109,13 +111,13 @@ private:
             const PdfTextBox &box, const int OVERLAP, const int DPI);
 
     QPushButton *setFile1Button;
-    QLabel *file1Label;
+    QLabel *filename1Label;
     QLabel *comparePages1Label;
     QLineEdit *pages1LineEdit;
     QLabel *page1Label;
     QScrollArea *area1;
     QPushButton *setFile2Button;
-    QLabel *file2Label;
+    QLabel *filename2Label;
     QLabel *comparePages2Label;
     QLineEdit *pages2LineEdit;
     QLabel *page2Label;
