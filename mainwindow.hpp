@@ -111,13 +111,13 @@ private:
             const PdfTextBox &box, const int OVERLAP, const int DPI);
 
     QPushButton *setFile1Button;
-    QLabel *filename1Label;
+    QLineEdit *filename1LineEdit;
     QLabel *comparePages1Label;
     QLineEdit *pages1LineEdit;
     QLabel *page1Label;
     QScrollArea *area1;
     QPushButton *setFile2Button;
-    QLabel *filename2Label;
+    QLineEdit *filename2LineEdit;
     QLabel *comparePages2Label;
     QLineEdit *pages2LineEdit;
     QLabel *page2Label;

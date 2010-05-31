@@ -16,15 +16,16 @@
 #include <QColor>
 #include <QComboBox>
 #include <QDialogButtonBox>
+#include <QDoubleSpinBox>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QPushButton>
 #include <QVBoxLayout>
 
 
-OptionsForm::OptionsForm(QPen *pen, QBrush *brush, bool *showToolTips,
-                         QWidget *parent)
-    : QDialog(parent), m_pen(pen), m_brush(brush),
+OptionsForm::OptionsForm(QPen *pen, QBrush *brush, qreal *ruleWidth,
+                         bool *showToolTips, QWidget *parent)
+    : QDialog(parent), m_pen(pen), m_brush(brush), m_ruleWidth(ruleWidth),
       m_showToolTips(showToolTips)
 {
     this->pen = *m_pen;
@@ -88,6 +89,14 @@ void OptionsForm::createWidgets()
     penStyleComboBox->setCurrentIndex(penStyleComboBox->findData(
                 pen.style()));
 
+    ruleWidthSpinBox = new QDoubleSpinBox;
+    ruleWidthSpinBox->setRange(0.0, 10.0);
+    ruleWidthSpinBox->setDecimals(2);
+    ruleWidthSpinBox->setSingleStep(0.25);
+    ruleWidthSpinBox->setAlignment(Qt::AlignVCenter|Qt::AlignRight);
+    ruleWidthSpinBox->setSpecialValueText(tr("No Rules"));
+    ruleWidthSpinBox->setValue(*m_ruleWidth);
+
     showToolTipsCheckBox = new QCheckBox(tr("Show &Tooltips in "
                                             "the main window"));
     showToolTipsCheckBox->setChecked(*m_showToolTips);
@@ -103,10 +112,13 @@ void OptionsForm::createLayout()
     mainLayout->addRow(tr("Base Colo&r:"), colorComboBox);
     mainLayout->addRow(tr("Out&line:"), penStyleComboBox);
     mainLayout->addRow(tr("&Fill:"), brushStyleComboBox);
+    mainLayout->addRow(tr("Rule &width:"), ruleWidthSpinBox);
     QGroupBox *box = new QGroupBox(tr("Highlighting"));
     box->setToolTip(tr("<p>The outline and fill are used to highlight "
             "differences using a semi-transparent version of the base "
-            "color"));
+            "color. The margin rules are painted using the base color  "
+            "and indicate where changes are. Set the rule width to 0.0 "
+            "to switch the rules off."));
     box->setLayout(mainLayout);
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(box);
@@ -189,6 +201,7 @@ void OptionsForm::accept()
 {
     *m_pen = pen;
     *m_brush = brush;
+    *m_ruleWidth = ruleWidthSpinBox->value();
     *m_showToolTips = showToolTipsCheckBox->isChecked();
     QDialog::accept();
 }
