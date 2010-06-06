@@ -20,6 +20,7 @@ class QCheckBox;
 class QComboBox;
 class QDialogButtonBox;
 class QDoubleSpinBox;
+class QSpinBox;
 
 
 class OptionsForm : public QDialog
@@ -28,7 +29,8 @@ class OptionsForm : public QDialog
 
 public:
     OptionsForm(QPen *pen, QBrush *brush, qreal *ruleWidth,
-                bool *showToolTips, QWidget *parent=0);
+            bool *showToolTips, bool *combineTextHighlighting,
+            int *cacheSize, QWidget *parent=0);
 
 private slots:
     void updateColor(int index);
@@ -48,12 +50,16 @@ private:
     QComboBox *penStyleComboBox;
     QDoubleSpinBox *ruleWidthSpinBox;
     QCheckBox *showToolTipsCheckBox;
+    QCheckBox *combineTextHighlightingCheckBox;
+    QSpinBox *cacheSizeSpinBox;
     QDialogButtonBox *buttonBox;
 
     QPen *m_pen;
     QBrush *m_brush;
     qreal *m_ruleWidth;
     bool *m_showToolTips;
+    bool *m_combineTextHighlighting;
+    int *m_cacheSize;
     QPen pen;
     QBrush brush;
 };
