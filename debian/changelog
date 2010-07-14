@@ -1,3 +1,11 @@
+diffpdf (1.1.2-2) unstable; urgency=low
+
+  * debian/patches/00-fix_casting_error.patch added, merged back
+    from Ubuntu. Patch by David Sugar.
+  * debian/control: bump Standards-Version to 3.9.0
+
+ -- David Paleino <dapal@debian.org>  Wed, 14 Jul 2010 22:32:29 +0200
+
 diffpdf (1.1.2-1) unstable; urgency=low
 
   * New upstream release

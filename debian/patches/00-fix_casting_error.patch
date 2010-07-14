@@ -1,0 +1,20 @@
+From: David Sugar <david.sugar@canonical.com>
+Subject: casting error fix required for armel platform.
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/600330
+Forwarded: yes
+
+---
+ mainwindow.cpp |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- diffpdf.orig/mainwindow.cpp
++++ diffpdf/mainwindow.cpp
+@@ -1018,7 +1018,7 @@ MainWindow::Difference MainWindow::getTh
+ void MainWindow::options()
+ {
+     QSettings settings;
+-    double ruleWidth = settings.value("RuleWidth", 1.5).toDouble();
++    qreal ruleWidth = settings.value("RuleWidth", 1.5).toDouble();
+     bool combineTextHighlighting =
+             settings.value("CombineTextHighlighting", true).toBool();
+     int cacheSize = QPixmapCache::cacheLimit() / 1000;

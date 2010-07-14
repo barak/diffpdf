@@ -7,7 +7,7 @@ Build-Depends:
  , qt4-qmake
  , libqt4-dev
  , libpoppler-qt4-dev
-Standards-Version: 3.8.4
+Standards-Version: 3.9.0
 Homepage: http://www.qtrac.eu/diffpdf.html
 Vcs-Git: git://git.debian.org/collab-maint/diffpdf.git
 Vcs-Browser: http://git.debian.org/?p=collab-maint/diffpdf.git
