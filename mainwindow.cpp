@@ -1018,7 +1018,7 @@ MainWindow::Difference MainWindow::getTheDifference(PdfPage page1,
 void MainWindow::options()
 {
     QSettings settings;
-    double ruleWidth = settings.value("RuleWidth", 1.5).toDouble();
+    qreal ruleWidth = settings.value("RuleWidth", 1.5).toDouble();
     bool combineTextHighlighting =
             settings.value("CombineTextHighlighting", true).toBool();
     int cacheSize = QPixmapCache::cacheLimit() / 1000;
@@ -1038,7 +1038,7 @@ void MainWindow::options()
 
 void MainWindow::about()
 {
-    static const QString version("1.1.2");
+    static const QString version("1.1.3");
 
     QMessageBox::about(this, tr("DiffPDF - About"),
     tr("<p><b>DiffPDF</a> %1</b> by Mark Summerfield."
