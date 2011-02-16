@@ -22,13 +22,19 @@ information is available in the program's tooltips and About box.
 Compiling and Installing DiffPDF
 ================================
 
-Prerequisites: A C++ compiler, the Qt 4 libraries (I test with Qt 4.6;
-Qt 4.4 and 4.5 also work, but need a compiler with tr1 support), and the
-Poppler libraries (including Poppler's Qt 4 headers).
+Prerequisites: A C++ compiler, the Qt 4 libraries (I test with Qt 4.7;
+Qt 4.4, 4.5, and 4.6 also work, but Qt 4.4 and 4.5 need a compiler with
+tr1 support), and the Poppler libraries (including Poppler's Qt 4
+headers). Linux and BSD users should be able to get everything through
+their package management system---and some distros already include
+diffpdf so you don't even have to build it. Mac OS X users can get a
+compiler by installing Xcode; you'll need to get Qt and Poppler
+separately.
 
 1. Unpack the archive file, diffpdf-XXX.tar.gz
 2. Change directory to diffpdf-XXX
 3. Run qmake # On some systems, e.g., Fedora or Ubuntu, run qmake-qt4
+   On Mac OS X use: qmake spec=macx-g++
 4. Run make
 5. Copy or soft-link the diffpdf executable to somewhere on your PATH
 
@@ -53,7 +59,7 @@ License
 =======
 
 This program was written by Mark Summerfield.
-Copyright (c) 2008-10 Qtrac Ltd. All rights reserved.
+Copyright (c) 2008-11 Qtrac Ltd. All rights reserved.
 
 This program is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the

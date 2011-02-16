@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 /*
-    Copyright (c) 2008-10 Qtrac Ltd. All rights reserved.
+    Copyright (c) 2008-11 Qtrac Ltd. All rights reserved.
     This program or module is free software: you can redistribute it
     and/or modify it under the terms of the GNU General Public License
     as published by the Free Software Foundation, either version 2 of
@@ -66,6 +66,7 @@ private slots:
     void compare();
     void options();
     void about();
+    void help();
     void initialize(const QString &filename1, const QString &filename2);
     void updateUi();
     void updateViews(int index=-1);
@@ -134,6 +135,7 @@ private:
     QSpinBox *zoomSpinBox;
     QPushButton *optionsButton;
     QPushButton *aboutButton;
+    QPushButton *helpButton;
     QPushButton *quitButton;
     QPlainTextEdit *logEdit;
     QSplitter *splitter;
