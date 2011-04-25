@@ -19,6 +19,7 @@
 #include <QDockWidget>
 #include <QEvent>
 #include <QFileDialog>
+#include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -26,6 +27,7 @@
 #include <QPixmapCache>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QRadioButton>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QSettings>
@@ -58,6 +60,8 @@ MainWindow::MainWindow(const QString &filename1, const QString &filename2,
     brush.setStyle(Qt::SolidPattern);
     brush = settings.value("Fill", brush).value<QBrush>();
     showToolTips = settings.value("ShowToolTips", true).toBool();
+    combineTextHighlighting = settings.value("CombineTextHighlighting",
+            true).toBool();
     QPixmapCache::setCacheLimit(1000 *
             qBound(1, settings.value("CacheSizeMB", 25).toInt(), 100));
 
@@ -105,7 +109,7 @@ void MainWindow::createWidgets(const QString &filename1,
     filename2LineEdit->setAlignment(Qt::AlignVCenter|Qt::AlignRight);
     filename2LineEdit->setMinimumWidth(100);
     filename2LineEdit->setText(filename2);
-    comparePages1Label = new QLabel(tr("&Pages:"));
+    comparePages1Label = new QLabel(tr("Pag&es:"));
     pages1LineEdit = new QLineEdit;
     comparePages1Label->setBuddy(pages1LineEdit);
     pages1LineEdit->setToolTip(tr("<p>Pages can be specified using ranges "
@@ -126,22 +130,26 @@ void MainWindow::createWidgets(const QString &filename1,
     compareButton->setToolTip(tr("<p>Click to compare (or re-compare) "
                 "the documents&mdash;or to cancel a comparison that's "
                 "in progress."));
-    comparisonLabel = new QLabel(tr("Comparison &Mode:"));
-    comparisonComboBox = new QComboBox;
-    comparisonLabel->setBuddy(comparisonComboBox);
-    comparisonComboBox->addItem(tr("Text (Old)"), TextOld);
-    comparisonComboBox->addItem(tr("Text"), Text);
-    comparisonComboBox->addItem(tr("Appearance"), Appearance);
-    comparisonComboBox->setToolTip(tr("<p>If the <b>Text</b> comparison "
-                "mode is chosen, then each page's text is compared. "
-                "If the <b>Appearance</b> comparison mode is chosen "
-                "then each page's visual appearance is compared. "
-                "Comparing appearance can be slow for large documents "
-                "and can also produce false positives."
-                "<p>The <b>Text (Old)</b> mode is kept purely for "
-                "debugging; always use the <b>Text</b> or "
-                "<b>Appearance</b> modes instead."));
-    comparisonComboBox->setCurrentIndex(Text);
+    comparisonGroupBox = new QGroupBox(tr("Compare"));
+#ifdef Q_WS_X11
+    int left, top, right, bottom;
+    comparisonGroupBox->getContentsMargins(&left, &top, &right, &bottom);
+    const int height = QFontMetrics(comparisonGroupBox->font()).height();
+    top = qMax(height / 2, top / 2);
+    comparisonGroupBox->setContentsMargins(left, top, right, 0);
+#endif
+    compareAppearanceRadioButton = new QRadioButton(tr("&Appearance"));
+    compareTextRadioButton = new QRadioButton(tr("&Text"));
+    compareAppearanceRadioButton->setToolTip(
+            tr("<p>If the <b>Text</b> comparison "
+               "mode is chosen, then each page's text is compared. "
+               "If the <b>Appearance</b> comparison mode is chosen "
+               "then each page's visual appearance is compared. "
+               "Comparing appearance can be slow for large documents "
+               "and can also produce false positives."));
+    compareTextRadioButton->setToolTip(
+            compareAppearanceRadioButton->toolTip());
+    compareTextRadioButton->setChecked(true);
     viewDiffLabel = new QLabel(tr("&View:"));
     viewDiffLabel->setToolTip(tr("<p>Shows each pair of pages which "
                 "are different. The comparison is textual unless the "
@@ -154,6 +162,17 @@ void MainWindow::createWidgets(const QString &filename1,
     viewDiffComboBox->addItem(tr("(Not viewing)"));
     viewDiffLabel->setBuddy(viewDiffComboBox);
     viewDiffComboBox->setToolTip(viewDiffLabel->toolTip());
+    previousButton = new QPushButton("&Previous");
+    previousButton->setToolTip(
+            "<p>Navigate to the previous pair of pages.");
+#if QT_VERSION >= 0x040600
+    previousButton->setIcon(QIcon(":/left.png"));
+#endif
+    nextButton = new QPushButton("&Next");
+    nextButton->setToolTip("<p>Navigate to the next pair of pages.");
+#if QT_VERSION >= 0x040600
+    nextButton->setIcon(QIcon(":/right.png"));
+#endif
     zoomLabel = new QLabel(tr("&Zoom:"));
     zoomLabel->setToolTip(tr("<p>Determines the scale at which the "
                 "pages are shown."));
@@ -173,7 +192,7 @@ void MainWindow::createWidgets(const QString &filename1,
     helpButton = new QPushButton(tr("Help"));
     helpButton->setShortcut(tr("F1"));
     helpButton->setToolTip(tr("Click for bare bones help."));
-    aboutButton = new QPushButton(tr("&About"));
+    aboutButton = new QPushButton(tr("A&bout"));
     aboutButton->setToolTip(tr("Click for copyright and credits."));
     quitButton = new QPushButton(tr("&Quit"));
     quitButton->setToolTip(tr("Click to terminate the application."));
@@ -192,10 +211,11 @@ void MainWindow::createWidgets(const QString &filename1,
     foreach (QWidget *widget, QList<QWidget*>() << setFile1Button
             << filename1LineEdit << pages1LineEdit << page1Label
             << setFile2Button << filename2LineEdit << pages2LineEdit
-            << page2Label << comparisonComboBox << compareButton
+            << page2Label << compareButton << compareAppearanceRadioButton
+            << compareTextRadioButton
             << viewDiffLabel << viewDiffComboBox << zoomLabel
             << zoomSpinBox << optionsButton << helpButton << aboutButton
-            << quitButton << logEdit)
+            << quitButton << logEdit << previousButton << nextButton)
         if (!widget->toolTip().isEmpty())
             widget->installEventFilter(this);
 }
@@ -253,13 +273,19 @@ void MainWindow::createDockWidgets()
     controlDockWidget->setObjectName("Controls");
     controlDockWidget->setFeatures(features);
     controlLayout = new QBoxLayout(QBoxLayout::TopToBottom);
-    controlLayout->addWidget(compareButton);
-    controlLayout->addWidget(comparisonLabel);
-    controlLayout->addWidget(comparisonComboBox);
+    QHBoxLayout *compareLayout = new QHBoxLayout;
+    compareLayout->addWidget(compareAppearanceRadioButton);
+    compareLayout->addWidget(compareTextRadioButton);
+    comparisonGroupBox->setLayout(compareLayout);
+    controlLayout->addWidget(comparisonGroupBox);
     QHBoxLayout *viewLayout = new QHBoxLayout;
     viewLayout->addWidget(viewDiffLabel);
     viewLayout->addWidget(viewDiffComboBox);
     controlLayout->addLayout(viewLayout);
+    QHBoxLayout *navigationLayout = new QHBoxLayout;
+    navigationLayout->addWidget(previousButton);
+    navigationLayout->addWidget(nextButton);
+    controlLayout->addLayout(navigationLayout);
     QHBoxLayout *zoomLayout = new QHBoxLayout;
     zoomLayout->addWidget(zoomLabel);
     zoomLayout->addWidget(zoomSpinBox);
@@ -277,8 +303,10 @@ void MainWindow::createDockWidgets()
     actionLayout = new QBoxLayout(QBoxLayout::TopToBottom);
     actionLayout->addWidget(compareButton);
     actionLayout->addWidget(optionsButton);
-    actionLayout->addWidget(helpButton);
-    actionLayout->addWidget(aboutButton);
+    QHBoxLayout *helpLayout = new QHBoxLayout;
+    helpLayout->addWidget(helpButton);
+    helpLayout->addWidget(aboutButton);
+    actionLayout->addLayout(helpLayout);
     actionLayout->addWidget(quitButton);
     actionLayout->addStretch();
     widget = new QWidget;
@@ -312,6 +340,11 @@ void MainWindow::createConnections()
 
     connect(viewDiffComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(updateViews(int)));
+    connect(viewDiffComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(updateUi()));
+    connect(previousButton, SIGNAL(clicked()),
+            this, SLOT(previousPages()));
+    connect(nextButton, SIGNAL(clicked()), this, SLOT(nextPages()));
     connect(setFile1Button, SIGNAL(clicked()), this, SLOT(setFile1()));
     connect(setFile2Button, SIGNAL(clicked()), this, SLOT(setFile2()));
     connect(compareButton, SIGNAL(clicked()), this, SLOT(compare()));
@@ -357,6 +390,11 @@ void MainWindow::updateUi()
 {
     compareButton->setEnabled(!filename1LineEdit->text().isEmpty() &&
                               !filename2LineEdit->text().isEmpty());
+    previousButton->setEnabled(viewDiffComboBox->count() > 1 &&
+            viewDiffComboBox->currentIndex() > 0);
+    nextButton->setEnabled(viewDiffComboBox->count() > 1 &&
+            viewDiffComboBox->currentIndex() + 1 <
+            viewDiffComboBox->count());
 }
 
 
@@ -413,6 +451,22 @@ void MainWindow::logTopLevelChanged(bool floating)
 }
 
 
+void MainWindow::previousPages()
+{
+    int i = viewDiffComboBox->currentIndex();
+    if (i > 0)
+        viewDiffComboBox->setCurrentIndex(i - 1);
+}
+
+
+void MainWindow::nextPages()
+{
+    int i = viewDiffComboBox->currentIndex();
+    if (i + 1 < viewDiffComboBox->count())
+        viewDiffComboBox->setCurrentIndex(i + 1);
+}
+
+
 void MainWindow::updateViews(int index)
 {
     if (index == 0) {
@@ -443,7 +497,7 @@ void MainWindow::updateViews(int index)
         return;
 
     QString key = QString("%1:%2:%3").arg(index).arg(zoomSpinBox->value())
-            .arg(comparisonComboBox->currentIndex());
+            .arg(static_cast<int>(compareTextRadioButton->isChecked()));
     QString key1 = QString("1:%1:%2:%3").arg(key).arg(pair.left)
             .arg(filename1);
     QString key2 = QString("2:%1:%2:%3").arg(key).arg(pair.right)
@@ -470,12 +524,10 @@ void MainWindow::updateViews(const PdfDocument &pdf1,
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         const int DPI = static_cast<int>(DPI_FACTOR *
                 (zoomSpinBox->value() / 100.0));
-        Comparison comparison = static_cast<Comparison>(
-                comparisonComboBox->itemData(
-                    comparisonComboBox->currentIndex()).toInt());
+        bool compareText = compareTextRadioButton->isChecked();
         QImage plainImage1;
         QImage plainImage2;
-        if (hasVisualDifference || comparison == Appearance) {
+        if (hasVisualDifference || !compareText) {
             plainImage1 = page1->renderToImage(DPI, DPI);
             plainImage2 = page2->renderToImage(DPI, DPI);
         }
@@ -488,14 +540,11 @@ void MainWindow::updateViews(const PdfDocument &pdf1,
 
         QPainterPath highlighted1;
         QPainterPath highlighted2;
-        if (hasVisualDifference || comparison == Appearance)
+        if (hasVisualDifference || !compareText)
             computeVisualHighlights(&highlighted1, &highlighted2,
                     plainImage1, plainImage2);
-        else if (comparison == Text)
+        else
             computeTextHighlights(&highlighted1, &highlighted2, page1,
-                    page2, DPI);
-        else if (comparison == TextOld)
-            computeTextHighlightsOld(&highlighted1, &highlighted2, page1,
                     page2, DPI);
         if (!highlighted1.isEmpty())
             paintOnImage(highlighted1, &image1);
@@ -552,44 +601,6 @@ void MainWindow::computeTextHighlights(QPainterPath *highlighted1,
                         DPI, COMBINE);
     if (!rect2.isNull() && !rangesPair.second.isEmpty())
         highlighted2->addRect(rect2);
-}
-
-
-void MainWindow::computeTextHighlightsOld(QPainterPath *highlighted1,
-        QPainterPath *highlighted2, const PdfPage &page1,
-        const PdfPage &page2, const int DPI)
-{
-    // Textual #1: Highlight every word that differs between the two pages
-    QRectF rect1;
-    QRectF rect2;
-    QSettings settings;
-    const int OVERLAP = settings.value("Overlap", 5).toInt();
-    TextBoxList list1 = getTextBoxes(page1);
-    TextBoxList list2 = getTextBoxes(page2);
-    while (!list1.isEmpty() && !list2.isEmpty()) {
-        PdfTextBox box1 = list1.takeFirst();
-        PdfTextBox box2 = list2.takeFirst();
-        if (box1->text() != box2->text()) {
-            addHighlighting(&rect1, highlighted1, box1, OVERLAP, DPI);
-            addHighlighting(&rect2, highlighted2, box2, OVERLAP, DPI);
-        }
-        if (!rect1.isNull())
-            highlighted1->addRect(rect1);
-        if (!rect2.isNull())
-            highlighted2->addRect(rect2);
-    }
-
-    // Textual #2: Highlight text at the end of one page but not the other
-    TextBoxList list = list1.isEmpty() ? list2 : list1;
-    QPainterPath *highlighted = list1.isEmpty() ? highlighted2
-                                                : highlighted1;
-    QRectF rect;
-    while (!list.isEmpty()) {
-        PdfTextBox box = list.takeFirst();
-        addHighlighting(&rect, highlighted, box, OVERLAP, DPI);
-        if (!rect.isNull())
-            highlighted->addRect(rect1);
-    }
 }
 
 
@@ -901,8 +912,10 @@ void MainWindow::compare()
     }
 
     comparePrepareUi();
+    QTime time;
+    time.start();
     QPair<int, int> pair = comparePages(filename1, pdf1, filename2, pdf2);
-    compareUpdateUi(pair);
+    compareUpdateUi(pair, time.elapsed());
 }
 
 
@@ -963,10 +976,14 @@ QPair<int, int> MainWindow::comparePages(const QString &filename1,
 }
 
 
-void MainWindow::compareUpdateUi(const QPair<int, int> &pair)
+void MainWindow::compareUpdateUi(const QPair<int, int> &pair,
+        const int millisec)
 {
     int differ = viewDiffComboBox->count() - 1;
     if (!cancel) {
+        if (millisec > 1000)
+            writeLine(QString("Completed in %1 seconds.")
+            .arg(millisec / 1000.0, 0, 'f', 2));
         if (viewDiffComboBox->count() > 1) {
             if (viewDiffComboBox->count() == 2)
                 writeLine(tr("<font color=brown>Files differ on 1 page "
@@ -1013,8 +1030,7 @@ MainWindow::Difference MainWindow::getTheDifference(PdfPage page1,
         if (list1[i]->text() != list2[i]->text())
             return TextualDifference;
 
-    if (comparisonComboBox->itemData(
-            comparisonComboBox->currentIndex()) == Appearance) {
+    if (compareAppearanceRadioButton->isChecked()) {
         QImage image1 = page1->renderToImage();
         QImage image2 = page2->renderToImage();
         if (image1 != image2)
@@ -1028,8 +1044,6 @@ void MainWindow::options()
 {
     QSettings settings;
     qreal ruleWidth = settings.value("RuleWidth", 1.5).toDouble();
-    bool combineTextHighlighting =
-            settings.value("CombineTextHighlighting", true).toBool();
     int cacheSize = QPixmapCache::cacheLimit() / 1000;
     OptionsForm form(&pen, &brush, &ruleWidth, &showToolTips,
                      &combineTextHighlighting, &cacheSize, this);
@@ -1067,7 +1081,7 @@ void MainWindow::help()
 
 void MainWindow::about()
 {
-    static const QString version("1.1.5");
+    static const QString version("1.2.0");
 
     QMessageBox::about(this, tr("DiffPDF - About"),
     tr("<p><b>DiffPDF</a> %1</b> by Mark Summerfield."
@@ -1079,6 +1093,17 @@ void MainWindow::about()
     "Thanks also to David Paleino."
     "<p>To learn how to use the program click the <b>Help</b> button "
     "or press <b>F1</b>."
+    "<p>If you like DiffPDF and you develop software you might like "
+    "my books:<ul>"
+    "<li><a href=\"http://www.qtrac.eu/aqpbook.html\">"
+    "Advanced Qt Programming</a></li>"
+    "<li><a href=\"http://www.qtrac.eu/pyqtbook.html\">"
+    "Rapid GUI Programming with Python and Qt</a></li>"
+    "<li><a href=\"http://www.qtrac.eu/py3book.html\">"
+    "Programming in Python 3</a></li>"
+    "<li><a href=\"http://www.qtrac.eu/gobook.html\">"
+    "Programming in Go</a></li>"
+    "</ul>"
     "<hr><p>This program is free software: you can redistribute it "
     "and/or modify it under the terms of the GNU General Public License "
     "as published by the Free Software Foundation, either version 2 of "

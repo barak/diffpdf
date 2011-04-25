@@ -1,3 +1,12 @@
+1.2.0
+
+Got rid of old text comparison mode.
+
+Various small user interface improvements.
+
+Fixed a subtle bug that meant the combine text highlighting setting
+wasn't saved and restored correctly.
+
 1.1.5
 
 Slightly changed the .pro file to make it a tiny bit more helpful.

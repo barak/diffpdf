@@ -114,6 +114,10 @@ void OptionsForm::createWidgets()
     cacheSizeSpinBox->setRange(1, 100);
     cacheSizeSpinBox->setValue(*m_cacheSize);
     cacheSizeSpinBox->setSuffix(tr(" MB"));
+    cacheSizeSpinBox->setToolTip(tr("<p>The cache is used to store pages "
+            "already seen to make flipping back and forth as fast as "
+            "possible. The bigger the cache the more pages that can be "
+            "stored."));
 
     buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok|
                                      QDialogButtonBox::Cancel);
@@ -133,7 +137,9 @@ void OptionsForm::createLayout()
             "differences using a semi-transparent version of the base "
             "color. The margin rules are painted using the base color  "
             "and indicate where changes are. Set the rule width to 0.0 "
-            "to switch the rules off."));
+            "to switch the rules off. If combining highlighting is "
+            "checked it will try to merge the highlighting of adjacent "
+            "text differences."));
     box->setLayout(mainLayout);
     QFormLayout *layout = new QFormLayout;
     layout->addRow(box);

@@ -1,3 +1,11 @@
+diffpdf (1.2.0-1) unstable; urgency=low
+
+  * New upstream version
+  * Standards-Version bump to 3.9.2, no changes needed
+  * Bump debhelper compatibility to 8
+
+ -- David Paleino <dapal@debian.org>  Mon, 25 Apr 2011 22:11:02 +0200
+
 diffpdf (1.1.5-1) unstable; urgency=low
 
   * New upstream version

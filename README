@@ -22,14 +22,14 @@ information is available in the program's tooltips and About box.
 Compiling and Installing DiffPDF
 ================================
 
-Prerequisites: A C++ compiler, the Qt 4 libraries (I test with Qt 4.7;
-Qt 4.4, 4.5, and 4.6 also work, but Qt 4.4 and 4.5 need a compiler with
-tr1 support), and the Poppler libraries (including Poppler's Qt 4
-headers). Linux and BSD users should be able to get everything through
-their package management system---and some distros already include
-diffpdf so you don't even have to build it. Mac OS X users can get a
-compiler by installing Xcode; you'll need to get Qt and Poppler
-separately.
+Prerequisites: A C++ compiler, the Qt 4 libraries (I test with Qt 4.7
+and Qt 4.6. Earlier Qt's may work although Qt 4.4 and 4.5 will at least
+need a compiler with tr1 support), and the Poppler libraries (including
+Poppler's Qt 4 headers). Linux and BSD users should be able to get
+everything through their package management system---and some distros
+already include diffpdf so you don't even have to build it. Mac OS X
+users can get a compiler by installing Xcode; you'll need to get Qt and
+Poppler separately.
 
 1. Unpack the archive file, diffpdf-XXX.tar.gz
 2. Change directory to diffpdf-XXX
