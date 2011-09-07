@@ -1,3 +1,9 @@
+diffpdf (1.2.2-1) unstable; urgency=low
+
+  * New upstream version
+
+ -- David Paleino <dapal@debian.org>  Wed, 07 Sep 2011 10:05:34 +0200
+
 diffpdf (1.2.0-1) unstable; urgency=low
 
   * New upstream version
