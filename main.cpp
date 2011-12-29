@@ -13,37 +13,52 @@
 #include "mainwindow.hpp"
 #include <QApplication>
 #include <QIcon>
+#include <QTextCodec>
+#include <QTextStream>
 
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-#ifdef Q_WS_MAC
     app.setCursorFlashTime(0);
-#endif
     app.setOrganizationName("Qtrac Ltd.");
     app.setOrganizationDomain("qtrac.eu");
     app.setApplicationName("DiffPDF");
     app.setWindowIcon(QIcon(":/icon.png"));
+    QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
 
-    QStringList args = app.arguments();
+    QTextStream out(stdout);
+    QStringList args = app.arguments().mid(1);
+    InitialComparisonMode comparisonMode = CompareWords;
     QString filename1;
     QString filename2;
-    if (args.count() > 1) {
-        filename1 = args.at(1);
-        if (!filename1.toLower().endsWith(".pdf"))
-            filename1.clear();
-        if (args.count() > 2) {
-            filename2 = args.at(2);
-            if (!filename2.toLower().endsWith(".pdf"))
-                filename2.clear();
-            else if (filename1.isEmpty()) {
-                filename1 = filename2;
-                filename2.clear();
-            }
-        }
+    bool optionsOK = true;
+    Debug debug = DebugOff;
+    foreach (const QString arg, args) {
+        if (optionsOK && (arg == "--appearance" || arg == "-a"))
+            comparisonMode = CompareAppearance;
+        else if (optionsOK && (arg == "--character" || arg == "-c"))
+            comparisonMode = CompareCharacters;
+        else if (optionsOK && (arg == "--word" || arg == "-w"))
+            ; // comparisonMode = CompareWords; // this is the default
+        else if (optionsOK && (arg == "--debug" || arg == "--debug=1" ||
+                               arg == "--debug1"))
+            debug = DebugShowZones;
+        else if (optionsOK && (arg == "--debug=2" || arg == "--debug2"))
+            debug = DebugShowZonesAndTexts;
+        else if (optionsOK && (arg == "--debug=3" || arg == "--debug3"))
+            debug = DebugShowZonesAndTextsAndYX;
+        else if (optionsOK && arg == "--")
+            optionsOK = false;
+        else if (filename1.isEmpty() && arg.toLower().endsWith(".pdf"))
+            filename1 = arg;
+        else if (filename2.isEmpty() && arg.toLower().endsWith(".pdf"))
+            filename2 = arg;
+        else
+            out << "unrecognized argument '" << arg << "'\n";
     }
-    MainWindow window(filename1, filename2);
+
+    MainWindow window(debug, comparisonMode, filename1, filename2);
     window.show();
     return app.exec();
 }

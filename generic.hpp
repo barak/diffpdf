@@ -12,6 +12,7 @@
     for more details.
 */
 
+#include <poppler-qt4.h>
 #include <QMetaType>
 #include <QPair>
 #include <QPixmap>
@@ -20,6 +21,23 @@
 class QColor;
 class QRectF;
 
+
+#if QT_VERSION >= 0x040600
+typedef QSharedPointer<Poppler::Document> PdfDocument;
+typedef QSharedPointer<Poppler::Page> PdfPage;
+typedef QSharedPointer<Poppler::TextBox> PdfTextBox;
+#else
+typedef std::tr1::shared_ptr<Poppler::Document> PdfDocument;
+typedef std::tr1::shared_ptr<Poppler::Page> PdfPage;
+typedef std::tr1::shared_ptr<Poppler::TextBox> PdfTextBox;
+#endif
+typedef QList<PdfTextBox> TextBoxList;
+
+enum InitialComparisonMode{CompareAppearance=0, CompareCharacters=1,
+                           CompareWords=2};
+
+enum Debug{DebugOff, DebugShowZones, DebugShowZonesAndTexts,
+           DebugShowZonesAndTextsAndYX};
 
 const int DPI_FACTOR = 72;
 
@@ -40,11 +58,39 @@ struct PagePair
 Q_DECLARE_METATYPE(PagePair)
 
 
+inline const QChar canonicalizedCharacter(const QChar &in)
+{
+    QChar out = in;
+    const ushort c = in.unicode();
+    switch (c) {
+        case 0x93:   out = QChar(0x201C); break; // “
+        case 0x94:   out = QChar(0x201D); break; // ”
+        case 0xAD:   // fallthrough (soft-hyphen)
+        case 0x2D:   // fallthrough (hyphen-minus)
+        case 0x2010: // fallthrough (hyphen)
+        case 0x2011: // fallthrough (non-breaking hyphen)
+        case 0x2043: out = '-'; break; // (hyphen-bullet)
+    }
+    return out;
+}
+
+
 void scaleRect(int dpi, QRectF *rect);
 Ranges unorderedRange(int end, int start=0);
 
 QPixmap colorSwatch(const QColor &color);
 QPixmap brushSwatch(const Qt::BrushStyle style, const QColor &color);
 QPixmap penStyleSwatch(const Qt::PenStyle style, const QColor &color);
+
+const TextBoxList getTextBoxes(PdfPage page);
+
+/* // Not needed
+const int roundedToNearest(const int x, const int multiple)
+{
+    Q_ASSERT(multiple)
+    const int remainder = x % multiple;
+    return (remainder == 0) ? x : x + multiple - remainder;
+}
+*/
 
 #endif // GENERIC_HPP

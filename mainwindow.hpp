@@ -12,6 +12,8 @@
     for more details.
 */
 
+#include "generic.hpp"
+#include "saveform.hpp"
 #if QT_VERSION >= 0x040600
 #include <QSharedPointer>
 #else
@@ -24,6 +26,7 @@
 #include <QPen>
 
 class QBoxLayout;
+class QCheckBox;
 class QComboBox;
 class QGroupBox;
 class QLabel;
@@ -35,28 +38,16 @@ class QScrollArea;
 class QSpinBox;
 class QSplitter;
 
-#if QT_VERSION >= 0x040600
-typedef QSharedPointer<Poppler::Document> PdfDocument;
-typedef QSharedPointer<Poppler::Page> PdfPage;
-typedef QSharedPointer<Poppler::TextBox> PdfTextBox;
-#else
-typedef std::tr1::shared_ptr<Poppler::Document> PdfDocument;
-typedef std::tr1::shared_ptr<Poppler::Page> PdfPage;
-typedef std::tr1::shared_ptr<Poppler::TextBox> PdfTextBox;
-#endif
-typedef QList<PdfTextBox> TextBoxList;
-
-
-TextBoxList getTextBoxes(PdfPage page);
-
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(const QString &filename1, const QString &filename2,
-               QWidget *parent=0);
+    MainWindow(const Debug debug,
+            const InitialComparisonMode comparisonMode,
+            const QString &filename1, const QString &filename2,
+            QWidget *parent=0);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -67,6 +58,7 @@ private slots:
     void setFile2(QString filename=QString());
     void compare();
     void options();
+    void save();
     void about();
     void help();
     void initialize(const QString &filename1, const QString &filename2);
@@ -74,11 +66,14 @@ private slots:
     void updateViews(int index=-1);
     void controlDockLocationChanged(Qt::DockWidgetArea area);
     void actionDockLocationChanged(Qt::DockWidgetArea area);
+    void zoningDockLocationChanged(Qt::DockWidgetArea area);
     void controlTopLevelChanged(bool floating);
     void actionTopLevelChanged(bool floating);
+    void zoningTopLevelChanged(bool floating);
     void logTopLevelChanged(bool floating);
     void previousPages();
     void nextPages();
+    void showZones();
 
 private:
     enum Difference {NoDifference, TextualDifference, VisualDifference};
@@ -87,7 +82,7 @@ private:
     void createCentralArea();
     void createDockWidgets();
     void createConnections();
-    QPair<int, int> comparePages(const QString &filename1,
+    const QPair<int, int> comparePages(const QString &filename1,
             const PdfDocument &pdf1, const QString &filename2,
             const PdfDocument &pdf2);
     void comparePrepareUi();
@@ -99,10 +94,10 @@ private:
     QList<int> getPageList(int which, PdfDocument pdf);
     Difference getTheDifference(PdfPage page1, PdfPage page2);
     void paintOnImage(const QPainterPath &path, QImage *image);
-    void updateViews(const PdfDocument &pdf1, const PdfPage &page1,
-            const PdfDocument &pdf2, const PdfPage &page2,
-            bool hasVisualDifference, const QString &key1,
-            const QString &key2);
+    const QPair<QPixmap, QPixmap> populatePixmaps(const PdfDocument &pdf1,
+            const PdfPage &page1, const PdfDocument &pdf2,
+            const PdfPage &page2, bool hasVisualDifference,
+            const QString &key1, const QString &key2);
     void computeTextHighlights(QPainterPath *highlighted1,
             QPainterPath *highlighted2, const PdfPage &page1,
             const PdfPage &page2, const int DPI);
@@ -110,8 +105,13 @@ private:
         QPainterPath *highlighted2, const QImage &plainImage1,
         const QImage &plainImage2);
     void addHighlighting(QRectF *bigRect, QPainterPath *highlighted,
-            const PdfTextBox &box, const int OVERLAP, const int DPI,
+            const QRectF wordOrCharRect, const int OVERLAP, const int DPI,
             const bool COMBINE=true);
+    const QPair<QString, QString> cacheKeys(const int index,
+            const PagePair &pair) const;
+    const TextBoxList zoneYxOrdered(const TextBoxList &list);
+    void showZones(const int Width, const TextBoxList &list,
+            QLabel *label);
 
     QPushButton *setFile1Button;
     QLineEdit *filename1LineEdit;
@@ -125,9 +125,8 @@ private:
     QLineEdit *pages2LineEdit;
     QLabel *page2Label;
     QScrollArea *area2;
-    QGroupBox *comparisonGroupBox;
-    QRadioButton *compareAppearanceRadioButton;
-    QRadioButton *compareTextRadioButton;
+    QComboBox *compareComboBox;
+    QLabel *compareLabel;
     QLabel *viewDiffLabel;
     QPushButton *compareButton;
     QComboBox *viewDiffComboBox;
@@ -136,7 +135,10 @@ private:
     QLabel *statusLabel;
     QLabel *zoomLabel;
     QSpinBox *zoomSpinBox;
+    QLabel *showLabel;
+    QComboBox *showComboBox;
     QPushButton *optionsButton;
+    QPushButton *saveButton;
     QPushButton *aboutButton;
     QPushButton *helpButton;
     QPushButton *quitButton;
@@ -147,15 +149,31 @@ private:
     QBoxLayout *actionLayout;
     QDockWidget *actionDockWidget;
     QDockWidget *logDockWidget;
+    QBoxLayout *compareLayout;
+    QGroupBox *zoningGroupBox;
+    QLabel *columnsLabel;
+    QSpinBox *columnsSpinBox;
+    QLabel *toleranceRLabel;
+    QSpinBox *toleranceRSpinBox;
+    QLabel *toleranceYLabel;
+    QSpinBox *toleranceYSpinBox;
+    QCheckBox *showZonesCheckBox;
+    QBoxLayout *zoningLayout;
+    QDockWidget *zoningDockWidget;
 
     QBrush brush;
     QPen pen;
     QString currentPath;
     Qt::DockWidgetArea controlDockArea;
     Qt::DockWidgetArea actionDockArea;
+    Qt::DockWidgetArea zoningDockArea;
     bool cancel;
     bool showToolTips;
     bool combineTextHighlighting;
+    QString saveFilename;
+    bool saveAll;
+    SavePages savePages;
+    Debug debug;
 };
 
 #endif // MAINWINDOW_HPP

@@ -1,0 +1,20 @@
+From: David Paleino <dapal@debian.org>
+Subject: fix lintian warning, hyphen-used-as-minus-sign
+Origin: vendor
+Forwarded: no
+
+---
+ diffpdf.1 |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- diffpdf.orig/diffpdf.1
++++ diffpdf/diffpdf.1
+@@ -25,7 +25,7 @@ second. This will make DiffPDF compare p
+ .PP
+ If the program is passed two PDF filenames on the command line it will
+ start up and compare those files in Text mode (or in Appearance mode if
+-the filenames are preceded by -a or --appearance).
++the filenames are preceded by \-a or \-\-appearance).
+ .SH "SEE ALSO"
+ For a command line tool for comparing PDF files see
+ http://www.qtrac.eu/comparepdf.html.
