@@ -25,7 +25,7 @@ second. This will make DiffPDF compare pages in the pairs (1, 1), (2,
 .PP
 If the program is passed two PDF filenames on the command line it will
 start up and compare those files in Text mode (or in Appearance mode if
-the filenames are preceded by -a or --appearance).
+the filenames are preceded by \-a or \-\-appearance).
 .SH "SEE ALSO"
 For a command line tool for comparing PDF files see
 http://www.qtrac.eu/comparepdf.html.
