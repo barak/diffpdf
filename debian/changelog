@@ -1,3 +1,13 @@
+diffpdf (1.9.2-1) unstable; urgency=low
+
+  * New upstream version
+  * Updated debian/copyright
+  * Add missing build-dependency on libpoppler-cpp-dev
+  * Standards-Version bump to 3.9.3, no changes needed
+  * Compile translation files during the build
+
+ -- David Paleino <dapal@debian.org>  Thu, 01 Mar 2012 22:22:51 +0100
+
 diffpdf (1.8.0-1) unstable; urgency=low
 
   * New upstream version

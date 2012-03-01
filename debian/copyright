@@ -1,13 +1,13 @@
-Format: http://dep.debian.net/deps/dep5
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: DiffPDF
 Upstream-Contact: Mark Summerfield <mark@qtrac.eu>
 
 Files: debian/*
-Copyright: © 2009-2011, David Paleino <dapal@debian.org>
+Copyright: © 2009-2012, David Paleino <dapal@debian.org>
 License: GPL-2+
 
 Files: *
-Copyright: © 2008-2011, Qtrac Ltd.
+Copyright: © 2008-2012, Qtrac Ltd.
 License: GPL-2+
 
 License: GPL-2+

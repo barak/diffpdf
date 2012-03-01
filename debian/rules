@@ -6,6 +6,7 @@
 
 override_dh_auto_build:
 	qmake-qt4 diffpdf.pro
+	lrelease diffpdf_cz.ts
 	dh_auto_build
 
 %:
