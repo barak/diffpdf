@@ -11,29 +11,53 @@
 */
 
 #include "generic.hpp"
+#include <QMimeData>
 #include <QRectF>
 #include <QPainter>
 #include <QPen>
 #include <QPixmapCache>
+#include <QUrl>
 
 const QSize SwatchSize(24, 24);
 
 
 void scaleRect(int dpi, QRectF *rect)
 {
-    if (dpi == DPI_FACTOR)
+    if (dpi == POINTS_PER_INCH)
         return;
     qreal x1;
     qreal y1;
     qreal x2;
     qreal y2;
     rect->getCoords(&x1, &y1, &x2, &y2);
-    qreal factor = dpi / qreal(DPI_FACTOR);
+    qreal factor = dpi / static_cast<qreal>(POINTS_PER_INCH);
     x1 *= factor;
     y1 *= factor;
     x2 *= factor;
     y2 *= factor;
     rect->setCoords(x1, y1, x2, y2);
+}
+
+
+int pointValueForPixelOffset(const double dpi, int px)
+{
+    const double inches = px / dpi;
+    return qRound(inches * POINTS_PER_INCH);
+}
+
+
+int pixelOffsetForPointValue(const double dpi, int pt)
+{
+    const double inches = pt / static_cast<double>(POINTS_PER_INCH);
+    return qRound(inches * dpi);
+}
+
+
+QRectF rectForMargins(const int width, const int height, const int top,
+        const int bottom, const int left, const int right)
+{
+    return QRectF(QPointF(left, top),
+                  QPointF(width - right, height - bottom));
 }
 
 
@@ -122,30 +146,47 @@ QPixmap penStyleSwatch(const Qt::PenStyle style, const QColor &color)
 }
 
 
-const TextBoxList getTextBoxes(PdfPage page)
+const TextBoxList getTextBoxes(PdfPage page, const QRectF &rect)
 {
     TextBoxList boxes;
     foreach (Poppler::TextBox *box, page->textList()) {
         PdfTextBox box_ptr(box);
-        boxes.append(box_ptr);
+        if (rect.isEmpty() || rect.contains(box_ptr->boundingBox()))
+            boxes.append(box_ptr);
     }
     return boxes;
 }
 
 
-const QStringList strippedFilenames(const QString &filenames)
+const QString strippedFilename(const QString &filename)
 {
     const QString FilePrefix("file://");
-    QStringList files = filenames.split("\n");
-    for (int i = 0; i < files.count(); ++i) {
-        QString &filename = files[i];
-        if (filename.startsWith(FilePrefix))
-            filename = filename.mid(FilePrefix.length());
-        filename = filename.trimmed();
-    }
-    return files;
+    QString filename_ = filename;
+    if (filename_.startsWith(FilePrefix))
+        filename_ = filename_.mid(FilePrefix.length());
+#ifdef Q_WS_WIN
+    if (filename_.startsWith("/"))
+        filename_ = filename_.mid(1);
+#endif
+    return filename_.trimmed();
 }
 
+
+const QStringList droppedFilenames(const QMimeData *mimeData)
+{
+    QStringList filenames;
+    QString text = mimeData->text();
+    if (!text.isEmpty()) {
+        filenames = text.split("\n");
+        for (int i = 0; i < filenames.count(); ++i)
+            filenames[i] = strippedFilename(filenames.at(i));
+    }
+    else {
+        foreach (const QUrl &url, mimeData->urls())
+            filenames << strippedFilename(url.toString());
+    }
+    return filenames;
+}
 
 // Returns a copy of pageRect reduced if necessary to have the same
 // aspect ratio as pixmapSize.

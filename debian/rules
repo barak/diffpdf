@@ -4,9 +4,13 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+export DEB_BUILD_HARDENING=1
+
 override_dh_auto_build:
 	qmake-qt4 diffpdf.pro
-	lrelease diffpdf_cz.ts
+	for i in *.ts; do \
+		lrelease $$i; \
+	done
 	dh_auto_build
 
 %:

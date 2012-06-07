@@ -1,3 +1,10 @@
+diffpdf (2.1.1-1) unstable; urgency=low
+
+  * New upstream version
+  * Export DEB_BUILD_HARDENING_RELRO in debian/rules
+
+ -- David Paleino <dapal@debian.org>  Thu, 07 Jun 2012 17:02:33 +0200
+
 diffpdf (1.9.2-1) unstable; urgency=low
 
   * New upstream version

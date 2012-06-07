@@ -14,7 +14,7 @@
 #include "label.hpp"
 #include <QDragEnterEvent>
 #include <QDragEnterEvent>
-
+#include <QMouseEvent>
 
 Label::Label(QWidget *parent) : QLabel(parent)
 {
@@ -23,15 +23,25 @@ Label::Label(QWidget *parent) : QLabel(parent)
 
 void Label::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (event->mimeData()->hasFormat("text/plain"))
+    const QMimeData *mimeData = event->mimeData();
+    if (mimeData->hasFormat("text/plain") ||
+        mimeData->hasFormat("text/uri-list"))
         event->acceptProposedAction();
 }
 
 
 void Label::dropEvent(QDropEvent *event)
 {
-    QStringList filenames = strippedFilenames(event->mimeData()->text());
+    QStringList filenames = droppedFilenames(event->mimeData());
     if (!filenames.isEmpty())
         emit filenamesDropped(filenames);
     event->acceptProposedAction();
+}
+
+
+void Label::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+        emit clicked(event->pos());
+    QLabel::mousePressEvent(event);
 }

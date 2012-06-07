@@ -3,6 +3,7 @@
 # README
 # help.html
 # diffpdf.1
+#DEFINES	     += DEBUG
 HEADERS	     += mainwindow.hpp
 SOURCES      += mainwindow.cpp
 HEADERS	     += textitem.hpp
@@ -26,18 +27,43 @@ HEADERS	     += label.hpp
 SOURCES	     += label.cpp
 RESOURCES    += resources.qrc
 TRANSLATIONS += diffpdf_cz.ts
+TRANSLATIONS += diffpdf_fr.ts
+TRANSLATIONS += diffpdf_de.ts
+CODECFORTR    = UTF-8
 LIBS	     += -lpoppler-qt4
-exists($(HOME)/opt/poppler018/) {
+win32 {
+    CONFIG += release
+}
+exists($(HOME)/opt/poppler020/) {
     message(Using locally built Poppler library)
-    INCLUDEPATH += $(HOME)/opt/poppler018/include/poppler/cpp
-    INCLUDEPATH += $(HOME)/opt/poppler018/include/poppler/qt4
-    LIBS += -Wl,-rpath -Wl,$(HOME)/opt/poppler018/lib -Wl,-L$(HOME)/opt/poppler018/lib
+    INCLUDEPATH += $(HOME)/opt/poppler020/include/poppler/cpp
+    INCLUDEPATH += $(HOME)/opt/poppler020/include/poppler/qt4
+    LIBS += -Wl,-rpath -Wl,$(HOME)/opt/poppler020/lib -Wl,-L$(HOME)/opt/poppler020/lib
 } else {
-    exists(/usr/include/poppler/qt4) {
-	INCLUDEPATH += /usr/include/poppler/cpp
-	INCLUDEPATH += /usr/include/poppler/qt4
+    exists(/poppler_lib) {
+	message(Using locally built Poppler library on Windows)
+	INCLUDEPATH += /c/poppler_lib/include/poppler/cpp
+	INCLUDEPATH += /c/poppler_lib/include/poppler/qt4
+	LIBS += -Wl,-rpath -Wl,/c/poppler_lib/bin -Wl,-L/c/poppler_lib/bin
     } else {
-	INCLUDEPATH += /usr/local/include/poppler/cpp
-	INCLUDEPATH += /usr/local/include/poppler/qt4
+	exists(/usr/include/poppler/qt4) {
+	    INCLUDEPATH += /usr/include/poppler/cpp
+	    INCLUDEPATH += /usr/include/poppler/qt4
+	} else {
+	    INCLUDEPATH += /usr/local/include/poppler/cpp
+	    INCLUDEPATH += /usr/local/include/poppler/qt4
+	}
     }
 }
+#exists($(HOME)/opt/podofo09/) {
+#    message(Using locally built PoDoFo library)
+#    INCLUDEPATH += $(HOME)/opt/podofo09/include/poppler/cpp
+#    INCLUDEPATH += $(HOME)/opt/podofo09/include/poppler/qt4
+#    LIBS += -Wl,-rpath -Wl,$(HOME)/opt/podofo09/lib64 -Wl,-L$(HOME)/opt/podofo09/lib64
+#} else {
+#    exists(/usr/include/podofo) {
+#	INCLUDEPATH += /usr/include/podofo
+#    } else {
+#	INCLUDEPATH += /usr/local/include/podofo
+#    }
+#}
