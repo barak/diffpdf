@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 /*
-    Copyright (c) 2008-12 Qtrac Ltd. All rights reserved.
+    Copyright © 2008-13 Qtrac Ltd. All rights reserved.
     This program or module is free software: you can redistribute it
     and/or modify it under the terms of the GNU General Public License
     as published by the Free Software Foundation, either version 2 of
@@ -25,6 +25,8 @@
 #include <QMainWindow>
 #include <QPen>
 
+class AboutForm;
+class HelpForm;
 class Label;
 class LineEdit;
 class QBoxLayout;
@@ -210,6 +212,8 @@ private:
     SavePages savePages;
     const QString language;
     Debug debug;
+    AboutForm *aboutForm;
+    HelpForm *helpForm;
 };
 
 #endif // MAINWINDOW_HPP

@@ -6,13 +6,15 @@
     <name>AboutForm</name>
     <message>
         <location filename="aboutform.cpp" line="31"/>
-        <source>&lt;table border=0&gt;&lt;tr&gt;&lt;td width=90%&gt;&lt;b&gt;%1&lt;/a&gt; %2&lt;/b&gt; by Mark Summerfield&lt;/td&gt;&lt;td rowspan=3&gt;&lt;img align=right src=&quot;:/icon.png&quot;&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;tt&gt;&amp;lt;mark@qtrac.eu&amp;gt;&lt;/tt&gt;.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=2&gt;Copyright &amp;copy; 2008-12 &lt;a href=&quot;http://www.qtrac.eu&quot;&gt;Qtrac&lt;/a&gt; Ltd. All rights reserved.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=2&gt;Built with Qt %3 and Poppler %4.&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;hr&gt;&lt;p&gt;This program compares the text or the visual appearance of each page in two PDF files.&lt;hr&gt;&lt;p&gt;If you like %1 you might like my books:&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/gobook.html&quot;&gt;Programming in Go&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/aqpbook.html&quot;&gt;Advanced Qt Programming&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/py3book.html&quot;&gt;Programming in Python 3&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/pyqtbook.html&quot;&gt;Rapid GUI Programming with Python and Qt&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;I also provide training and consultancy in C++, Go, Python&amp;nbsp;2, Python&amp;nbsp;3, C++/Qt, and PyQt4.</source>
-        <translation>&lt;table border=0&gt;&lt;tr&gt;&lt;td width=90%&gt;&lt;b&gt;%1&lt;/a&gt; %2&lt;/b&gt; von Mark Summerfield&lt;/td&gt;&lt;td rowspan=3&gt;&lt;img align=right src=&quot;:/icon.png&quot;&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;tt&gt;&amp;lt;mark@qtrac.eu&amp;gt;&lt;/tt&gt;.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=2&gt;Copyright &amp;copy; 2008-12 &lt;a href=&quot;http://www.qtrac.eu&quot;&gt;Qtrac&lt;/a&gt; Ltd. All rights reserved.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=2&gt;Erzeugt mit Qt %3 und Poppler %4.&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;hr&gt;&lt;p&gt;Dieses Programm vergleicht die Seiten von zwei PDF Dateien anhand der Texte oder der visuellen Unterschiede.&lt;hr&gt;&lt;p&gt;Wenn Ihnen %1 gefällt, dann haben Sie vielleicht auch Interesse an meinen Büchern:&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/gobook.html&quot;&gt;Programming in Go&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/aqpbook.html&quot;&gt;Advanced Qt Programming&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/py3book.html&quot;&gt;Programming in Python 3&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/pyqtbook.html&quot;&gt;Rapid GUI Programming with Python and Qt&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;Gerne stehe ich Ihnen auch als Trainer oder Berater für C++, Go, Python&amp;nbsp;2, Python&amp;nbsp;3, C++/Qt, und PyQt4 zur Verfügung.</translation>
+        <source>&lt;table border=0&gt;&lt;tr&gt;&lt;td width=90%&gt;&lt;b&gt;%1&lt;/a&gt; %2&lt;/b&gt; by Mark Summerfield&lt;/td&gt;&lt;td rowspan=3&gt;&lt;img align=right src=&quot;:/icon.png&quot;&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;tt&gt;&amp;lt;mark@qtrac.eu&amp;gt;&lt;/tt&gt;.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=2&gt;Copyright &amp;copy; 2008-13 &lt;a href=&quot;http://www.qtrac.eu&quot;&gt;Qtrac&lt;/a&gt; Ltd. All rights reserved.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=2&gt;Built with Qt %3 and Poppler %4.&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;hr&gt;&lt;p&gt;This program compares the text or the visual appearance of each page in two PDF files.&lt;hr&gt;&lt;p&gt;If you like %1 you might like my books:&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/gobook.html&quot;&gt;Programming in Go&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/aqpbook.html&quot;&gt;Advanced Qt Programming&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/py3book.html&quot;&gt;Programming in Python 3&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/pyqtbook.html&quot;&gt;Rapid GUI Programming with Python and Qt&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;I also provide training and consultancy in C++, Go, Python&amp;nbsp;2, Python&amp;nbsp;3, C++/Qt, and PyQt4.</source>
+        <oldsource>&lt;table border=0&gt;&lt;tr&gt;&lt;td width=90%&gt;&lt;b&gt;%1&lt;/a&gt; %2&lt;/b&gt; by Mark Summerfield&lt;/td&gt;&lt;td rowspan=3&gt;&lt;img align=right src=&quot;:/icon.png&quot;&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;tt&gt;&amp;lt;mark@qtrac.eu&amp;gt;&lt;/tt&gt;.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=2&gt;Copyright &amp;copy; 2008-12 &lt;a href=&quot;http://www.qtrac.eu&quot;&gt;Qtrac&lt;/a&gt; Ltd. All rights reserved.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=2&gt;Built with Qt %3 and Poppler %4.&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;hr&gt;&lt;p&gt;This program compares the text or the visual appearance of each page in two PDF files.&lt;hr&gt;&lt;p&gt;If you like %1 you might like my books:&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/gobook.html&quot;&gt;Programming in Go&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/aqpbook.html&quot;&gt;Advanced Qt Programming&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/py3book.html&quot;&gt;Programming in Python 3&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/pyqtbook.html&quot;&gt;Rapid GUI Programming with Python and Qt&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;I also provide training and consultancy in C++, Go, Python&amp;nbsp;2, Python&amp;nbsp;3, C++/Qt, and PyQt4.</oldsource>
+        <translation>&lt;table border=0&gt;&lt;tr&gt;&lt;td width=90%&gt;&lt;b&gt;%1&lt;/a&gt; %2&lt;/b&gt; von Mark Summerfield&lt;/td&gt;&lt;td rowspan=3&gt;&lt;img align=right src=&quot;:/icon.png&quot;&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;tt&gt;&amp;lt;mark@qtrac.eu&amp;gt;&lt;/tt&gt;.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=2&gt;Copyright &amp;copy; 2008-2013 &lt;a href=&quot;http://www.qtrac.eu&quot;&gt;Qtrac&lt;/a&gt; Ltd. All rights reserved.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=2&gt;Erzeugt mit Qt %3 und Poppler %4.&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;hr&gt;&lt;p&gt;Dieses Programm vergleicht die Seiten von zwei PDF Dateien anhand der Texte oder der visuellen Unterschiede.&lt;hr&gt;&lt;p&gt;Wenn Ihnen %1 gefällt, dann haben Sie vielleicht auch Interesse an meinen Büchern:&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/gobook.html&quot;&gt;Programming in Go&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/aqpbook.html&quot;&gt;Advanced Qt Programming&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/py3book.html&quot;&gt;Programming in Python 3&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;http://www.qtrac.eu/pyqtbook.html&quot;&gt;Rapid GUI Programming with Python and Qt&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;Gerne stehe ich Ihnen auch als Trainer oder Berater für C++, Go, Python&amp;nbsp;2, Python&amp;nbsp;3, C++/Qt, und PyQt4 zur Verfügung.</translation>
     </message>
     <message>
         <location filename="aboutform.cpp" line="58"/>
-        <source>&lt;table&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=lightyellow&gt;&lt;i&gt;Anonymous Company&lt;/i&gt; &amp;mdash; funded the addition of the margin exclusion functionality&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;David Paleino&lt;/b&gt; &amp;mdash; Debian packager&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Dirk Loss&lt;/b&gt; &amp;mdash; creating Mac binaries&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Florian Heiderich &amp;mdash; suggested using composition modes for showing subtle differences&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Jasmin Blanchette&lt;/b&gt; &amp;mdash; the original idea and subsequent suggestions&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Liviu Andronic &amp;mdash; suggested adding drag and drop&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Paul Howarth &amp;mdash; suggestions resulting in Characters mode&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=&quot;#F0F0F0&quot;&gt;&lt;i&gt;Pavel Fric&lt;/i&gt; &amp;mdash; Czech translation&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=&quot;#F0F0F0&quot;&gt;Pierre-Alain Bandinelli&amp;mdash; French translation&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=&quot;#F0F0F0&quot;&gt;&lt;i&gt;Rainer Krachten&lt;/i&gt; &amp;mdash; German translation and various suggestions&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Rory Gordon &amp;mdash; suggested adding drag and drop&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Steven Lee&lt;/b&gt; &amp;mdash; creating Windows binaries&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation>&lt;table&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=lightyellow&gt;&lt;i&gt;Anonyme Firma&lt;/i&gt; &amp;mdash; Sponsor für die Erweiterung Randbereiche auszuschließen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;David Paleino&lt;/b&gt; &amp;mdash; Debian packager&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Dirk Loss&lt;/b&gt; &amp;mdash; Erstellung des Programms für Mac&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Florian Heiderich &amp;mdash; schlug vor Kompositions-Modi zu verwenden um kleine Unterschiede anzuzeigen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Jasmin Blanchette&lt;/b&gt; &amp;mdash; Die ursprüngliche Idee und weitere Vorschläge&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Liviu Andronic &amp;mdash; schlug vor drag and drop hinzuzufügen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Paul Howarth &amp;mdash; Auf Basis seiner Vorschläge entstand der Zeichen-für-Zeichen Vergleichsmodus&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=&quot;#F0F0F0&quot;&gt;&lt;i&gt;Pavel Fric&lt;/i&gt; &amp;mdash; Tschechische Übersetzung&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=&quot;#F0F0F0&quot;&gt;Pierre-Alain Bandinelli&amp;mdash; Französische Übersetzung&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=&quot;#F0F0F0&quot;&gt;&lt;i&gt;Rainer Krachten&lt;/i&gt; &amp;mdash; Deutsche Übersetzung und diverse Vorschläge&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Rory Gordon &amp;mdash; schlug vor drag and drop hinzuzufügen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Steven Lee&lt;/b&gt; &amp;mdash; Erstellung des Programms für Windows&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
+        <source>&lt;table&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=lightyellow&gt;&lt;i&gt;Anonymous Company&lt;/i&gt; &amp;mdash; funded the addition of the margin exclusion functionality&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;David Paleino&lt;/b&gt; &amp;mdash; Debian packager&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Dirk Loss&lt;/b&gt; &amp;mdash; creating Mac binaries&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Florian Heiderich &amp;mdash; suggested using composition modes for showing subtle differences&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Jasmin Blanchette&lt;/b&gt; &amp;mdash; the original idea and subsequent suggestions&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Liviu Andronic &amp;mdash; suggested adding drag and drop&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Paul Howarth &amp;mdash; suggestions resulting in Characters mode&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=&quot;#F0F0F0&quot;&gt;&lt;i&gt;Pavel Fric&lt;/i&gt; &amp;mdash; Czech translation&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=&quot;#F0F0F0&quot;&gt;&lt;i&gt;Pierre-Alain Bandinelli&lt;/i&gt;&amp;mdash; French translation&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=&quot;#F0F0F0&quot;&gt;&lt;i&gt;Rainer Krachten&lt;/i&gt; &amp;mdash; German translation and various suggestions&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Rory Gordon &amp;mdash; suggested adding drag and drop&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Steven Lee&lt;/b&gt; &amp;mdash; creating Windows binaries&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
+        <oldsource>&lt;table&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=lightyellow&gt;&lt;i&gt;Anonymous Company&lt;/i&gt; &amp;mdash; funded the addition of the margin exclusion functionality&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;David Paleino&lt;/b&gt; &amp;mdash; Debian packager&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Dirk Loss&lt;/b&gt; &amp;mdash; creating Mac binaries&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Florian Heiderich &amp;mdash; suggested using composition modes for showing subtle differences&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Jasmin Blanchette&lt;/b&gt; &amp;mdash; the original idea and subsequent suggestions&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Liviu Andronic &amp;mdash; suggested adding drag and drop&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Paul Howarth &amp;mdash; suggestions resulting in Characters mode&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=&quot;#F0F0F0&quot;&gt;&lt;i&gt;Pavel Fric&lt;/i&gt; &amp;mdash; Czech translation&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=&quot;#F0F0F0&quot;&gt;&lt;i&gt;Pierre-Alain&lt;/i&gt; Bandinelli&amp;mdash; French translation&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=&quot;#F0F0F0&quot;&gt;&lt;i&gt;Rainer Krachten&lt;/i&gt; &amp;mdash; German translation and various suggestions&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Rory Gordon &amp;mdash; suggested adding drag and drop&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Steven Lee&lt;/b&gt; &amp;mdash; creating Windows binaries&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</oldsource>
+        <translation type="unfinished">&lt;table&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=lightyellow&gt;&lt;i&gt;Anonyme Firma&lt;/i&gt; &amp;mdash; Sponsor für die Erweiterung Randbereiche auszuschließen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;David Paleino&lt;/b&gt; &amp;mdash; Debian packager&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Dirk Loss&lt;/b&gt; &amp;mdash; Erstellung des Programms für Mac&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Florian Heiderich &amp;mdash; schlug vor Kompositions-Modi zu verwenden um kleine Unterschiede anzuzeigen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Jasmin Blanchette&lt;/b&gt; &amp;mdash; Die ursprüngliche Idee und weitere Vorschläge&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Liviu Andronic &amp;mdash; schlug vor drag and drop hinzuzufügen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Paul Howarth &amp;mdash; Auf Basis seiner Vorschläge entstand der Zeichen-für-Zeichen Vergleichsmodus&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=&quot;#F0F0F0&quot;&gt;&lt;i&gt;Pavel Fric&lt;/i&gt; &amp;mdash; Tschechische Übersetzung&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=&quot;#F0F0F0&quot;&gt;&lt;i&gt;Pierre-Alain&lt;/i&gt; Bandinelli&amp;mdash; Französische Übersetzung&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td bgcolor=&quot;#F0F0F0&quot;&gt;&lt;i&gt;Rainer Krachten&lt;/i&gt; &amp;mdash; Deutsche Übersetzung und einige Vorschläge&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;Rory Gordon &amp;mdash; schlug vor drag and drop hinzuzufügen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;bull;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Steven Lee&lt;/b&gt; &amp;mdash; Erstellung des Programms für Windows&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
     <message>
         <location filename="aboutform.cpp" line="87"/>
@@ -59,7 +61,7 @@
     <name>MainWindow</name>
     <message>
         <location filename="mainwindow.cpp" line="101"/>
-        <location filename="mainwindow.cpp" line="1683"/>
+        <location filename="mainwindow.cpp" line="1685"/>
         <source>DiffPDF</source>
         <translation>DiffPDF</translation>
     </message>
@@ -614,6 +616,12 @@
         <translation>Vergleiche %1/%2</translation>
     </message>
     <message>
+        <location filename="mainwindow.cpp" line="1460"/>
+        <source>Completed in %1 seconds.</source>
+        <translatorcomment>Displayed in the log, but only if comparison takes more than a second.</translatorcomment>
+        <translation>Benötigte Zeit: %1 Sekunden.</translation>
+    </message>
+    <message>
         <location filename="mainwindow.cpp" line="1464"/>
         <source>&lt;font color=brown&gt;Files differ on 1 page (%1 page%2 compared).&lt;/font&gt;</source>
         <translation>&lt;font color=brown&gt;Dateien unterscheiden sich auf einer Seite (%1 %2 verglichen).&lt;/font&gt;</translation>
@@ -633,12 +641,17 @@
     <message>
         <location filename="mainwindow.cpp" line="1469"/>
         <source>&lt;font color=brown&gt;Files differ on %1 pages (%2 page%3 compared).&lt;/font&gt;</source>
-        <translation>&lt;font color=brown&gt;Dateien unterscheiden sich auf %1 Seiten (%2 Seite%3 verglichen).&lt;/font&gt;</translation>
+        <translation>&lt;font color=brown&gt;Dateien unterscheiden sich auf %1 Seiten (%2 %3 verglichen).&lt;/font&gt;</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="1478"/>
         <source>The PDFs appear to be the same.</source>
         <translation>Die PDF-Dateien scheinen gleich zu sein.</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="1479"/>
+        <source>&lt;p style=&apos;font-size: x-large;color: darkgreen&apos;&gt;DiffPDF: The PDFs appear to be the same.&lt;/p&gt;</source>
+        <translation>&lt;p style=&apos;font-size: x-large;color: darkgreen&apos;&gt;DiffPDF: Die PDF-Dateien scheinen gleich zu sein.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="1489"/>
@@ -672,12 +685,12 @@
     </message>
     <message>
         <location filename="mainwindow.cpp" line="1622"/>
-        <location filename="mainwindow.cpp" line="1668"/>
+        <location filename="mainwindow.cpp" line="1670"/>
         <source>Saved %1</source>
         <translation>Gespeichert unter %1</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1670"/>
+        <location filename="mainwindow.cpp" line="1672"/>
         <source>Failed to save %1</source>
         <translation>Speichern von %1 fehlgeschlagen</translation>
     </message>
@@ -778,12 +791,12 @@
     <message>
         <location filename="optionsform.cpp" line="90"/>
         <source>Dash-Dotted</source>
-        <translation>Strich-Punkte</translation>
+        <translation>Strich-Punkt-Strich</translation>
     </message>
     <message>
         <location filename="optionsform.cpp" line="91"/>
         <source>Dash-Dot-Dotted</source>
-        <translation>Strich-Punkt-Punkte</translation>
+        <translation>Strich-Punkt-Punkt</translation>
     </message>
     <message>
         <location filename="optionsform.cpp" line="100"/>
@@ -818,7 +831,7 @@
     <message>
         <location filename="optionsform.cpp" line="128"/>
         <source>Combine Highlighting in &amp;Text Modes</source>
-        <translation>&amp;Hervorhebungen beim Textvergleich zusammenschließen</translation>
+        <translation>&amp;Hervorhebungen beim Textvergleich zusammenfassen</translation>
     </message>
     <message>
         <location filename="optionsform.cpp" line="135"/>
@@ -828,7 +841,7 @@
     <message>
         <location filename="optionsform.cpp" line="136"/>
         <source>&lt;p&gt;The cache is used to store pages already seen to make flipping back and forth as fast as possible. The bigger the cache the more pages that can be stored.</source>
-        <translation>&lt;p&gt;Der Cache wird verwendet um bereits angezeigte Seiten vorzuhalten, um den Wechsel zwischen Seiten zu beschleunigen. Bei größerem Cache können mehr Seiten vorgehalten werden.</translation>
+        <translation>&lt;p&gt;Der Cache hält bereits angezeigte Seiten vor, um den Wechsel zwischen Seiten zu beschleunigen. Bei größerem Cache können mehr Seiten vorgehalten werden.</translation>
     </message>
     <message>
         <location filename="optionsform.cpp" line="151"/>

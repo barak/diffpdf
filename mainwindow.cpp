@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2008-12 Qtrac Ltd. All rights reserved.
+    Copyright © 2008-13 Qtrac Ltd. All rights reserved.
     This program or module is free software: you can redistribute it
     and/or modify it under the terms of the GNU General Public License
     as published by the Free Software Foundation, either version 2 of
@@ -57,7 +57,7 @@ MainWindow::MainWindow(const Debug debug,
       zoningDockArea(Qt::RightDockWidgetArea),
       logDockArea(Qt::RightDockWidgetArea), cancel(false),
       saveAll(true), savePages(SaveBothPages), language(language),
-      debug(debug)
+      debug(debug), aboutForm(0), helpForm(0)
 {
     currentPath = QDir::homePath();
     QSettings settings;
@@ -144,6 +144,8 @@ void MainWindow::createWidgets(const QString &filename1,
     pages2LineEdit->setToolTip(pages1LineEdit->toolTip());
     compareButton = new QPushButton(tr("&Compare"));
     compareButton->setEnabled(false);
+    compareButton->setDefault(true);
+    compareButton->setAutoDefault(true);
     compareButton->setToolTip(tr("<p>Click to compare (or re-compare) "
                 "the documents&mdash;or to cancel a comparison that's "
                 "in progress."));
@@ -1457,7 +1459,7 @@ void MainWindow::compareUpdateUi(const QPair<int, int> &pair,
     const int differ = viewDiffComboBox->count() - 1;
     if (!cancel) {
         if (millisec > 1000)
-            writeLine(QString("Completed in %1 seconds.")
+            writeLine(tr("Completed in %1 seconds.")
             .arg(millisec / 1000.0, 0, 'f', 2));
         if (viewDiffComboBox->count() > 1) {
             if (viewDiffComboBox->count() == 2)
@@ -1476,9 +1478,9 @@ void MainWindow::compareUpdateUi(const QPair<int, int> &pair,
         }
         else {
             writeLine(tr("The PDFs appear to be the same."));
-            const QString message("<p style='font-size: x-large;"
+            const QString message(tr("<p style='font-size: x-large;"
                     "color: darkgreen'>"
-                    "DiffPDF: The PDFs appear to be the same.</p>");
+                    "DiffPDF: The PDFs appear to be the same.</p>"));
             page1Label->setText(message);
             page2Label->setText(message);
         }
@@ -1656,6 +1658,8 @@ void MainWindow::saveAsImages(const int start, const int end,
     for (int index = start; index < end; ++index) {
         QImage image(rect.size(), QImage::Format_ARGB32);
         QPainter painter(&image);
+        painter.setRenderHints(QPainter::Antialiasing|
+                QPainter::TextAntialiasing|QPainter::SmoothPixmapTransform);
         painter.setFont(QFont("Helvetica", 11));
         painter.setPen(Qt::darkCyan);
         painter.fillRect(rect, Qt::white);
@@ -1684,6 +1688,8 @@ void MainWindow::saveAsPdf(const int start, const int end,
     printer.setOrientation(savePages == SaveBothPages
             ? QPrinter::Landscape : QPrinter::Portrait);
     QPainter painter(&printer);
+    painter.setRenderHints(QPainter::Antialiasing|
+            QPainter::TextAntialiasing|QPainter::SmoothPixmapTransform);
     painter.setFont(QFont("Helvetica", 11));
     painter.setPen(Qt::darkCyan);
     const QRect rect(0, 0, painter.viewport().width(),
@@ -1718,7 +1724,7 @@ bool MainWindow::paintSaveAs(QPainter *painter, const int index,
     PdfPage page1(pdf1->page(pair.left));
     if (!page1)
         return false;
-    PdfPage page2(pdf2->page(pair.left));
+    PdfPage page2(pdf2->page(pair.right));
     if (!page2)
         return false;
     const QPair<QString, QString> keys = cacheKeys(index, pair);
@@ -1747,15 +1753,21 @@ bool MainWindow::paintSaveAs(QPainter *painter, const int index,
 
 void MainWindow::help()
 {
-    HelpForm *form = new HelpForm(language, this);
-    form->show();
+    if (!helpForm)
+        helpForm = new HelpForm(language, this);
+    helpForm->show();
+    helpForm->raise();
+    helpForm->activateWindow();
 }
 
 
 void MainWindow::about()
 {
-    AboutForm *form = new AboutForm(this);
-    form->show();
+    if (!aboutForm)
+        aboutForm = new AboutForm(this);
+    aboutForm->show();
+    aboutForm->raise();
+    aboutForm->activateWindow();
 }
 
 

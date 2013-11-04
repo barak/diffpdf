@@ -1,7 +1,7 @@
 #ifndef LABEL_HPP
 #define LABEL_HPP
 /*
-    Copyright (c) 2011-12 Qtrac Ltd. All rights reserved.
+    Copyright © 2011-13 Qtrac Ltd. All rights reserved.
     This program or module is free software: you can redistribute it
     and/or modify it under the terms of the GNU General Public License
     as published by the Free Software Foundation, either version 2 of
