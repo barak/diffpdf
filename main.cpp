@@ -96,9 +96,9 @@ int main(int argc, char *argv[])
             saveAndQuit = true;
         else if (optionsOK && arg == "--")
             optionsOK = false;
-        else if (filename1.isEmpty() && arg.toLower().endsWith(".pdf"))
+        else if (filename1.isEmpty())
             filename1 = arg;
-        else if (filename2.isEmpty() && arg.toLower().endsWith(".pdf"))
+        else if (filename2.isEmpty())
             filename2 = arg;
         else
             out << "unrecognized argument '" << arg << "'\n";
