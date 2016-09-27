@@ -4,7 +4,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-export DEB_BUILD_HARDENING=1
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 override_dh_auto_build:
 	qmake-qt4 diffpdf.pro

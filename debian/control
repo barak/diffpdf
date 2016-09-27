@@ -9,11 +9,10 @@ Build-Depends:
  , qt4-linguist-tools
  , libpoppler-qt4-dev
  , libpoppler-cpp-dev
- , hardening-wrapper
 Standards-Version: 3.9.5
 Homepage: http://www.qtrac.eu/diffpdf.html
-Vcs-Git: git://anonscm.debian.org/collab-maint/diffpdf.git
-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/diffpdf.git
+Vcs-Git: https://anonscm.debian.org/git/collab-maint/diffpdf.git
+Vcs-Browser: https://anonscm.debian.org/git/collab-maint/diffpdf.git
 
 Package: diffpdf
 Architecture: any

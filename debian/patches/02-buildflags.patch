@@ -1,0 +1,17 @@
+Description: teach qmake to use the compiling flags from the environment
+Author: Mattia Rizzolo <mattia@debian.org>
+Last-Update: 2016-09-27
+Forwarded: no
+
+--- a/diffpdf.pro
++++ b/diffpdf.pro
+@@ -32,6 +32,9 @@
+ TRANSLATIONS += diffpdf_es.ts
+ CODECFORTR    = UTF-8
+ LIBS	     += -lpoppler-qt4
++QMAKE_CFLAGS += $$(CPPFLAGS) $$(CFLAGS)
++QMAKE_CXXFLAGS += $$(CPPFLAGS) $$(CXXFLAGS)
++QMAKE_LFLAGS += $$(LDFLAGS)
+ win32 {
+     CONFIG += release
+ }

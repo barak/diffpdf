@@ -1,3 +1,16 @@
+diffpdf (2.1.3-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Stop using hardening-wrapper, make use of dpkg-buildflags with
+      DEB_BUILD_MAINT_OPTIONS=hardening=+all
+    instead.  Closes: #836621
+  * Use https in Vcs-Git.
+  * Drop menu file, as it has been deprecated by the tech-ctte.
+  * Add patch to have qmake use build flags from the environment.
+  * d/copyright: right order of paragraph to respect copyright-format 1.0.
+
+ -- Mattia Rizzolo <mattia@debian.org>  Tue, 27 Sep 2016 08:34:37 +0000
+
 diffpdf (2.1.3-1) unstable; urgency=low
 
   * New upstream version (Closes: #703440).

@@ -1,7 +1,0 @@
-?package(diffpdf): \
-	needs="X11" \
-	section="Applications/Viewers" \
-	title="DiffPDF" \
-	hints="Qt" \
-	command="diffpdf" \
-	icon="/usr/share/pixmaps/diffpdf.xpm"
