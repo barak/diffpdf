@@ -76,9 +76,9 @@ void OptionsForm::createWidgets()
             << qMakePair(tr("Diagonal \\"), Qt::FDiagPattern)
             << qMakePair(tr("Diagonal Cross"), Qt::DiagCrossPattern))
         brushStyleComboBox->addItem(brushSwatch(pair.second, color),
-                                                pair.first, pair.second);
+                                                pair.first, QBrush(pair.second));
     brushStyleComboBox->setCurrentIndex(brushStyleComboBox->findData(
-                brush.style()));
+                QBrush(brush.style())));
 
     penStyleComboBox = new QComboBox;
     typedef QPair<QString, Qt::PenStyle> PenPair;
@@ -90,9 +90,9 @@ void OptionsForm::createWidgets()
             << qMakePair(tr("Dash-Dotted"), Qt::DashDotLine)
             << qMakePair(tr("Dash-Dot-Dotted"), Qt::DashDotDotLine))
         penStyleComboBox->addItem(penStyleSwatch(pair.second, color),
-                                  pair.first, pair.second);
+                                  pair.first, QBrush(pair.second));
     penStyleComboBox->setCurrentIndex(penStyleComboBox->findData(
-                pen.style()));
+                QBrush(pen.style())));
 
     alphaSpinBox = new QSpinBox;
     alphaSpinBox->setRange(1, 100);
