@@ -12,8 +12,9 @@
 
 #include "generic.hpp"
 #include "label.hpp"
+
 #include <QDragEnterEvent>
-#include <QDragEnterEvent>
+#include <QMimeData>
 #include <QMouseEvent>
 
 Label::Label(QWidget *parent) : QLabel(parent)
