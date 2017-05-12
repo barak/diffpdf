@@ -31,3 +31,4 @@ target_link_libraries(diffpdf
     Poppler::Qt5
     Qt5::Widgets)
 
+target_compile_definitions(diffpdf PRIVATE -DPOPPLER_VERSION=${Poppler_VERSION})

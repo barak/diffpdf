@@ -11,7 +11,7 @@
 */
 
 #include "aboutform.hpp"
-#include <poppler-version.h>
+
 #include <QApplication>
 #include <QHBoxLayout>
 #include <QSettings>

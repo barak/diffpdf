@@ -11,7 +11,7 @@
 */
 
 #include "helpform.hpp"
-#include <poppler-version.h>
+
 #include <QApplication>
 #include <QFile>
 #include <QKeySequence>
