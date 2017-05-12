@@ -37,4 +37,4 @@ target_link_libraries(diffpdf
     Qt5::PrintSupport
     Qt5::Widgets)
 
-target_compile_definitions(diffpdf PRIVATE -DPOPPLER_VERSION=${Poppler_VERSION})
+target_compile_definitions(diffpdf PRIVATE -DPOPPLER_VERSION="${Poppler_VERSION}")
