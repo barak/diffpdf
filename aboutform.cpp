@@ -83,6 +83,8 @@ AboutForm::AboutForm(QWidget *parent) : QDialog(parent)
     "</td></tr>"
     "<tr><td>&bull;</td><td><b>Steven Lee</b> &mdash; creating "
     "Windows binaries</td></tr>"
+    "<tr><td>&bull;</td><td><b>Elvis Angelaccio</b> &mdash; Qt5 and "
+    "CMake port</td></tr>"
     "</table>"));
     QTextBrowser *licenceBrowser = new QTextBrowser;
     licenceBrowser->setReadOnly(true);
