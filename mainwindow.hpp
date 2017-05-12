@@ -19,7 +19,7 @@
 #else
 #include <tr1/memory>
 #endif
-#include <poppler-qt4.h>
+#include <poppler-qt5.h>
 #include <QBrush>
 #include <QList>
 #include <QMainWindow>
