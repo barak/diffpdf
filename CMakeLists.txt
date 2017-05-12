@@ -9,7 +9,12 @@ find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_FIND_MODULE_DIR})
 
 
-find_package(Qt5Widgets REQUIRED)
+find_package(Qt5 CONFIG REQUIRED COMPONENTS
+    Core
+    Gui
+    PrintSupport
+    Widgets)
+
 find_package(Poppler COMPONENTS Qt5)
 
 set(diffpdf_SRCS
@@ -29,6 +34,7 @@ add_executable(diffpdf ${diffpdf_SRCS})
 
 target_link_libraries(diffpdf
     Poppler::Qt5
+    Qt5::PrintSupport
     Qt5::Widgets)
 
 target_compile_definitions(diffpdf PRIVATE -DPOPPLER_VERSION=${Poppler_VERSION})
