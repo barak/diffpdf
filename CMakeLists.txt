@@ -19,7 +19,7 @@ find_package(Qt5 ${QT_MIN_VERSION} REQUIRED COMPONENTS
     PrintSupport
     Widgets)
 
-find_package(Poppler REQUIRED COMPONENTS Qt5)
+find_package(Poppler REQUIRED COMPONENTS Core Qt5)
 
 set(diffpdf_SRCS
     aboutform.cpp
