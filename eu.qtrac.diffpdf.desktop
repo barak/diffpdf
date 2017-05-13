@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Exec=diffpdf
+Icon=diffpdf
+Terminal=false
+Name=DiffPDF
+Comment=DiffPDF is used to compare two PDF files.
+Categories=Qt;Office;

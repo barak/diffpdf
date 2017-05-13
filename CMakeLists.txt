@@ -56,6 +56,7 @@ install(FILES ${diffpdf_DOCS} DESTINATION ${CMAKE_INSTALL_DOCDIR})
 install(FILES README CHANGES DESTINATION ${CMAKE_INSTALL_DOCDIR})
 install(TARGETS diffpdf DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES diffpdf.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
+install(FILES eu.qtrac.diffpdf.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
 install(FILES images/icon.png
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/64x64/apps
         RENAME diffpdf.png)
