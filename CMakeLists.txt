@@ -11,6 +11,7 @@ set(CMAKE_MODULE_PATH ${ECM_FIND_MODULE_DIR})
 find_package(Qt5 CONFIG REQUIRED COMPONENTS
     Core
     Gui
+    LinguistTools
     PrintSupport
     Widgets)
 
@@ -29,7 +30,13 @@ set(diffpdf_SRCS
     sequence_matcher.cpp
     textitem.cpp)
 
-add_executable(diffpdf ${diffpdf_SRCS})
+file(GLOB diffpdf_TS *.ts)
+qt5_add_translation(diffpdf_QM ${diffpdf_TS})
+
+configure_file(resources.qrc.cmake resources.qrc)
+qt5_add_resources(diffpdf_SRCS ${CMAKE_BINARY_DIR}/resources.qrc)
+
+add_executable(diffpdf ${diffpdf_SRCS} ${diffpdf_QM})
 
 target_link_libraries(diffpdf
     Poppler::Qt5
