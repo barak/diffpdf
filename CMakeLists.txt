@@ -2,13 +2,15 @@ cmake_minimum_required(VERSION 3.1.0)
 
 project(diffpdf)
 
+set(QT_MIN_VERSION 5.7.0)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_FIND_MODULE_DIR})
 
-find_package(Qt5 CONFIG REQUIRED COMPONENTS
+find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS
     Core
     Gui
     LinguistTools

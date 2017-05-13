@@ -97,7 +97,7 @@ void SaveForm::createConnections()
     connect(chooseFileButton, &QAbstractButton::clicked, this, &SaveForm::chooseFile);
     connect(filenameLineEdit, &QLineEdit::textChanged,
             this, &SaveForm::updateUi);
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &SaveForm::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 

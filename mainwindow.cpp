@@ -538,49 +538,49 @@ void MainWindow::createConnections()
     connect(page2Label, &Label::filenamesDropped,
             this, &MainWindow::setFiles2);
 
-    connect(compareComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateUi()));
-    connect(compareComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateViews()));
+    connect(compareComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &MainWindow::updateUi);
+    connect(compareComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &MainWindow::updateViews);
 
-    connect(viewDiffComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateViews(int)));
-    connect(viewDiffComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateUi()));
-    connect(showComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateViews()));
+    connect(viewDiffComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &MainWindow::updateViews);
+    connect(viewDiffComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &MainWindow::updateUi);
+    connect(showComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &MainWindow::updateViews);
     connect(previousButton, &QAbstractButton::clicked,
             this, &MainWindow::previousPages);
     connect(nextButton, &QAbstractButton::clicked, this, &MainWindow::nextPages);
-    connect(setFile1Button, SIGNAL(clicked()), this, SLOT(setFile1()));
-    connect(setFile2Button, SIGNAL(clicked()), this, SLOT(setFile2()));
+    connect(setFile1Button, &QAbstractButton::clicked, this, [this] { setFile1();});
+    connect(setFile2Button, &QAbstractButton::clicked, this, [this] { setFile2();});
     connect(compareButton, &QAbstractButton::clicked, this, &MainWindow::compare);
-    connect(zoomSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
+    connect(zoomSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
     connect(zoningGroupBox, &QGroupBox::toggled,
             this, &MainWindow::updateUi);
     connect(zoningGroupBox, &QGroupBox::toggled,
             this, &MainWindow::updateViews);
-    connect(columnsSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
-    connect(toleranceRSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
-    connect(toleranceYSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
+    connect(columnsSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
+    connect(toleranceRSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
+    connect(toleranceYSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
     connect(showZonesCheckBox, &QAbstractButton::toggled,
             this, &MainWindow::updateViews);
     connect(marginsGroupBox, &QGroupBox::toggled,
             this, &MainWindow::updateUi);
     connect(marginsGroupBox, &QGroupBox::toggled,
             this, &MainWindow::updateViews);
-    connect(leftMarginSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
-    connect(rightMarginSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
-    connect(topMarginSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
-    connect(bottomMarginSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
+    connect(leftMarginSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
+    connect(rightMarginSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
+    connect(topMarginSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
+    connect(bottomMarginSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
     connect(page1Label, &Label::clicked,
             this, &MainWindow::setAMargin);
     connect(page2Label, &Label::clicked,
