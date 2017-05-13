@@ -11,6 +11,7 @@
 */
 
 #include "aboutform.hpp"
+#include "diffpdfversion.h"
 
 #include <QApplication>
 #include <QHBoxLayout>
@@ -18,10 +19,6 @@
 #include <QShortcut>
 #include <QTabWidget>
 #include <QTextBrowser>
-
-
-static const QString Version("2.1.3.1");
-
 
 AboutForm::AboutForm(QWidget *parent) : QDialog(parent)
 {
@@ -52,7 +49,7 @@ AboutForm::AboutForm(QWidget *parent) : QDialog(parent)
     "</ul>"
     "I also provide training and consultancy in C++, Go, Python&nbsp;2, "
     "Python&nbsp;3, C++/Qt, and PyQt4.").arg(qApp->applicationName())
-            .arg(Version).arg(qVersion()).arg(POPPLER_VERSION));
+            .arg(DIFFPDF_VERSION_STRING).arg(qVersion()).arg(POPPLER_VERSION));
     QTextBrowser *contributorsBrowser = new QTextBrowser;
     contributorsBrowser->setReadOnly(true);
     contributorsBrowser->setHtml(tr("<table>"
