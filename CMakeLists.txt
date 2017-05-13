@@ -7,17 +7,19 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
+include(FeatureSummary)
+
 find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_FIND_MODULE_DIR})
 
-find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS
+find_package(Qt5 ${QT_MIN_VERSION} REQUIRED COMPONENTS
     Core
     Gui
     LinguistTools
     PrintSupport
     Widgets)
 
-find_package(Poppler COMPONENTS Qt5)
+find_package(Poppler REQUIRED COMPONENTS Qt5)
 
 set(diffpdf_SRCS
     aboutform.cpp
@@ -46,3 +48,4 @@ target_link_libraries(diffpdf
     Qt5::Widgets)
 
 target_compile_definitions(diffpdf PRIVATE -DPOPPLER_VERSION="${Poppler_VERSION}")
+feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
