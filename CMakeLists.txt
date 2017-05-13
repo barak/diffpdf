@@ -8,6 +8,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 include(FeatureSummary)
+include(GNUInstallDirs)
 
 find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_FIND_MODULE_DIR})
@@ -48,4 +49,12 @@ target_link_libraries(diffpdf
     Qt5::Widgets)
 
 target_compile_definitions(diffpdf PRIVATE -DPOPPLER_VERSION="${Poppler_VERSION}")
+
+
+file(GLOB diffpdf_DOCS *.html)
+install(FILES ${diffpdf_DOCS} DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(FILES README CHANGES DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(TARGETS diffpdf DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES diffpdf.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
+
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
