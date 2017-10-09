@@ -44,6 +44,7 @@
 #include <QSettings>
 #include <QSpinBox>
 #include <QSplitter>
+#include <omp.h>
 
 
 MainWindow::MainWindow(const Debug debug,
@@ -1425,40 +1426,62 @@ const QPair<int, int> MainWindow::comparePages(const QString &filename1,
     QList<int> pages1 = getPageList(1, pdf1);
     QList<int> pages2 = getPageList(2, pdf2);
     int total = qMin(pages1.count(), pages2.count());
-    int number = 0;
+
     int index = 0;
-    while (!pages1.isEmpty() && !pages2.isEmpty()) {
-        int p1 = pages1.takeFirst();
-        PdfPage page1(pdf1->page(p1));
-        if (!page1) {
-            writeError(tr("Failed to read page %1 from '%2'.")
-                          .arg(p1 + 1).arg(filename1));
-            continue;
-        }
-        int p2 = pages2.takeFirst();
-        PdfPage page2(pdf2->page(p2));
-        if (!page2) {
-            writeError(tr("Failed to read page %1 from '%2'.")
-                          .arg(p2 + 1).arg(filename2));
-            continue;
-        }
-        writeLine(tr("Comparing: %1 vs. %2.").arg(p1 + 1).arg(p2 + 1));
-        QApplication::processEvents();
-        if (cancel) {
-            writeError(tr("Cancelled."));
-            break;
-        }
-        Difference difference = getTheDifference(page1, page2);
-        if (difference != NoDifference) {
-            QVariant v;
-            v.setValue(PagePair(p1, p2, difference == VisualDifference));
-            viewDiffComboBox->addItem(tr("%1 vs. %2 %3 %4")
-                    .arg(p1 + 1).arg(p2 + 1).arg(QChar(0x2022))
-                    .arg(++index), v);
-        }
-        statusLabel->setText(tr("Comparing %1/%2").arg(++number)
-                                                  .arg(total));
+    int number = 0;
+    int processed = 0;
+
+    Difference difference[total];
+
+#pragma omp parallel for schedule(dynamic)
+    for (number = 0; number < total; number++) {
+
+      int p1 = pages1[number];
+      int p2 = pages2[number];
+
+#pragma omp critical
+      {
+	processed++;
+	statusLabel->setText(tr("Comparing %1/%2").arg(processed).arg(total));
+	writeLine(tr("Comparing: %1 vs. %2.").arg(p1 + 1).arg(p2 + 1));
+	QApplication::processEvents();
+      }
+
+      if (!cancel) {
+
+	PdfPage page1(pdf1->page(p1));
+	if (!page1) {
+#pragma omp critical
+	  writeError(tr("Failed to read page %1 from '%2'.").arg(p1 + 1).arg(filename1));
+	  continue;
+	}
+
+	PdfPage page2(pdf2->page(p2));
+	if (!page2) {
+#pragma omp critical
+	  writeError(tr("Failed to read page %1 from '%2'.").arg(p2 + 1).arg(filename2));
+	  continue;
+	}
+
+	difference[number] = getTheDifference(page1, page2);
+      }
     }
+
+    if (!cancel) {
+
+      for (number = 0; number < total; number++) {
+
+	int p1 = pages1.takeFirst();
+	int p2 = pages2.takeFirst();
+
+	if (difference[number] != NoDifference) {
+	  QVariant v;
+	  v.setValue(PagePair(p1, p2, difference[number] == VisualDifference));
+	  viewDiffComboBox->addItem(tr("%1 vs. %2 %3 %4").arg(p1 + 1).arg(p2 + 1).arg(QChar(0x2022)).arg(++index), v);
+	}
+      }
+    }
+
     return qMakePair(number, total);
 }
 
