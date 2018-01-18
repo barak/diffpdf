@@ -1,3 +1,11 @@
+diffpdf (2.1.3-1.2) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Switch build to Qt5 with thanks to Sune Vuorela for the patch
+    (Closes: 874854).
+
+ -- Stuart Prescott <stuart@debian.org>  Thu, 18 Jan 2018 22:42:45 +1100
+
 diffpdf (2.1.3-1.1) unstable; urgency=medium
 
   * Non-maintainer upload.

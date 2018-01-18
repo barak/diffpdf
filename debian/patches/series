@@ -1,2 +1,3 @@
 01-fix_manpage.patch
 02-buildflags.patch
+diffpdf-qt5.patch

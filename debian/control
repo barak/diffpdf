@@ -4,11 +4,11 @@ Priority: optional
 Maintainer: David Paleino <dapal@debian.org>
 Build-Depends:
  debhelper (>= 9~)
- , qt4-qmake
- , libqt4-dev
- , qt4-linguist-tools
- , libpoppler-qt4-dev
- , libpoppler-cpp-dev
+ , qt5-qmake
+ , libpoppler-qt5-dev
+ , qtbase5-dev,
+ , qttools5-dev,
+ , qttools5-dev-tools,
 Standards-Version: 3.9.5
 Homepage: http://www.qtrac.eu/diffpdf.html
 Vcs-Git: https://anonscm.debian.org/git/collab-maint/diffpdf.git
