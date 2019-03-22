@@ -49,7 +49,7 @@
 MainWindow::MainWindow(const Debug debug,
         const InitialComparisonMode comparisonMode,
         const QString &filename1, const QString &filename2,
-        const QString &language, QWidget *parent)
+        const QString &language, const bool saveAndQuit, QWidget *parent)
     : QMainWindow(parent),
       controlDockArea(Qt::RightDockWidgetArea),
       actionDockArea(Qt::RightDockWidgetArea),
@@ -57,7 +57,8 @@ MainWindow::MainWindow(const Debug debug,
       zoningDockArea(Qt::RightDockWidgetArea),
       logDockArea(Qt::RightDockWidgetArea), cancel(false),
       saveAll(true), savePages(SaveBothPages), language(language),
-      debug(debug), aboutForm(0), helpForm(0)
+      debug(debug), aboutForm(0), helpForm(0),
+      saveAndQuit(saveAndQuit)
 {
     currentPath = QDir::homePath();
     QSettings settings;
@@ -626,6 +627,15 @@ void MainWindow::initialize(const QString &filename1,
         if (!filename2.isEmpty()) {
             setFile2(filename2);
             compare();
+
+            if (saveAndQuit) {
+                saveFilename = "diff.pdf";
+                PdfDocument pdf1 = PdfDocument(Poppler::Document::load(filename1));
+                PdfDocument pdf2 = PdfDocument(Poppler::Document::load(filename2));
+                const int page_count = std::max(pdf1->numPages(), pdf2->numPages());
+                saveAsPdf(0, page_count, pdf1, pdf2, filename1 + " - " + filename2);
+                QApplication::quit();
+            }
         }
     }
     else
@@ -1674,7 +1684,6 @@ void MainWindow::saveAsImages(const int start, const int end,
             writeLine(tr("Failed to save %1").arg(filename));
     }
 }
-
 
 void MainWindow::saveAsPdf(const int start, const int end,
         const PdfDocument &pdf1, const PdfDocument &pdf2,
