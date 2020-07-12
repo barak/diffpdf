@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
     const QString LanguageOption = "--language=";
     QString filename1;
     QString filename2;
+    bool saveAndQuit = false;
     QString language = QLocale::system().name();
     bool optionsOK = true;
     Debug debug = DebugOff;
@@ -78,6 +79,7 @@ int main(int argc, char *argv[])
                 "etc.)\n"
                 "--debug=3          as --debug=3 but also includes "
                 "coordinates in y, x order\n"
+                "--save-and-quit    save the diff to diff.pdf and quit immediately\n"
                 "\nRun the program without the --help option and click "
                 "About to see copyright and license details\n"
                 ;
@@ -90,6 +92,8 @@ int main(int argc, char *argv[])
             debug = DebugShowTexts;
         else if (optionsOK && (arg == "--debug=3" || arg == "--debug3"))
             debug = DebugShowTextsAndYX;
+        else if (optionsOK && arg == "--save-and-quit")
+            saveAndQuit = true;
         else if (optionsOK && arg == "--")
             optionsOK = false;
         else if (filename1.isEmpty() && arg.toLower().endsWith(".pdf"))
@@ -100,6 +104,7 @@ int main(int argc, char *argv[])
             out << "unrecognized argument '" << arg << "'\n";
     }
 
+
     QTranslator qtTranslator;
     qtTranslator.load("qt_" + language,
         QLibraryInfo::location(QLibraryInfo::TranslationsPath));
@@ -109,7 +114,8 @@ int main(int argc, char *argv[])
     app.installTranslator(&appTranslator);
 
     MainWindow window(debug, comparisonMode, filename1, filename2,
-            language.left(2)); // We want de not de_DE etc.
+            language.left(2), saveAndQuit); // We want de not de_DE etc.
+
     window.show();
     return app.exec();
 }
