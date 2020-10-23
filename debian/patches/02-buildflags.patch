@@ -1,11 +1,18 @@
-Description: teach qmake to use the compiling flags from the environment
-Author: Mattia Rizzolo <mattia@debian.org>
+From: Mattia Rizzolo <mattia@debian.org>
+Date: Tue, 27 Sep 2016 08:34:37 +0000
+Subject: teach qmake to use the compiling flags from the environment
+
 Last-Update: 2016-09-27
 Forwarded: no
+---
+ diffpdf.pro | 3 +++
+ 1 file changed, 3 insertions(+)
 
+diff --git a/diffpdf.pro b/diffpdf.pro
+index 24db88f..10b0303 100644
 --- a/diffpdf.pro
 +++ b/diffpdf.pro
-@@ -32,6 +32,9 @@
+@@ -32,6 +32,9 @@ TRANSLATIONS += diffpdf_de.ts
  TRANSLATIONS += diffpdf_es.ts
  CODECFORTR    = UTF-8
  LIBS	     += -lpoppler-qt4

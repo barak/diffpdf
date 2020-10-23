@@ -1,20 +1,22 @@
-Description: Build with Qt5
- Enough changes to make things build with Qt5
-Author: Sune Vuorela <sune@debian.org>
+From: Sune Vuorela <sune@debian.org>
+Date: Thu, 18 Jan 2018 22:42:45 +1100
+Subject: Build with Qt5
 
+Enough changes to make things build with Qt5
 ---
-The information above should follow the Patch Tagging Guidelines, please
-checkout http://dep.debian.net/deps/dep3/ to learn about the format. Here
-are templates for supplementary fields that you might want to add:
+ aboutform.cpp   |  3 +--
+ diffpdf.pro     | 15 ++++++++-------
+ generic.hpp     |  2 +-
+ helpform.cpp    |  1 -
+ label.cpp       |  1 +
+ lineedit.cpp    |  1 +
+ main.cpp        |  1 -
+ mainwindow.hpp  |  2 +-
+ optionsform.cpp |  8 ++++----
+ 9 files changed, 17 insertions(+), 17 deletions(-)
 
-Origin: <vendor|upstream|other>, <url of original patch>
-Bug: <url in upstream bugtracker>
-Bug-Debian: https://bugs.debian.org/<bugnumber>
-Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
-Forwarded: <no|not-needed|url proving that it has been forwarded>
-Reviewed-By: <name and email of someone who approved the patch>
-Last-Update: 2017-11-25
-
+diff --git a/aboutform.cpp b/aboutform.cpp
+index 50b608b..13726fe 100644
 --- a/aboutform.cpp
 +++ b/aboutform.cpp
 @@ -11,7 +11,6 @@
@@ -25,7 +27,7 @@ Last-Update: 2017-11-25
  #include <QApplication>
  #include <QHBoxLayout>
  #include <QSettings>
-@@ -52,7 +51,7 @@
+@@ -52,7 +51,7 @@ AboutForm::AboutForm(QWidget *parent) : QDialog(parent)
      "</ul>"
      "I also provide training and consultancy in C++, Go, Python&nbsp;2, "
      "Python&nbsp;3, C++/Qt, and PyQt4.").arg(qApp->applicationName())
@@ -34,9 +36,11 @@ Last-Update: 2017-11-25
      QTextBrowser *contributorsBrowser = new QTextBrowser;
      contributorsBrowser->setReadOnly(true);
      contributorsBrowser->setHtml(tr("<table>"
+diff --git a/diffpdf.pro b/diffpdf.pro
+index 10b0303..0a444aa 100644
 --- a/diffpdf.pro
 +++ b/diffpdf.pro
-@@ -31,38 +31,39 @@
+@@ -31,38 +31,39 @@ TRANSLATIONS += diffpdf_fr.ts
  TRANSLATIONS += diffpdf_de.ts
  TRANSLATIONS += diffpdf_es.ts
  CODECFORTR    = UTF-8
@@ -83,6 +87,8 @@ Last-Update: 2017-11-25
  #    LIBS += -Wl,-rpath -Wl,$(HOME)/opt/podofo09/lib64 -Wl,-L$(HOME)/opt/podofo09/lib64
  #} else {
  #    exists(/usr/include/podofo) {
+diff --git a/generic.hpp b/generic.hpp
+index e9b1d0b..1e9afce 100644
 --- a/generic.hpp
 +++ b/generic.hpp
 @@ -12,7 +12,7 @@
@@ -94,6 +100,8 @@ Last-Update: 2017-11-25
  #include <QMetaType>
  #include <QPair>
  #include <QPixmap>
+diff --git a/helpform.cpp b/helpform.cpp
+index f26933c..7a8269f 100644
 --- a/helpform.cpp
 +++ b/helpform.cpp
 @@ -11,7 +11,6 @@
@@ -104,6 +112,8 @@ Last-Update: 2017-11-25
  #include <QApplication>
  #include <QFile>
  #include <QKeySequence>
+diff --git a/label.cpp b/label.cpp
+index 38edd53..eb305d7 100644
 --- a/label.cpp
 +++ b/label.cpp
 @@ -15,6 +15,7 @@
@@ -114,6 +124,8 @@ Last-Update: 2017-11-25
  
  Label::Label(QWidget *parent) : QLabel(parent)
  {
+diff --git a/lineedit.cpp b/lineedit.cpp
+index 7791dc4..2819d1b 100644
 --- a/lineedit.cpp
 +++ b/lineedit.cpp
 @@ -14,6 +14,7 @@
@@ -124,9 +136,11 @@ Last-Update: 2017-11-25
  
  
  LineEdit::LineEdit(QWidget *parent) : QLineEdit(parent)
+diff --git a/main.cpp b/main.cpp
+index 4e62aab..321ecc4 100644
 --- a/main.cpp
 +++ b/main.cpp
-@@ -31,7 +31,6 @@
+@@ -31,7 +31,6 @@ int main(int argc, char *argv[])
      app.setOrganizationDomain("qtrac.eu");
      app.setApplicationName("DiffPDF");
      app.setWindowIcon(QIcon(":/icon.png"));
@@ -134,6 +148,8 @@ Last-Update: 2017-11-25
  
      QTextStream out(stdout);
      QStringList args = app.arguments().mid(1);
+diff --git a/mainwindow.hpp b/mainwindow.hpp
+index ee75308..448d21c 100644
 --- a/mainwindow.hpp
 +++ b/mainwindow.hpp
 @@ -19,7 +19,7 @@
@@ -145,9 +161,11 @@ Last-Update: 2017-11-25
  #include <QBrush>
  #include <QList>
  #include <QMainWindow>
+diff --git a/optionsform.cpp b/optionsform.cpp
+index 3489036..b752f7a 100644
 --- a/optionsform.cpp
 +++ b/optionsform.cpp
-@@ -76,9 +76,9 @@
+@@ -76,9 +76,9 @@ void OptionsForm::createWidgets()
              << qMakePair(tr("Diagonal \\"), Qt::FDiagPattern)
              << qMakePair(tr("Diagonal Cross"), Qt::DiagCrossPattern))
          brushStyleComboBox->addItem(brushSwatch(pair.second, color),
@@ -159,7 +177,7 @@ Last-Update: 2017-11-25
  
      penStyleComboBox = new QComboBox;
      typedef QPair<QString, Qt::PenStyle> PenPair;
-@@ -90,9 +90,9 @@
+@@ -90,9 +90,9 @@ void OptionsForm::createWidgets()
              << qMakePair(tr("Dash-Dotted"), Qt::DashDotLine)
              << qMakePair(tr("Dash-Dot-Dotted"), Qt::DashDotDotLine))
          penStyleComboBox->addItem(penStyleSwatch(pair.second, color),

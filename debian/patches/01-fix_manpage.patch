@@ -1,15 +1,18 @@
 From: David Paleino <dapal@debian.org>
+Date: Thu, 29 Dec 2011 18:05:00 +0100
 Subject: fix lintian warning, hyphen-used-as-minus-sign
+
 Origin: vendor
 Forwarded: no
-
 ---
- diffpdf.1 |    2 +-
+ diffpdf.1 | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- diffpdf.orig/diffpdf.1
-+++ diffpdf/diffpdf.1
-@@ -25,7 +25,7 @@ second. This will make DiffPDF compare p
+diff --git a/diffpdf.1 b/diffpdf.1
+index 067315b..320fc24 100644
+--- a/diffpdf.1
++++ b/diffpdf.1
+@@ -25,7 +25,7 @@ second. This will make DiffPDF compare pages in the pairs (1, 1), (2,
  .PP
  If the program is passed two PDF filenames on the command line it will
  start up and compare those files in Text mode (or in Appearance mode if
