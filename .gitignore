@@ -1,0 +1,8 @@
+*.o
+*_??.qm
+/.qmake.stash
+/Makefile
+/diffpdf
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
