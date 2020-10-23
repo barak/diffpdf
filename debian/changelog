@@ -1,11 +1,15 @@
 diffpdf (2.1.3-1.3) UNRELEASED; urgency=medium
 
+  [ Helmut Grohne ]
   * Non-maintainer upload.
   * Fix FTCBFS: (Closes: #-1)
     + Don't call qmake twice (dh_auto_configure and explicitly).
     + Build-Depends: qt5-qmake:native for using lrelease.
 
- -- Helmut Grohne <helmut@subdivi.de>  Sun, 10 Jun 2018 20:00:02 +0200
+  [ Barak A. Pearlmutter ]
+  * Use secure copyright file specification URI.
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Fri, 23 Oct 2020 12:32:48 -0000
 
 diffpdf (2.1.3-1.2) unstable; urgency=medium
 
