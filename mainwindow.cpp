@@ -9,7 +9,6 @@
     FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
     for more details.
 */
-
 #include "generic.hpp"
 #include "optionsform.hpp"
 #include "mainwindow.hpp"
@@ -979,8 +978,14 @@ void MainWindow::compareUpdateUi(const QPair<int, int> &pair)
             viewDiffComboBox->setFocus();
             viewDiffComboBox->setCurrentIndex(1);
         }
-        else
-            writeLine(tr("No differences detected."));
+        else {
+            writeLine(tr("The PDFs appear to be the same."));
+            const QString message("<p style='font-size: xx-large;"
+                    "color: darkgreen'>"
+                    "DiffPDF: The PDFs appear to be the same.</p>");
+            page1Label->setText(message);
+            page2Label->setText(message);
+        }
     }
 
     compareButton->setText(tr("&Compare"));
@@ -1038,7 +1043,7 @@ void MainWindow::options()
 
 void MainWindow::about()
 {
-    static const QString version("1.1.3");
+    static const QString version("1.1.4");
 
     QMessageBox::about(this, tr("DiffPDF - About"),
     tr("<p><b>DiffPDF</a> %1</b> by Mark Summerfield."
