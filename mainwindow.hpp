@@ -25,10 +25,12 @@
 
 class QBoxLayout;
 class QComboBox;
+class QGroupBox;
 class QLabel;
 class QLineEdit;
 class QPlainTextEdit;
 class QPushButton;
+class QRadioButton;
 class QScrollArea;
 class QSpinBox;
 class QSplitter;
@@ -75,10 +77,11 @@ private slots:
     void controlTopLevelChanged(bool floating);
     void actionTopLevelChanged(bool floating);
     void logTopLevelChanged(bool floating);
+    void previousPages();
+    void nextPages();
 
 private:
     enum Difference {NoDifference, TextualDifference, VisualDifference};
-    enum Comparison {TextOld, Text, Appearance};
 
     void createWidgets(const QString &filename1, const QString &filename2);
     void createCentralArea();
@@ -88,7 +91,7 @@ private:
             const PdfDocument &pdf1, const QString &filename2,
             const PdfDocument &pdf2);
     void comparePrepareUi();
-    void compareUpdateUi(const QPair<int, int> &pair);
+    void compareUpdateUi(const QPair<int, int> &pair, const int millisec);
     int writeFileInfo(const QString &filename);
     void writeLine(const QString &text);
     void writeError(const QString &text);
@@ -101,9 +104,6 @@ private:
             bool hasVisualDifference, const QString &key1,
             const QString &key2);
     void computeTextHighlights(QPainterPath *highlighted1,
-            QPainterPath *highlighted2, const PdfPage &page1,
-            const PdfPage &page2, const int DPI);
-    void computeTextHighlightsOld(QPainterPath *highlighted1,
             QPainterPath *highlighted2, const PdfPage &page1,
             const PdfPage &page2, const int DPI);
     void computeVisualHighlights(QPainterPath *highlighted1,
@@ -125,11 +125,14 @@ private:
     QLineEdit *pages2LineEdit;
     QLabel *page2Label;
     QScrollArea *area2;
-    QLabel *comparisonLabel;
-    QComboBox *comparisonComboBox;
+    QGroupBox *comparisonGroupBox;
+    QRadioButton *compareAppearanceRadioButton;
+    QRadioButton *compareTextRadioButton;
     QLabel *viewDiffLabel;
     QPushButton *compareButton;
     QComboBox *viewDiffComboBox;
+    QPushButton *previousButton;
+    QPushButton *nextButton;
     QLabel *statusLabel;
     QLabel *zoomLabel;
     QSpinBox *zoomSpinBox;
