@@ -8,7 +8,6 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 export QT_SELECT=5
 
 override_dh_auto_build:
-	qmake diffpdf.pro
 	for i in *.ts; do \
 		lrelease $$i; \
 	done

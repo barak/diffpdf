@@ -5,6 +5,7 @@ Maintainer: David Paleino <dapal@debian.org>
 Build-Depends:
  debhelper (>= 9~)
  , qt5-qmake
+ , qt5-qmake:native,
  , libpoppler-qt5-dev
  , qtbase5-dev,
  , qttools5-dev,
