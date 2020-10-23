@@ -2,3 +2,4 @@
 02-buildflags.patch
 diffpdf-qt5.patch
 0004-spelling.patch
+0005-parallel-comparison.patch

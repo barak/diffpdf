@@ -1,0 +1,148 @@
+From: Sebastian Gerke <Sebastian.Gerke@dlr.de>
+Date: Mon, 9 Oct 2017 09:33:02 +0000
+Subject: parallel comparison
+
+See bugs.debian.org/878060
+
+OpenMP parallelized comparison of two PDFs
+
+* What led up to the situation?
+
+     Comparison of two testsuitereports lasts more then a minute
+
+* What exactly did you do
+
+     I wrote a patch to minimize the time of comparison
+
+* What was the outcome of this action?
+
+     Now it only takes  a few seconds to compare two testsuitereports
+---
+ diffpdf.pro    |  6 ++--
+ mainwindow.cpp | 87 +++++++++++++++++++++++++++++++++++++---------------------
+ 2 files changed, 58 insertions(+), 35 deletions(-)
+
+diff --git a/diffpdf.pro b/diffpdf.pro
+index 0a444aa..7095cf6 100644
+--- a/diffpdf.pro
++++ b/diffpdf.pro
+@@ -32,9 +32,9 @@ TRANSLATIONS += diffpdf_de.ts
+ TRANSLATIONS += diffpdf_es.ts
+ CODECFORTR    = UTF-8
+ LIBS	     += -lpoppler-qt5
+-QMAKE_CFLAGS += $$(CPPFLAGS) $$(CFLAGS)
+-QMAKE_CXXFLAGS += $$(CPPFLAGS) $$(CXXFLAGS)
+-QMAKE_LFLAGS += $$(LDFLAGS)
++QMAKE_CFLAGS += $$(CPPFLAGS) $$(CFLAGS) -fopenmp
++QMAKE_CXXFLAGS += $$(CPPFLAGS) $$(CXXFLAGS) -fopenmp
++QMAKE_LFLAGS += $$(LDFLAGS) -fopenmp
+ QT += widgets printsupport
+ win32 {
+     CONFIG += release
+diff --git a/mainwindow.cpp b/mainwindow.cpp
+index 176ad66..9492725 100644
+--- a/mainwindow.cpp
++++ b/mainwindow.cpp
+@@ -44,6 +44,7 @@
+ #include <QSettings>
+ #include <QSpinBox>
+ #include <QSplitter>
++#include <omp.h>
+ 
+ 
+ MainWindow::MainWindow(const Debug debug,
+@@ -1415,40 +1416,62 @@ const QPair<int, int> MainWindow::comparePages(const QString &filename1,
+     QList<int> pages1 = getPageList(1, pdf1);
+     QList<int> pages2 = getPageList(2, pdf2);
+     int total = qMin(pages1.count(), pages2.count());
+-    int number = 0;
++
+     int index = 0;
+-    while (!pages1.isEmpty() && !pages2.isEmpty()) {
+-        int p1 = pages1.takeFirst();
+-        PdfPage page1(pdf1->page(p1));
+-        if (!page1) {
+-            writeError(tr("Failed to read page %1 from '%2'.")
+-                          .arg(p1 + 1).arg(filename1));
+-            continue;
+-        }
+-        int p2 = pages2.takeFirst();
+-        PdfPage page2(pdf2->page(p2));
+-        if (!page2) {
+-            writeError(tr("Failed to read page %1 from '%2'.")
+-                          .arg(p2 + 1).arg(filename2));
+-            continue;
+-        }
+-        writeLine(tr("Comparing: %1 vs. %2.").arg(p1 + 1).arg(p2 + 1));
+-        QApplication::processEvents();
+-        if (cancel) {
+-            writeError(tr("Cancelled."));
+-            break;
+-        }
+-        Difference difference = getTheDifference(page1, page2);
+-        if (difference != NoDifference) {
+-            QVariant v;
+-            v.setValue(PagePair(p1, p2, difference == VisualDifference));
+-            viewDiffComboBox->addItem(tr("%1 vs. %2 %3 %4")
+-                    .arg(p1 + 1).arg(p2 + 1).arg(QChar(0x2022))
+-                    .arg(++index), v);
+-        }
+-        statusLabel->setText(tr("Comparing %1/%2").arg(++number)
+-                                                  .arg(total));
++    int number = 0;
++    int processed = 0;
++
++    Difference difference[total];
++
++#pragma omp parallel for schedule(dynamic)
++    for (number = 0; number < total; number++) {
++
++      int p1 = pages1[number];
++      int p2 = pages2[number];
++
++#pragma omp critical
++      {
++	processed++;
++	statusLabel->setText(tr("Comparing %1/%2").arg(processed).arg(total));
++	writeLine(tr("Comparing: %1 vs. %2.").arg(p1 + 1).arg(p2 + 1));
++	QApplication::processEvents();
++      }
++
++      if (!cancel) {
++
++	PdfPage page1(pdf1->page(p1));
++	if (!page1) {
++#pragma omp critical
++	  writeError(tr("Failed to read page %1 from '%2'.").arg(p1 + 1).arg(filename1));
++	  continue;
++	}
++
++	PdfPage page2(pdf2->page(p2));
++	if (!page2) {
++#pragma omp critical
++	  writeError(tr("Failed to read page %1 from '%2'.").arg(p2 + 1).arg(filename2));
++	  continue;
++	}
++
++	difference[number] = getTheDifference(page1, page2);
++      }
++    }
++
++    if (!cancel) {
++
++      for (number = 0; number < total; number++) {
++
++	int p1 = pages1.takeFirst();
++	int p2 = pages2.takeFirst();
++
++	if (difference[number] != NoDifference) {
++	  QVariant v;
++	  v.setValue(PagePair(p1, p2, difference[number] == VisualDifference));
++	  viewDiffComboBox->addItem(tr("%1 vs. %2 %3 %4").arg(p1 + 1).arg(p2 + 1).arg(QChar(0x2022)).arg(++index), v);
++	}
++      }
+     }
++
+     return qMakePair(number, total);
+ }
+ 
