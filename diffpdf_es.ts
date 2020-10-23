@@ -93,7 +93,7 @@
     </message>
     <message>
         <location filename="mainwindow.cpp" line="132"/>
-        <source>&lt;p&gt;Pages can be specified using ranges such as 1-10, and multiple ranges can be used, e.g., 1-10, 12-15, 20, 22, 35-39. This makes it straighforward to compare similar documents where one has one or more additional pages.&lt;p&gt;For example, if file1.pdf has pages 1-30 and file2.pdf has pages 1-31 with the extra page being page 14, the two page ranges would be set to 1-30 for file1.pdf and 1-13, 15-31 for file2.pdf.</source>
+        <source>&lt;p&gt;Pages can be specified using ranges such as 1-10, and multiple ranges can be used, e.g., 1-10, 12-15, 20, 22, 35-39. This makes it straightforward to compare similar documents where one has one or more additional pages.&lt;p&gt;For example, if file1.pdf has pages 1-30 and file2.pdf has pages 1-31 with the extra page being page 14, the two page ranges would be set to 1-30 for file1.pdf and 1-13, 15-31 for file2.pdf.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -145,7 +145,7 @@
     </message>
     <message>
         <location filename="mainwindow.cpp" line="170"/>
-        <source>&lt;p&gt;Shows each pair of pages which are different. The comparison is textual unless the &lt;b&gt;Appearance&lt;/b&gt; comparison mode is chosen, in which case the comparison is done visually. Visual differences can occur if a paragraph is formated differently or if an embedded diagram or image has changed.</source>
+        <source>&lt;p&gt;Shows each pair of pages which are different. The comparison is textual unless the &lt;b&gt;Appearance&lt;/b&gt; comparison mode is chosen, in which case the comparison is done visually. Visual differences can occur if a paragraph is formatted differently or if an embedded diagram or image has changed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -133,7 +133,7 @@ void MainWindow::createWidgets(const QString &filename1,
     pages1LineEdit->setToolTip(tr("<p>Pages can be specified using ranges "
                 "such as 1-10, and multiple ranges can be used, e.g., "
                 "1-10, 12-15, 20, 22, 35-39. This makes it "
-                "straighforward to compare similar documents where one "
+                "straightforward to compare similar documents where one "
                 "has one or more additional pages.<p>For example, if "
                 "file1.pdf has pages 1-30 and file2.pdf has pages 1-31 "
                 "with the extra page being page 14, the two page ranges "
@@ -175,7 +175,7 @@ void MainWindow::createWidgets(const QString &filename1,
                 "<b>Appearance</b> comparison mode is chosen, in "
                 "which case the comparison is done visually. "
                 "Visual differences can occur if a paragraph is "
-                "formated differently or if an embedded diagram or "
+                "formatted differently or if an embedded diagram or "
                 "image has changed."));
     viewDiffComboBox = new QComboBox;
     viewDiffComboBox->addItem(tr("(Not viewing)"));

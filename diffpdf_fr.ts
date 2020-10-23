@@ -91,7 +91,7 @@
         <translation>Pa&amp;ges :</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Pages can be specified using ranges such as 1-10, and multiple ranges can be used, e.g., 1-10, 12-15, 20, 22, 35-39. This makes it straighforward to compare similar documents where one has one or more additional pages.&lt;p&gt;For example, if file1.pdf has pages 1-30 and file2.pdf has pages 1-31 with the extra page being page 14, the two page ranges would be set to 1-30 for file1.pdf and 1-13, 15-31 for file2.pdf.</source>
+        <source>&lt;p&gt;Pages can be specified using ranges such as 1-10, and multiple ranges can be used, e.g., 1-10, 12-15, 20, 22, 35-39. This makes it straightforward to compare similar documents where one has one or more additional pages.&lt;p&gt;For example, if file1.pdf has pages 1-30 and file2.pdf has pages 1-31 with the extra page being page 14, the two page ranges would be set to 1-30 for file1.pdf and 1-13, 15-31 for file2.pdf.</source>
         <translation>&lt;p&gt;Les numéros de pages peuvent être spécifiés à l&apos;aide d&apos;intervalles simples (ex. 1-10), et à l&apos;aide d&apos;intervalles multiples, par ex. 1-10, 12-15, 20, 22, 35-39. Cela permet de comparer aisément des documents similaires quand l&apos;un d&apos;eux possède une ou plusieurs pages supplémentaires. &lt;p&gt;Par exemple, si le fichier fichier1.pdf comporte les pages 1-30 et fichier2.pdf comporte 31 pages, la page 14 étant une page ajoutée dans le deuxième fichier, alors il sera possible d&apos;utiliser les intervalles suivants : pour fichier1.pdf, on utilisera l&apos;intervalle 1-30 tandis que pour fichier2.pdf on indiquera les intervalles 1-13, 15-31 afin d&apos;exclure la page 14 de la comparaison.</translation>
     </message>
     <message>
@@ -131,7 +131,7 @@
         <translation>&amp;Affichage :</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows each pair of pages which are different. The comparison is textual unless the &lt;b&gt;Appearance&lt;/b&gt; comparison mode is chosen, in which case the comparison is done visually. Visual differences can occur if a paragraph is formated differently or if an embedded diagram or image has changed.</source>
+        <source>&lt;p&gt;Shows each pair of pages which are different. The comparison is textual unless the &lt;b&gt;Appearance&lt;/b&gt; comparison mode is chosen, in which case the comparison is done visually. Visual differences can occur if a paragraph is formatted differently or if an embedded diagram or image has changed.</source>
         <translation>&lt;p&gt;Affiche chaque couple de pages qui présentent des différences. La comparaison est textuelle sauf si le mode de comparaison &lt;b&gt;Apparence&lt;/b&gt; est choisi ; dans ce cas la comparaison est visuelle. Des différences visuelles peuvent être détectées si un paragraphe présente une mise en page différente ou bien si un diagramme ou une image insérés sont différents.</translation>
     </message>
     <message>

@@ -101,7 +101,7 @@ Tento program je šířen v naději, že bude užitečný, ale BEZ JAKÉKOLI ZÁ
     </message>
     <message>
         <location filename="mainwindow.cpp" line="132"/>
-        <source>&lt;p&gt;Pages can be specified using ranges such as 1-10, and multiple ranges can be used, e.g., 1-10, 12-15, 20, 22, 35-39. This makes it straighforward to compare similar documents where one has one or more additional pages.&lt;p&gt;For example, if file1.pdf has pages 1-30 and file2.pdf has pages 1-31 with the extra page being page 14, the two page ranges would be set to 1-30 for file1.pdf and 1-13, 15-31 for file2.pdf.</source>
+        <source>&lt;p&gt;Pages can be specified using ranges such as 1-10, and multiple ranges can be used, e.g., 1-10, 12-15, 20, 22, 35-39. This makes it straightforward to compare similar documents where one has one or more additional pages.&lt;p&gt;For example, if file1.pdf has pages 1-30 and file2.pdf has pages 1-31 with the extra page being page 14, the two page ranges would be set to 1-30 for file1.pdf and 1-13, 15-31 for file2.pdf.</source>
         <translation>&lt;p&gt;Strany lze stanovit pomocí rozsahu jako 1-10, a lze použít více rozsahů, např., 1-10, 12-15, 20, 22, 35-39. To to dělá přímočarým pro poravnávání podobných dokumentů, kde jeden má jednu nebo více dodatečných stran.&lt;p&gt;Například, pokud soubor1.pdf má strany 1-30 a soubor2.pdf má strany 1-31 se stranou navíc, která je stranou 14, dva rozsahy stran by byly nastaveny na 1-30 pro soubor1.pdf a 1-13, 15-31 pro soubor2.pdf.</translation>
     </message>
     <message>
@@ -153,7 +153,7 @@ Tento program je šířen v naději, že bude užitečný, ale BEZ JAKÉKOLI ZÁ
     </message>
     <message>
         <location filename="mainwindow.cpp" line="170"/>
-        <source>&lt;p&gt;Shows each pair of pages which are different. The comparison is textual unless the &lt;b&gt;Appearance&lt;/b&gt; comparison mode is chosen, in which case the comparison is done visually. Visual differences can occur if a paragraph is formated differently or if an embedded diagram or image has changed.</source>
+        <source>&lt;p&gt;Shows each pair of pages which are different. The comparison is textual unless the &lt;b&gt;Appearance&lt;/b&gt; comparison mode is chosen, in which case the comparison is done visually. Visual differences can occur if a paragraph is formatted differently or if an embedded diagram or image has changed.</source>
         <translation>&lt;p&gt;Ukazuje každou dvojici stran, jež jsou rozdílné. Porovnání je textové, dokud je vybrán porovnávací režim Vzhled, v kterémžto případě je porovnávání prováděno zrakově. Viditelné rozdíly se mohou objevit, pokud je odstavec formátován jinak, nebo pokud byl vložený výkres nebo obrázek změněn.</translation>
     </message>
     <message>
