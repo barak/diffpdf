@@ -26,11 +26,11 @@
 
 OptionsForm::OptionsForm(QPen *pen, QBrush *brush, qreal *ruleWidth,
         bool *showToolTips,  bool *combineTextHighlighting,
-        int *cacheSize, QWidget *parent)
+        int *cacheSize, int *alpha, int *squareSize, QWidget *parent)
     : QDialog(parent), m_pen(pen), m_brush(brush), m_ruleWidth(ruleWidth),
       m_showToolTips(showToolTips),
       m_combineTextHighlighting(combineTextHighlighting),
-      m_cacheSize(cacheSize)
+      m_cacheSize(cacheSize), m_alpha(alpha), m_squareSize(squareSize)
 {
     this->pen = *m_pen;
     this->brush = *m_brush;
@@ -41,7 +41,7 @@ OptionsForm::OptionsForm(QPen *pen, QBrush *brush, qreal *ruleWidth,
 
     updateSwatches();
     updateUi();
-    setWindowTitle(tr("DiffPDF - Options"));
+    setWindowTitle(tr("DiffPDF — Options"));
 }
 
 
@@ -55,7 +55,7 @@ void OptionsForm::createWidgets()
     colorComboBox->setCurrentIndex(colorComboBox->findData(pen.color()));
 
     QColor color = pen.color();
-    color.setAlpha(32); // semi-transparent for painting (stored as solid)
+    color.setAlphaF(*m_alpha / 100.0);
 
     brushStyleComboBox = new QComboBox;
     typedef QPair<QString, Qt::BrushStyle> BrushPair;
@@ -93,6 +93,24 @@ void OptionsForm::createWidgets()
     penStyleComboBox->setCurrentIndex(penStyleComboBox->findData(
                 pen.style()));
 
+    alphaSpinBox = new QSpinBox;
+    alphaSpinBox->setRange(1, 100);
+    alphaSpinBox->setValue(*m_alpha);
+    alphaSpinBox->setSuffix(tr(" %"));
+    alphaSpinBox->setAlignment(Qt::AlignVCenter|Qt::AlignRight);
+    alphaSpinBox->setToolTip(tr("<p>How opaque the highlighting "
+            "color is. The default is 13%"));
+
+    squareSizeSpinBox = new QSpinBox;
+    squareSizeSpinBox->setRange(2, 40);
+    squareSizeSpinBox->setValue(*m_squareSize);
+    squareSizeSpinBox->setSuffix(tr(" px"));
+    squareSizeSpinBox->setAlignment(Qt::AlignVCenter|Qt::AlignRight);
+    squareSizeSpinBox->setToolTip(tr("<p>The size of the "
+            "highlighting squares in Appearance mode. Small values are "
+            "more expensive to compute. Large values give coarse "
+            "comparisons. The default is 10 px"));
+
     ruleWidthSpinBox = new QDoubleSpinBox;
     ruleWidthSpinBox->setRange(0.0, 10.0);
     ruleWidthSpinBox->setDecimals(2);
@@ -106,7 +124,7 @@ void OptionsForm::createWidgets()
     showToolTipsCheckBox->setChecked(*m_showToolTips);
 
     combineTextHighlightingCheckBox = new QCheckBox(
-            tr("Combine &Highlighting in Text Mode"));
+            tr("Combine &Highlighting in text modes"));
     combineTextHighlightingCheckBox->setChecked(
             *m_combineTextHighlighting);
 
@@ -130,6 +148,8 @@ void OptionsForm::createLayout()
     mainLayout->addRow(tr("&Base Color:"), colorComboBox);
     mainLayout->addRow(tr("Out&line:"), penStyleComboBox);
     mainLayout->addRow(tr("&Fill:"), brushStyleComboBox);
+    mainLayout->addRow(tr("F&ill Opacity:"), alphaSpinBox);
+    mainLayout->addRow(tr("&Square Size:"), squareSizeSpinBox);
     mainLayout->addRow(tr("&Rule width:"), ruleWidthSpinBox);
     mainLayout->addRow(combineTextHighlightingCheckBox);
     QGroupBox *box = new QGroupBox(tr("Highlighting"));
@@ -162,6 +182,8 @@ void OptionsForm::createConnections()
             this, SLOT(updateBrushStyle(int)));
     connect(brushStyleComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(updateUi()));
+    connect(alphaSpinBox, SIGNAL(valueChanged(int)),
+            this, SLOT(updateSwatches()));
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }
@@ -194,7 +216,7 @@ void OptionsForm::updateSwatches()
 {
     QColor color = colorComboBox->itemData(
             colorComboBox->currentIndex()).value<QColor>();
-    color.setAlpha(32); // semi-transparent for painting (stored as solid)
+    color.setAlphaF(alphaSpinBox->value() / 100.0);
     for (int i = 0; i < brushStyleComboBox->count(); ++i)
         brushStyleComboBox->setItemIcon(i, brushSwatch(
                 static_cast<Qt::BrushStyle>(
@@ -228,5 +250,7 @@ void OptionsForm::accept()
     *m_combineTextHighlighting =
             combineTextHighlightingCheckBox->isChecked();
     *m_cacheSize = cacheSizeSpinBox->value();
+    *m_alpha = alphaSpinBox->value();
+    *m_squareSize = squareSizeSpinBox->value();
     QDialog::accept();
 }

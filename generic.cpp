@@ -73,8 +73,8 @@ QPixmap colorSwatch(const QColor &color)
 
 QPixmap brushSwatch(const Qt::BrushStyle style, const QColor &color)
 {
-    QString key = QString("BRUSHSTYLESWATCH:%1:%2")
-        .arg(static_cast<int>(style)).arg(color.name());
+    QString key = QString("BRUSHSTYLESWATCH:%1:%2:%3")
+        .arg(static_cast<int>(style)).arg(color.name()).arg(color.alpha());
     QPixmap pixmap(SwatchSize);
 #if QT_VERSION >= 0x040600
     if (!QPixmapCache::find(key, &pixmap)) {
@@ -119,4 +119,15 @@ QPixmap penStyleSwatch(const Qt::PenStyle style, const QColor &color)
         QPixmapCache::insert(key, pixmap);
     }
     return pixmap;
+}
+
+
+const TextBoxList getTextBoxes(PdfPage page)
+{
+    TextBoxList boxes;
+    foreach (Poppler::TextBox *box, page->textList()) {
+        PdfTextBox box_ptr(box);
+        boxes.append(box_ptr);
+    }
+    return boxes;
 }

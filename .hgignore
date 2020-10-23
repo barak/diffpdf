@@ -1,4 +1,7 @@
 syntax: glob
+mailinglist.txt
+NOTES.txt
+*.lout
 diffpdf
 *.pdf
 Makefile

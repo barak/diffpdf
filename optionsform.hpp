@@ -30,12 +30,14 @@ class OptionsForm : public QDialog
 public:
     OptionsForm(QPen *pen, QBrush *brush, qreal *ruleWidth,
             bool *showToolTips, bool *combineTextHighlighting,
-            int *cacheSize, QWidget *parent=0);
+            int *cacheSize, int *alpha, int *squareSize,
+            QWidget *parent=0);
 
 private slots:
     void updateColor(int index);
     void updateBrushStyle(int index);
     void updatePenStyle(int index);
+    void updateSwatches();
     void updateUi();
     void accept();
 
@@ -43,11 +45,12 @@ private:
     void createWidgets();
     void createLayout();
     void createConnections();
-    void updateSwatches();
 
     QComboBox *colorComboBox;
     QComboBox *brushStyleComboBox;
     QComboBox *penStyleComboBox;
+    QSpinBox *alphaSpinBox;
+    QSpinBox *squareSizeSpinBox;
     QDoubleSpinBox *ruleWidthSpinBox;
     QCheckBox *showToolTipsCheckBox;
     QCheckBox *combineTextHighlightingCheckBox;
@@ -60,6 +63,8 @@ private:
     bool *m_showToolTips;
     bool *m_combineTextHighlighting;
     int *m_cacheSize;
+    int *m_alpha;
+    int *m_squareSize;
     QPen pen;
     QBrush brush;
 };
