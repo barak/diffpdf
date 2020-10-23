@@ -1,0 +1,122 @@
+From: "Barak A. Pearlmutter" <bap@debian.org>
+Date: Fri, 23 Oct 2020 13:14:42 +0100
+Subject: spelling
+
+---
+ diffpdf_cz.ts  | 4 ++--
+ diffpdf_de.ts  | 4 ++--
+ diffpdf_es.ts  | 4 ++--
+ diffpdf_fr.ts  | 4 ++--
+ mainwindow.cpp | 4 ++--
+ 5 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/diffpdf_cz.ts b/diffpdf_cz.ts
+index 66f718c..35cb23a 100644
+--- a/diffpdf_cz.ts
++++ b/diffpdf_cz.ts
+@@ -101,7 +101,7 @@ Tento program je šířen v naději, že bude užitečný, ale BEZ JAKÉKOLI ZÁ
+     </message>
+     <message>
+         <location filename="mainwindow.cpp" line="132"/>
+-        <source>&lt;p&gt;Pages can be specified using ranges such as 1-10, and multiple ranges can be used, e.g., 1-10, 12-15, 20, 22, 35-39. This makes it straighforward to compare similar documents where one has one or more additional pages.&lt;p&gt;For example, if file1.pdf has pages 1-30 and file2.pdf has pages 1-31 with the extra page being page 14, the two page ranges would be set to 1-30 for file1.pdf and 1-13, 15-31 for file2.pdf.</source>
++        <source>&lt;p&gt;Pages can be specified using ranges such as 1-10, and multiple ranges can be used, e.g., 1-10, 12-15, 20, 22, 35-39. This makes it straightforward to compare similar documents where one has one or more additional pages.&lt;p&gt;For example, if file1.pdf has pages 1-30 and file2.pdf has pages 1-31 with the extra page being page 14, the two page ranges would be set to 1-30 for file1.pdf and 1-13, 15-31 for file2.pdf.</source>
+         <translation>&lt;p&gt;Strany lze stanovit pomocí rozsahu jako 1-10, a lze použít více rozsahů, např., 1-10, 12-15, 20, 22, 35-39. To to dělá přímočarým pro poravnávání podobných dokumentů, kde jeden má jednu nebo více dodatečných stran.&lt;p&gt;Například, pokud soubor1.pdf má strany 1-30 a soubor2.pdf má strany 1-31 se stranou navíc, která je stranou 14, dva rozsahy stran by byly nastaveny na 1-30 pro soubor1.pdf a 1-13, 15-31 pro soubor2.pdf.</translation>
+     </message>
+     <message>
+@@ -153,7 +153,7 @@ Tento program je šířen v naději, že bude užitečný, ale BEZ JAKÉKOLI ZÁ
+     </message>
+     <message>
+         <location filename="mainwindow.cpp" line="170"/>
+-        <source>&lt;p&gt;Shows each pair of pages which are different. The comparison is textual unless the &lt;b&gt;Appearance&lt;/b&gt; comparison mode is chosen, in which case the comparison is done visually. Visual differences can occur if a paragraph is formated differently or if an embedded diagram or image has changed.</source>
++        <source>&lt;p&gt;Shows each pair of pages which are different. The comparison is textual unless the &lt;b&gt;Appearance&lt;/b&gt; comparison mode is chosen, in which case the comparison is done visually. Visual differences can occur if a paragraph is formatted differently or if an embedded diagram or image has changed.</source>
+         <translation>&lt;p&gt;Ukazuje každou dvojici stran, jež jsou rozdílné. Porovnání je textové, dokud je vybrán porovnávací režim Vzhled, v kterémžto případě je porovnávání prováděno zrakově. Viditelné rozdíly se mohou objevit, pokud je odstavec formátován jinak, nebo pokud byl vložený výkres nebo obrázek změněn.</translation>
+     </message>
+     <message>
+diff --git a/diffpdf_de.ts b/diffpdf_de.ts
+index 6b8ee47..01a1ce3 100644
+--- a/diffpdf_de.ts
++++ b/diffpdf_de.ts
+@@ -102,7 +102,7 @@
+     </message>
+     <message>
+         <location filename="mainwindow.cpp" line="132"/>
+-        <source>&lt;p&gt;Pages can be specified using ranges such as 1-10, and multiple ranges can be used, e.g., 1-10, 12-15, 20, 22, 35-39. This makes it straighforward to compare similar documents where one has one or more additional pages.&lt;p&gt;For example, if file1.pdf has pages 1-30 and file2.pdf has pages 1-31 with the extra page being page 14, the two page ranges would be set to 1-30 for file1.pdf and 1-13, 15-31 for file2.pdf.</source>
++        <source>&lt;p&gt;Pages can be specified using ranges such as 1-10, and multiple ranges can be used, e.g., 1-10, 12-15, 20, 22, 35-39. This makes it straightforward to compare similar documents where one has one or more additional pages.&lt;p&gt;For example, if file1.pdf has pages 1-30 and file2.pdf has pages 1-31 with the extra page being page 14, the two page ranges would be set to 1-30 for file1.pdf and 1-13, 15-31 for file2.pdf.</source>
+         <translation>&lt;p&gt;Bei der Angabe von Seiten können Bereiche angegeben werden, etwa 1-10. Es können auch mehrere Bereiche angegeben werden, etwa 1-10, 12-15, 20, 22, 35-39. So ist es leicht möglich zwei Versionen des gleichen Dokuments zu vergleichen, auch wenn ein Dokument zusätzliche Seiten enthält.&lt;p&gt;Ein Beispiel: Angenommen Datei 1 enthält 30 Seiten und Datei 2 enthält 31 Seiten, und die zusätzliche Seite ist Seite 14, dann würden die Seitenbereiche angegeben mit 1-30 für Datei 1 und 1-13, 15-31 für Datei 2.</translation>
+     </message>
+     <message>
+@@ -154,7 +154,7 @@
+     </message>
+     <message>
+         <location filename="mainwindow.cpp" line="170"/>
+-        <source>&lt;p&gt;Shows each pair of pages which are different. The comparison is textual unless the &lt;b&gt;Appearance&lt;/b&gt; comparison mode is chosen, in which case the comparison is done visually. Visual differences can occur if a paragraph is formated differently or if an embedded diagram or image has changed.</source>
++        <source>&lt;p&gt;Shows each pair of pages which are different. The comparison is textual unless the &lt;b&gt;Appearance&lt;/b&gt; comparison mode is chosen, in which case the comparison is done visually. Visual differences can occur if a paragraph is formatted differently or if an embedded diagram or image has changed.</source>
+         <translation>&lt;p&gt;Liste alle Seitenpaare mit Unterschieden. Der Vergleich ist textuell sofern nicht der &lt;b&gt;visuelle&lt;/b&gt; Vergleichsmodus gewählt wurde. Visuelle Unterschiede können auftreten wenn ein Absatz anders formatiert wurde oder wenn ein eingebettetes Diagramm oder Bild sich geändert hat.</translation>
+     </message>
+     <message>
+diff --git a/diffpdf_es.ts b/diffpdf_es.ts
+index a35941f..c3341df 100644
+--- a/diffpdf_es.ts
++++ b/diffpdf_es.ts
+@@ -93,7 +93,7 @@
+     </message>
+     <message>
+         <location filename="mainwindow.cpp" line="132"/>
+-        <source>&lt;p&gt;Pages can be specified using ranges such as 1-10, and multiple ranges can be used, e.g., 1-10, 12-15, 20, 22, 35-39. This makes it straighforward to compare similar documents where one has one or more additional pages.&lt;p&gt;For example, if file1.pdf has pages 1-30 and file2.pdf has pages 1-31 with the extra page being page 14, the two page ranges would be set to 1-30 for file1.pdf and 1-13, 15-31 for file2.pdf.</source>
++        <source>&lt;p&gt;Pages can be specified using ranges such as 1-10, and multiple ranges can be used, e.g., 1-10, 12-15, 20, 22, 35-39. This makes it straightforward to compare similar documents where one has one or more additional pages.&lt;p&gt;For example, if file1.pdf has pages 1-30 and file2.pdf has pages 1-31 with the extra page being page 14, the two page ranges would be set to 1-30 for file1.pdf and 1-13, 15-31 for file2.pdf.</source>
+         <translation type="unfinished"></translation>
+     </message>
+     <message>
+@@ -145,7 +145,7 @@
+     </message>
+     <message>
+         <location filename="mainwindow.cpp" line="170"/>
+-        <source>&lt;p&gt;Shows each pair of pages which are different. The comparison is textual unless the &lt;b&gt;Appearance&lt;/b&gt; comparison mode is chosen, in which case the comparison is done visually. Visual differences can occur if a paragraph is formated differently or if an embedded diagram or image has changed.</source>
++        <source>&lt;p&gt;Shows each pair of pages which are different. The comparison is textual unless the &lt;b&gt;Appearance&lt;/b&gt; comparison mode is chosen, in which case the comparison is done visually. Visual differences can occur if a paragraph is formatted differently or if an embedded diagram or image has changed.</source>
+         <translation type="unfinished"></translation>
+     </message>
+     <message>
+diff --git a/diffpdf_fr.ts b/diffpdf_fr.ts
+index 815e9c4..9379258 100644
+--- a/diffpdf_fr.ts
++++ b/diffpdf_fr.ts
+@@ -91,7 +91,7 @@
+         <translation>Pa&amp;ges :</translation>
+     </message>
+     <message>
+-        <source>&lt;p&gt;Pages can be specified using ranges such as 1-10, and multiple ranges can be used, e.g., 1-10, 12-15, 20, 22, 35-39. This makes it straighforward to compare similar documents where one has one or more additional pages.&lt;p&gt;For example, if file1.pdf has pages 1-30 and file2.pdf has pages 1-31 with the extra page being page 14, the two page ranges would be set to 1-30 for file1.pdf and 1-13, 15-31 for file2.pdf.</source>
++        <source>&lt;p&gt;Pages can be specified using ranges such as 1-10, and multiple ranges can be used, e.g., 1-10, 12-15, 20, 22, 35-39. This makes it straightforward to compare similar documents where one has one or more additional pages.&lt;p&gt;For example, if file1.pdf has pages 1-30 and file2.pdf has pages 1-31 with the extra page being page 14, the two page ranges would be set to 1-30 for file1.pdf and 1-13, 15-31 for file2.pdf.</source>
+         <translation>&lt;p&gt;Les numéros de pages peuvent être spécifiés à l&apos;aide d&apos;intervalles simples (ex. 1-10), et à l&apos;aide d&apos;intervalles multiples, par ex. 1-10, 12-15, 20, 22, 35-39. Cela permet de comparer aisément des documents similaires quand l&apos;un d&apos;eux possède une ou plusieurs pages supplémentaires. &lt;p&gt;Par exemple, si le fichier fichier1.pdf comporte les pages 1-30 et fichier2.pdf comporte 31 pages, la page 14 étant une page ajoutée dans le deuxième fichier, alors il sera possible d&apos;utiliser les intervalles suivants : pour fichier1.pdf, on utilisera l&apos;intervalle 1-30 tandis que pour fichier2.pdf on indiquera les intervalles 1-13, 15-31 afin d&apos;exclure la page 14 de la comparaison.</translation>
+     </message>
+     <message>
+@@ -131,7 +131,7 @@
+         <translation>&amp;Affichage :</translation>
+     </message>
+     <message>
+-        <source>&lt;p&gt;Shows each pair of pages which are different. The comparison is textual unless the &lt;b&gt;Appearance&lt;/b&gt; comparison mode is chosen, in which case the comparison is done visually. Visual differences can occur if a paragraph is formated differently or if an embedded diagram or image has changed.</source>
++        <source>&lt;p&gt;Shows each pair of pages which are different. The comparison is textual unless the &lt;b&gt;Appearance&lt;/b&gt; comparison mode is chosen, in which case the comparison is done visually. Visual differences can occur if a paragraph is formatted differently or if an embedded diagram or image has changed.</source>
+         <translation>&lt;p&gt;Affiche chaque couple de pages qui présentent des différences. La comparaison est textuelle sauf si le mode de comparaison &lt;b&gt;Apparence&lt;/b&gt; est choisi ; dans ce cas la comparaison est visuelle. Des différences visuelles peuvent être détectées si un paragraphe présente une mise en page différente ou bien si un diagramme ou une image insérés sont différents.</translation>
+     </message>
+     <message>
+diff --git a/mainwindow.cpp b/mainwindow.cpp
+index c9dac53..176ad66 100644
+--- a/mainwindow.cpp
++++ b/mainwindow.cpp
+@@ -132,7 +132,7 @@ void MainWindow::createWidgets(const QString &filename1,
+     pages1LineEdit->setToolTip(tr("<p>Pages can be specified using ranges "
+                 "such as 1-10, and multiple ranges can be used, e.g., "
+                 "1-10, 12-15, 20, 22, 35-39. This makes it "
+-                "straighforward to compare similar documents where one "
++                "straightforward to compare similar documents where one "
+                 "has one or more additional pages.<p>For example, if "
+                 "file1.pdf has pages 1-30 and file2.pdf has pages 1-31 "
+                 "with the extra page being page 14, the two page ranges "
+@@ -174,7 +174,7 @@ void MainWindow::createWidgets(const QString &filename1,
+                 "<b>Appearance</b> comparison mode is chosen, in "
+                 "which case the comparison is done visually. "
+                 "Visual differences can occur if a paragraph is "
+-                "formated differently or if an embedded diagram or "
++                "formatted differently or if an embedded diagram or "
+                 "image has changed."));
+     viewDiffComboBox = new QComboBox;
+     viewDiffComboBox->addItem(tr("(Not viewing)"));
