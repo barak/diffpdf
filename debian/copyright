@@ -24,5 +24,5 @@ License: GPL-2+
  You should have received a copy of the GNU General Public License
  along with this package; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-X-Comment: on Debian systems, the complete text of the GNU General
+Comment: on Debian systems, the complete text of the GNU General
  Public License version 2 can be found in `/usr/share/common-licenses/GPL-2'.
