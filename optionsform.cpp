@@ -20,13 +20,17 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QPushButton>
+#include <QSpinBox>
 #include <QVBoxLayout>
 
 
 OptionsForm::OptionsForm(QPen *pen, QBrush *brush, qreal *ruleWidth,
-                         bool *showToolTips, QWidget *parent)
+        bool *showToolTips,  bool *combineTextHighlighting,
+        int *cacheSize, QWidget *parent)
     : QDialog(parent), m_pen(pen), m_brush(brush), m_ruleWidth(ruleWidth),
-      m_showToolTips(showToolTips)
+      m_showToolTips(showToolTips),
+      m_combineTextHighlighting(combineTextHighlighting),
+      m_cacheSize(cacheSize)
 {
     this->pen = *m_pen;
     this->brush = *m_brush;
@@ -101,6 +105,16 @@ void OptionsForm::createWidgets()
                                             "the main window"));
     showToolTipsCheckBox->setChecked(*m_showToolTips);
 
+    combineTextHighlightingCheckBox = new QCheckBox(
+            tr("Combine &Highlighting in Text Mode"));
+    combineTextHighlightingCheckBox->setChecked(
+            *m_combineTextHighlighting);
+
+    cacheSizeSpinBox = new QSpinBox;
+    cacheSizeSpinBox->setRange(1, 100);
+    cacheSizeSpinBox->setValue(*m_cacheSize);
+    cacheSizeSpinBox->setSuffix(tr(" MB"));
+
     buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok|
                                      QDialogButtonBox::Cancel);
 }
@@ -109,10 +123,11 @@ void OptionsForm::createWidgets()
 void OptionsForm::createLayout()
 {
     QFormLayout *mainLayout = new QFormLayout;
-    mainLayout->addRow(tr("Base Colo&r:"), colorComboBox);
+    mainLayout->addRow(tr("&Base Color:"), colorComboBox);
     mainLayout->addRow(tr("Out&line:"), penStyleComboBox);
     mainLayout->addRow(tr("&Fill:"), brushStyleComboBox);
-    mainLayout->addRow(tr("Rule &width:"), ruleWidthSpinBox);
+    mainLayout->addRow(tr("&Rule width:"), ruleWidthSpinBox);
+    mainLayout->addRow(combineTextHighlightingCheckBox);
     QGroupBox *box = new QGroupBox(tr("Highlighting"));
     box->setToolTip(tr("<p>The outline and fill are used to highlight "
             "differences using a semi-transparent version of the base "
@@ -120,10 +135,11 @@ void OptionsForm::createLayout()
             "and indicate where changes are. Set the rule width to 0.0 "
             "to switch the rules off."));
     box->setLayout(mainLayout);
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget(box);
-    layout->addWidget(showToolTipsCheckBox);
-    layout->addWidget(buttonBox);
+    QFormLayout *layout = new QFormLayout;
+    layout->addRow(box);
+    layout->addRow(showToolTipsCheckBox);
+    layout->addRow(tr("Cache &Size:"), cacheSizeSpinBox);
+    layout->addRow(buttonBox);
     setLayout(layout);
 }
 
@@ -203,5 +219,8 @@ void OptionsForm::accept()
     *m_brush = brush;
     *m_ruleWidth = ruleWidthSpinBox->value();
     *m_showToolTips = showToolTipsCheckBox->isChecked();
+    *m_combineTextHighlighting =
+            combineTextHighlightingCheckBox->isChecked();
+    *m_cacheSize = cacheSizeSpinBox->value();
     QDialog::accept();
 }

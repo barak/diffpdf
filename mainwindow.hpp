@@ -97,7 +97,8 @@ private:
     void paintOnImage(const QPainterPath &path, QImage *image);
     void updateViews(const PdfDocument &pdf1, const PdfPage &page1,
             const PdfDocument &pdf2, const PdfPage &page2,
-            bool hasVisualDifference);
+            bool hasVisualDifference, const QString &key1,
+            const QString &key2);
     void computeTextHighlights(QPainterPath *highlighted1,
             QPainterPath *highlighted2, const PdfPage &page1,
             const PdfPage &page2, const int DPI);
@@ -108,7 +109,8 @@ private:
         QPainterPath *highlighted2, const QImage &plainImage1,
         const QImage &plainImage2);
     void addHighlighting(QRectF *bigRect, QPainterPath *highlighted,
-            const PdfTextBox &box, const int OVERLAP, const int DPI);
+            const PdfTextBox &box, const int OVERLAP, const int DPI,
+            const bool COMBINE=true);
 
     QPushButton *setFile1Button;
     QLineEdit *filename1LineEdit;
@@ -148,6 +150,7 @@ private:
     Qt::DockWidgetArea actionDockArea;
     bool cancel;
     bool showToolTips;
+    bool combineTextHighlighting;
 };
 
 #endif // MAINWINDOW_HPP

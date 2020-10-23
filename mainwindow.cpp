@@ -24,6 +24,7 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPainter>
+#include <QPixmapCache>
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QScrollArea>
@@ -58,6 +59,8 @@ MainWindow::MainWindow(const QString &filename1, const QString &filename2,
     brush.setStyle(Qt::SolidPattern);
     brush = settings.value("Fill", brush).value<QBrush>();
     showToolTips = settings.value("ShowToolTips", true).toBool();
+    QPixmapCache::setCacheLimit(1000 *
+            qBound(1, settings.value("CacheSizeMB", 25).toInt(), 100));
 
     createWidgets(filename1, filename2);
     createCentralArea();
@@ -214,7 +217,7 @@ void MainWindow::createCentralArea()
     leftWidget->setLayout(leftLayout);
 
     QHBoxLayout *topRightLayout = new QHBoxLayout;
-    topLeftLayout->addWidget(setFile2Button);
+    topRightLayout->addWidget(setFile2Button);
     topRightLayout->addWidget(filename2LineEdit, 3);
     topRightLayout->addWidget(comparePages2Label);
     topRightLayout->addWidget(pages2LineEdit, 2);
@@ -436,59 +439,81 @@ void MainWindow::updateViews(int index)
     if (!page2)
         return;
 
-    updateViews(pdf1, page1, pdf2, page2, pair.hasVisualDifference);
+    QString key = QString("%1:%2:%3").arg(index).arg(zoomSpinBox->value())
+            .arg(comparisonComboBox->currentIndex());
+    QString key1 = QString("1:%1:%2:%3").arg(key).arg(pair.left)
+            .arg(filename1);
+    QString key2 = QString("2:%1:%2:%3").arg(key).arg(pair.right)
+            .arg(filename2);
+    updateViews(pdf1, page1, pdf2, page2, pair.hasVisualDifference,
+                key1, key2);
 }
 
 
 void MainWindow::updateViews(const PdfDocument &pdf1,
         const PdfPage &page1, const PdfDocument &pdf2,
-        const PdfPage &page2, bool hasVisualDifference)
+        const PdfPage &page2, bool hasVisualDifference,
+        const QString &key1, const QString &key2)
 {
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    const int DPI = static_cast<int>(DPI_FACTOR *
-            (zoomSpinBox->value() / 100.0));
-    Comparison comparison = static_cast<Comparison>(
-            comparisonComboBox->itemData(
-                comparisonComboBox->currentIndex()).toInt());
-    QImage plainImage1;
-    QImage plainImage2;
-    if (hasVisualDifference || comparison == Appearance) {
-        plainImage1 = page1->renderToImage(DPI, DPI);
-        plainImage2 = page2->renderToImage(DPI, DPI);
-    }
-    pdf1->setRenderHint(Poppler::Document::Antialiasing);
-    pdf1->setRenderHint(Poppler::Document::TextAntialiasing);
-    pdf2->setRenderHint(Poppler::Document::Antialiasing);
-    pdf2->setRenderHint(Poppler::Document::TextAntialiasing);
-    QImage image1 = page1->renderToImage(DPI, DPI);
-    QImage image2 = page2->renderToImage(DPI, DPI);
+    QPixmap pixmap1;
+    QPixmap pixmap2;
+#if QT_VERSION >= 0x040600
+    if (!QPixmapCache::find(key1, &pixmap1) ||
+        !QPixmapCache::find(key2, &pixmap2)) {
+#else
+    if (!QPixmapCache::find(key1, pixmap1) ||
+        !QPixmapCache::find(key2, pixmap2)) {
+#endif
+        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+        const int DPI = static_cast<int>(DPI_FACTOR *
+                (zoomSpinBox->value() / 100.0));
+        Comparison comparison = static_cast<Comparison>(
+                comparisonComboBox->itemData(
+                    comparisonComboBox->currentIndex()).toInt());
+        QImage plainImage1;
+        QImage plainImage2;
+        if (hasVisualDifference || comparison == Appearance) {
+            plainImage1 = page1->renderToImage(DPI, DPI);
+            plainImage2 = page2->renderToImage(DPI, DPI);
+        }
+        pdf1->setRenderHint(Poppler::Document::Antialiasing);
+        pdf1->setRenderHint(Poppler::Document::TextAntialiasing);
+        pdf2->setRenderHint(Poppler::Document::Antialiasing);
+        pdf2->setRenderHint(Poppler::Document::TextAntialiasing);
+        QImage image1 = page1->renderToImage(DPI, DPI);
+        QImage image2 = page2->renderToImage(DPI, DPI);
 
-    QPainterPath highlighted1;
-    QPainterPath highlighted2;
-    if (hasVisualDifference || comparison == Appearance)
-        computeVisualHighlights(&highlighted1, &highlighted2, plainImage1,
-                                plainImage2);
-    else if (comparison == Text)
-        computeTextHighlights(&highlighted1, &highlighted2, page1, page2,
-                              DPI);
-    else if (comparison == TextOld)
-        computeTextHighlightsOld(&highlighted1, &highlighted2, page1,
-                                 page2, DPI);
-    if (!highlighted1.isEmpty())
-        paintOnImage(highlighted1, &image1);
-    if (!highlighted2.isEmpty())
-        paintOnImage(highlighted2, &image2);
-    if (highlighted1.isEmpty() && highlighted2.isEmpty()) {
-        QFont font("Helvetica", 14);
-        font.setOverline(true);
-        font.setUnderline(true);
-        highlighted1.addText(DPI / 4, DPI / 4, font,
-                             tr("DiffPDF: False Positive"));
-        paintOnImage(highlighted1, &image1);
+        QPainterPath highlighted1;
+        QPainterPath highlighted2;
+        if (hasVisualDifference || comparison == Appearance)
+            computeVisualHighlights(&highlighted1, &highlighted2,
+                    plainImage1, plainImage2);
+        else if (comparison == Text)
+            computeTextHighlights(&highlighted1, &highlighted2, page1,
+                    page2, DPI);
+        else if (comparison == TextOld)
+            computeTextHighlightsOld(&highlighted1, &highlighted2, page1,
+                    page2, DPI);
+        if (!highlighted1.isEmpty())
+            paintOnImage(highlighted1, &image1);
+        if (!highlighted2.isEmpty())
+            paintOnImage(highlighted2, &image2);
+        if (highlighted1.isEmpty() && highlighted2.isEmpty()) {
+            QFont font("Helvetica", 14);
+            font.setOverline(true);
+            font.setUnderline(true);
+            highlighted1.addText(DPI / 4, DPI / 4, font,
+                                tr("DiffPDF: False Positive"));
+            paintOnImage(highlighted1, &image1);
+        }
+        pixmap1 = QPixmap::fromImage(image1);
+        pixmap2 = QPixmap::fromImage(image2);
+        QPixmapCache::insert(key1, pixmap1);
+        QPixmapCache::insert(key2, pixmap2);
+        QApplication::restoreOverrideCursor();
     }
-    page1Label->setPixmap(QPixmap::fromImage(image1));
-    page2Label->setPixmap(QPixmap::fromImage(image2));
-    QApplication::restoreOverrideCursor();
+    page1Label->setPixmap(pixmap1);
+    page2Label->setPixmap(pixmap2);
 }
 
 
@@ -500,6 +525,8 @@ void MainWindow::computeTextHighlights(QPainterPath *highlighted1,
     QRectF rect2;
     QSettings settings;
     const int OVERLAP = settings.value("Overlap", 5).toInt();
+    const bool COMBINE = settings.value("CombineTextHighlighting", true)
+            .toBool();
     TextBoxList list1 = getTextBoxes(page1);
     TextBoxList list2 = getTextBoxes(page2);
     QStringList words1;
@@ -513,11 +540,13 @@ void MainWindow::computeTextHighlights(QPainterPath *highlighted1,
     rangesPair = invertRanges(rangesPair.first, words1.count(),
                               rangesPair.second, words2.count());
     foreach (int index, rangesPair.first)
-        addHighlighting(&rect1, highlighted1, list1[index], OVERLAP, DPI);
+        addHighlighting(&rect1, highlighted1, list1[index], OVERLAP,
+                        DPI, COMBINE);
     if (!rect1.isNull() && !rangesPair.first.isEmpty())
         highlighted1->addRect(rect1);
     foreach (int index, rangesPair.second)
-        addHighlighting(&rect2, highlighted2, list2[index], OVERLAP, DPI);
+        addHighlighting(&rect2, highlighted2, list2[index], OVERLAP,
+                        DPI, COMBINE);
     if (!rect2.isNull() && !rangesPair.second.isEmpty())
         highlighted2->addRect(rect2);
 }
@@ -563,11 +592,11 @@ void MainWindow::computeTextHighlightsOld(QPainterPath *highlighted1,
 
 void MainWindow::addHighlighting(QRectF *bigRect,
         QPainterPath *highlighted, const PdfTextBox &box,
-        const int OVERLAP, const int DPI)
+        const int OVERLAP, const int DPI, const bool COMBINE)
 {
     QRectF rect = box->boundingBox();
     scaleRect(DPI, &rect);
-    if (rect.adjusted(-OVERLAP, -OVERLAP, OVERLAP, OVERLAP)
+    if (COMBINE && rect.adjusted(-OVERLAP, -OVERLAP, OVERLAP, OVERLAP)
         .intersects(*bigRect))
         *bigRect = bigRect->united(rect);
     else {
@@ -662,6 +691,7 @@ void MainWindow::closeEvent(QCloseEvent*)
                       static_cast<int>(actionDockArea));
     settings.setValue("MainWindow/ViewSplitter", splitter->saveState());
     settings.setValue("ShowToolTips", showToolTips);
+    settings.setValue("CombineTextHighlighting", combineTextHighlighting);
     settings.setValue("Zoom", zoomSpinBox->value());
     settings.setValue("Outline", pen);
     settings.setValue("Fill", brush);
@@ -989,9 +1019,18 @@ void MainWindow::options()
 {
     QSettings settings;
     double ruleWidth = settings.value("RuleWidth", 1.5).toDouble();
-    OptionsForm form(&pen, &brush, &ruleWidth, &showToolTips, this);
+    bool combineTextHighlighting =
+            settings.value("CombineTextHighlighting", true).toBool();
+    int cacheSize = QPixmapCache::cacheLimit() / 1000;
+    OptionsForm form(&pen, &brush, &ruleWidth, &showToolTips,
+                     &combineTextHighlighting, &cacheSize, this);
     if (form.exec()) {
         settings.setValue("RuleWidth", ruleWidth);
+        settings.setValue("CombineTextHighlighting",
+                          combineTextHighlighting);
+        settings.setValue("CacheSizeMB", cacheSize);
+        QPixmapCache::clear();
+        QPixmapCache::setCacheLimit(1000 * cacheSize);
         updateViews();
     }
 }
@@ -999,7 +1038,7 @@ void MainWindow::options()
 
 void MainWindow::about()
 {
-    static const QString version("1.1.1");
+    static const QString version("1.1.2");
 
     QMessageBox::about(this, tr("DiffPDF - About"),
     tr("<p><b>DiffPDF</a> %1</b> by Mark Summerfield."
