@@ -1,0 +1,10 @@
+HEADERS	    += optionsform.hpp
+SOURCES     += optionsform.cpp
+HEADERS	    += mainwindow.hpp
+SOURCES     += mainwindow.cpp
+HEADERS	    += generic.hpp
+SOURCES	    += generic.cpp
+SOURCES     += main.cpp
+RESOURCES   += resources.qrc
+LIBS	    += -lpoppler-qt4
+INCLUDEPATH += /usr/include/poppler/qt4
