@@ -3,3 +3,4 @@
 diffpdf-qt5.patch
 0004-spelling.patch
 0005-parallel-comparison.patch
+0006-do-not-check-extension.patch
