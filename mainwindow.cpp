@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2008-10 Qtrac Ltd. All rights reserved.
+    Copyright (c) 2008-11 Qtrac Ltd. All rights reserved.
     This program or module is free software: you can redistribute it
     and/or modify it under the terms of the GNU General Public License
     as published by the Free Software Foundation, either version 2 of
@@ -170,9 +170,11 @@ void MainWindow::createWidgets(const QString &filename1,
     statusLabel->setMaximumHeight(statusLabel->minimumSizeHint().height());
     optionsButton = new QPushButton(tr("&Options..."));
     optionsButton->setToolTip(tr("Click to customize the application."));
+    helpButton = new QPushButton(tr("Help"));
+    helpButton->setShortcut(tr("F1"));
+    helpButton->setToolTip(tr("Click for bare bones help."));
     aboutButton = new QPushButton(tr("&About"));
-    aboutButton->setToolTip(tr("Click for copyright, credits and "
-                               "bare bones help."));
+    aboutButton->setToolTip(tr("Click for copyright and credits."));
     quitButton = new QPushButton(tr("&Quit"));
     quitButton->setToolTip(tr("Click to terminate the application."));
     page1Label = new QLabel;
@@ -192,8 +194,8 @@ void MainWindow::createWidgets(const QString &filename1,
             << setFile2Button << filename2LineEdit << pages2LineEdit
             << page2Label << comparisonComboBox << compareButton
             << viewDiffLabel << viewDiffComboBox << zoomLabel
-            << zoomSpinBox << optionsButton << aboutButton << quitButton
-            << logEdit)
+            << zoomSpinBox << optionsButton << helpButton << aboutButton
+            << quitButton << logEdit)
         if (!widget->toolTip().isEmpty())
             widget->installEventFilter(this);
 }
@@ -275,6 +277,7 @@ void MainWindow::createDockWidgets()
     actionLayout = new QBoxLayout(QBoxLayout::TopToBottom);
     actionLayout->addWidget(compareButton);
     actionLayout->addWidget(optionsButton);
+    actionLayout->addWidget(helpButton);
     actionLayout->addWidget(aboutButton);
     actionLayout->addWidget(quitButton);
     actionLayout->addStretch();
@@ -315,6 +318,7 @@ void MainWindow::createConnections()
     connect(zoomSpinBox, SIGNAL(valueChanged(int)),
             this, SLOT(updateViews()));
     connect(optionsButton, SIGNAL(clicked()), this, SLOT(options()));
+    connect(helpButton, SIGNAL(clicked()), this, SLOT(help()));
     connect(aboutButton, SIGNAL(clicked()), this, SLOT(about()));
     connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
 
@@ -1041,19 +1045,10 @@ void MainWindow::options()
 }
 
 
-void MainWindow::about()
+void MainWindow::help()
 {
-    static const QString version("1.1.4");
-
-    QMessageBox::about(this, tr("DiffPDF - About"),
-    tr("<p><b>DiffPDF</a> %1</b> by Mark Summerfield."
-    "<p>Copyright &copy; 2008-10 "
-    "<a href=\"http://www.qtrac.eu\">Qtrac</a> Ltd. All rights reserved."
-    "<p>This program compares the text or the visual appearance of "
-    "each page in two PDF files. It was inspired by an idea "
-    "from Jasmin Blanchette, and incorporates many of his suggestions. "
-    "Thanks also to David Paleino."
-    "<p>To learn how to use the program click the <b>File #1</b> button "
+    QMessageBox::information(this, tr("DiffPDF - Help"),
+    tr("<p>To learn how to use DiffPDF click the <b>File #1</b> button "
     "to choose one PDF file and then the <b>File #2</b> button to choose "
     "another (ideally very similar) PDF file, then click the "
     "<b>Compare</b> button to perform the comparison, and when "
@@ -1066,7 +1061,24 @@ void MainWindow::about()
     "the Log checkbox to open it again. Hover the mouse for tooltips."
     "<p>Although a GUI program, if run from a console with two PDF "
     "files listed on the command line, DiffPDF will start up and "
-    "immediately compare them in Text mode. "
+    "immediately compare them in Text mode. "));
+}
+
+
+void MainWindow::about()
+{
+    static const QString version("1.1.5");
+
+    QMessageBox::about(this, tr("DiffPDF - About"),
+    tr("<p><b>DiffPDF</a> %1</b> by Mark Summerfield."
+    "<p>Copyright &copy; 2008-11 "
+    "<a href=\"http://www.qtrac.eu\">Qtrac</a> Ltd. All rights reserved."
+    "<p>This program compares the text or the visual appearance of "
+    "each page in two PDF files. It was inspired by an idea "
+    "from Jasmin Blanchette, and incorporates many of his suggestions. "
+    "Thanks also to David Paleino."
+    "<p>To learn how to use the program click the <b>Help</b> button "
+    "or press <b>F1</b>."
     "<hr><p>This program is free software: you can redistribute it "
     "and/or modify it under the terms of the GNU General Public License "
     "as published by the Free Software Foundation, either version 2 of "

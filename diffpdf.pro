@@ -14,5 +14,9 @@ exists($(HOME)/opt/poppler014/) {
     INCLUDEPATH += $(HOME)/opt/poppler014/include/poppler/qt4
     LIBS += -Wl,-rpath -Wl,$(HOME)/opt/poppler014/lib -Wl,-L$(HOME)/opt/poppler014/lib
 } else {
-    INCLUDEPATH += /usr/include/poppler/qt4
+    exists(/usr/include/poppler/qt4) {
+	INCLUDEPATH += /usr/include/poppler/qt4
+    } else {
+	INCLUDEPATH += /usr/local/include/poppler/qt4
+    }
 }
