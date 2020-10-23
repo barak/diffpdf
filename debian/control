@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: David Paleino <dapal@debian.org>
 Build-Depends:
- debhelper (>= 13~)
+ debhelper-compat (= 13)
  , qt5-qmake
  , qt5-qmake:native,
  , libpoppler-qt5-dev
