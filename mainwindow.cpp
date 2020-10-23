@@ -13,6 +13,7 @@
 #include "generic.hpp"
 #include "optionsform.hpp"
 #include "mainwindow.hpp"
+#include "sequence_matcher.hpp"
 #include <QApplication>
 #include <QBoxLayout>
 #include <QComboBox>
@@ -87,19 +88,19 @@ void MainWindow::createWidgets(const QString &filename1,
     setFile1Button = new QPushButton(tr("File #&1..."));
     setFile1Button->setToolTip(tr("<p>Choose the first (left hand) file "
                 "to be compared."));
-    file1Label = new QLabel;
-    file1Label->setToolTip(tr("The first (left hand) file."));
-    file1Label->setMinimumWidth(100);
-    file1Label->setFrameStyle(QFrame::StyledPanel|QFrame::Sunken);
-    file1Label->setText(filename1);
+    filename1Label = new QLabel;
+    filename1Label->setToolTip(tr("The first (left hand) file."));
+    filename1Label->setMinimumWidth(100);
+    filename1Label->setFrameStyle(QFrame::StyledPanel|QFrame::Sunken);
+    filename1Label->setText(filename1);
     setFile2Button = new QPushButton(tr("File #&2..."));
     setFile2Button->setToolTip(tr("<p>Choose the second (right hand) file "
                 "to be compared."));
-    file2Label = new QLabel;
-    file2Label->setToolTip(tr("The second (right hand) file."));
-    file2Label->setMinimumWidth(100);
-    file2Label->setFrameStyle(QFrame::StyledPanel|QFrame::Sunken);
-    file2Label->setText(filename2);
+    filename2Label = new QLabel;
+    filename2Label->setToolTip(tr("The second (right hand) file."));
+    filename2Label->setMinimumWidth(100);
+    filename2Label->setFrameStyle(QFrame::StyledPanel|QFrame::Sunken);
+    filename2Label->setText(filename2);
     comparePages1Label = new QLabel(tr("&Pages:"));
     pages1LineEdit = new QLineEdit;
     comparePages1Label->setBuddy(pages1LineEdit);
@@ -119,24 +120,28 @@ void MainWindow::createWidgets(const QString &filename1,
     compareButton = new QPushButton(tr("&Compare"));
     compareButton->setEnabled(false);
     compareButton->setToolTip(tr("<p>Click to compare (or re-compare) "
-                "the documents."));
+                "the documents&mdash;or to cancel a comparison that's "
+                "in progress."));
     comparisonLabel = new QLabel(tr("Comparison &Mode:"));
     comparisonComboBox = new QComboBox;
     comparisonLabel->setBuddy(comparisonComboBox);
     comparisonComboBox->addItem(tr("Text (Old)"), TextOld);
     comparisonComboBox->addItem(tr("Text"), Text);
     comparisonComboBox->addItem(tr("Appearance"), Appearance);
-    comparisonComboBox->setToolTip(tr("<p>If compare Text "
-                "is chosen, then each page's text is compared. "
-                "If compare Appearance is chosen then each page's "
-                "text <i>and</i> visual appearance is compared. "
+    comparisonComboBox->setToolTip(tr("<p>If the <b>Text</b> comparison "
+                "mode is chosen, then each page's text is compared. "
+                "If the <b>Appearance</b> comparison mode is chosen "
+                "then each page's visual appearance is compared. "
                 "Comparing appearance can be slow for large documents "
-                "and can also produce false positives."));
+                "and can also produce false positives."
+                "<p>The <b>Text (Old)</b> mode is kept purely for "
+                "debugging; always use the <b>Text</b> or "
+                "<b>Appearance</b> modes instead."));
     comparisonComboBox->setCurrentIndex(Text);
     viewDiffLabel = new QLabel(tr("&View:"));
     viewDiffLabel->setToolTip(tr("<p>Shows each pair of pages which "
                 "are different. The comparison is textual unless the "
-                "<b>Compare Appearance</b> checkbox is checked, in "
+                "<b>Appearance</b> comparison mode is chosen, in "
                 "which case the comparison is done visually. "
                 "Visual differences can occur if a paragraph is "
                 "formated differently or if an embedded diagram or "
@@ -179,8 +184,8 @@ void MainWindow::createWidgets(const QString &filename1,
     logEdit = new QPlainTextEdit;
 
     foreach (QWidget *widget, QList<QWidget*>() << setFile1Button
-            << file1Label << pages1LineEdit << page1Label
-            << setFile2Button << file2Label << pages2LineEdit
+            << filename1Label << pages1LineEdit << page1Label
+            << setFile2Button << filename2Label << pages2LineEdit
             << page2Label << comparisonComboBox << compareButton
             << viewDiffLabel << viewDiffComboBox << zoomLabel
             << zoomSpinBox << optionsButton << aboutButton << quitButton
@@ -194,9 +199,9 @@ void MainWindow::createCentralArea()
 {
     QHBoxLayout *topLeftLayout = new QHBoxLayout;
     topLeftLayout->addWidget(setFile1Button);
-    topLeftLayout->addWidget(file1Label, 1);
+    topLeftLayout->addWidget(filename1Label, 3);
     topLeftLayout->addWidget(comparePages1Label);
-    topLeftLayout->addWidget(pages1LineEdit, 1);
+    topLeftLayout->addWidget(pages1LineEdit, 2);
     area1 = new QScrollArea;
     area1->setWidget(page1Label);
     area1->setWidgetResizable(true);
@@ -207,10 +212,10 @@ void MainWindow::createCentralArea()
     leftWidget->setLayout(leftLayout);
 
     QHBoxLayout *topRightLayout = new QHBoxLayout;
-    topRightLayout->addWidget(setFile2Button);
-    topRightLayout->addWidget(file2Label, 1);
+    topLeftLayout->addWidget(setFile2Button);
+    topRightLayout->addWidget(filename2Label, 3);
     topRightLayout->addWidget(comparePages2Label);
-    topRightLayout->addWidget(pages2LineEdit, 1);
+    topRightLayout->addWidget(pages2LineEdit, 2);
     area2 = new QScrollArea;
     area2->setWidget(page2Label);
     area2->setWidgetResizable(true);
@@ -224,7 +229,7 @@ void MainWindow::createCentralArea()
     splitter->addWidget(leftWidget);
     splitter->addWidget(rightWidget);
     QSettings settings;
-    splitter->restoreState(settings.value("MainWindow/Splitter")
+    splitter->restoreState(settings.value("MainWindow/ViewSplitter")
             .toByteArray());
 
     setCentralWidget(splitter);
@@ -337,8 +342,8 @@ void MainWindow::initialize(const QString &filename1,
 
 void MainWindow::updateUi()
 {
-    compareButton->setEnabled(!file1Label->text().isEmpty() &&
-                              !file2Label->text().isEmpty());
+    compareButton->setEnabled(!filename1Label->text().isEmpty() &&
+                              !filename2Label->text().isEmpty());
 }
 
 
@@ -408,7 +413,7 @@ void MainWindow::updateViews(int index)
     if (pair.isNull())
         return;
 
-    QString filename1 = file1Label->text();
+    QString filename1 = filename1Label->text();
     PdfDocument pdf1 = getPdf(filename1);
     if (!pdf1)
         return;
@@ -416,7 +421,7 @@ void MainWindow::updateViews(int index)
     if (!page1)
         return;
 
-    QString filename2 = file2Label->text();
+    QString filename2 = filename2Label->text();
     PdfDocument pdf2 = getPdf(filename2);
     if (!pdf2)
         return;
@@ -424,20 +429,22 @@ void MainWindow::updateViews(int index)
     if (!page2)
         return;
 
-    updateViews(pdf1, page1, pdf2, page2, pair.visual_difference);
+    updateViews(pdf1, page1, pdf2, page2, pair.hasVisualDifference);
 }
 
 
 void MainWindow::updateViews(const PdfDocument &pdf1,
         const PdfPage &page1, const PdfDocument &pdf2,
-        const PdfPage &page2, bool visual_difference)
+        const PdfPage &page2, bool hasVisualDifference)
 {
     const int DPI = static_cast<int>(DPI_FACTOR *
             (zoomSpinBox->value() / 100.0));
+    Comparison comparison = static_cast<Comparison>(
+            comparisonComboBox->itemData(
+                comparisonComboBox->currentIndex()).toInt());
     QImage plainImage1;
     QImage plainImage2;
-    if (visual_difference || comparisonComboBox->itemData(
-            comparisonComboBox->currentIndex()) == VisualDifference) {
+    if (hasVisualDifference || comparison == Appearance) {
         plainImage1 = page1->renderToImage(DPI, DPI);
         plainImage2 = page2->renderToImage(DPI, DPI);
     }
@@ -450,20 +457,64 @@ void MainWindow::updateViews(const PdfDocument &pdf1,
 
     QPainterPath highlighted1;
     QPainterPath highlighted2;
-    computeTextHighlights(&highlighted1, &highlighted2, page1, page2, DPI);
-    if (visual_difference || comparisonComboBox->itemData(
-            comparisonComboBox->currentIndex()) == VisualDifference)
+    if (hasVisualDifference || comparison == Appearance)
         computeVisualHighlights(&highlighted1, &highlighted2, plainImage1,
                                 plainImage2);
-
-    paintOnImage(highlighted1, &image1);
-    paintOnImage(highlighted2, &image2);
+    else if (comparison == Text)
+        computeTextHighlights(&highlighted1, &highlighted2, page1, page2,
+                              DPI);
+    else if (comparison == TextOld)
+        computeTextHighlightsOld(&highlighted1, &highlighted2, page1,
+                                 page2, DPI);
+    if (!highlighted1.isEmpty())
+        paintOnImage(highlighted1, &image1);
+    if (!highlighted2.isEmpty())
+        paintOnImage(highlighted2, &image2);
+    if (highlighted1.isEmpty() && highlighted2.isEmpty()) {
+        QFont font("Helvetica", 14);
+        font.setOverline(true);
+        font.setUnderline(true);
+        highlighted1.addText(DPI / 4, DPI / 4, font,
+                             tr("DiffPDF: False Positive"));
+        paintOnImage(highlighted1, &image1);
+    }
     page1Label->setPixmap(QPixmap::fromImage(image1));
     page2Label->setPixmap(QPixmap::fromImage(image2));
 }
 
 
 void MainWindow::computeTextHighlights(QPainterPath *highlighted1,
+        QPainterPath *highlighted2, const PdfPage &page1,
+        const PdfPage &page2, const int DPI)
+{
+    QRectF rect1;
+    QRectF rect2;
+    QSettings settings;
+    const int OVERLAP = settings.value("Overlap", 5).toInt();
+    TextBoxList list1 = getTextBoxes(page1);
+    TextBoxList list2 = getTextBoxes(page2);
+    QStringList words1;
+    QStringList words2;
+    foreach (const PdfTextBox &box, list1)
+        words1 << box->text();
+    foreach (const PdfTextBox &box, list2)
+        words2 << box->text();
+    SequenceMatcher matcher(words1, words2);
+    RangesPair rangesPair = computeRanges(&matcher);
+    rangesPair = invertRanges(rangesPair.first, words1.count(),
+                              rangesPair.second, words2.count());
+    foreach (int index, rangesPair.first)
+        addHighlighting(&rect1, highlighted1, list1[index], OVERLAP, DPI);
+    if (!rect1.isNull() && !rangesPair.first.isEmpty())
+        highlighted1->addRect(rect1);
+    foreach (int index, rangesPair.second)
+        addHighlighting(&rect2, highlighted2, list2[index], OVERLAP, DPI);
+    if (!rect2.isNull() && !rangesPair.second.isEmpty())
+        highlighted2->addRect(rect2);
+}
+
+
+void MainWindow::computeTextHighlightsOld(QPainterPath *highlighted1,
         QPainterPath *highlighted2, const PdfPage &page1,
         const PdfPage &page2, const int DPI)
 {
@@ -587,7 +638,7 @@ void MainWindow::closeEvent(QCloseEvent*)
                       static_cast<int>(controlDockArea));
     settings.setValue("MainWindow/ActionDockArea",
                       static_cast<int>(actionDockArea));
-    settings.setValue("MainWindow/Splitter", splitter->saveState());
+    settings.setValue("MainWindow/ViewSplitter", splitter->saveState());
     settings.setValue("ShowToolTips", showToolTips);
     settings.setValue("Zoom", zoomSpinBox->value());
     settings.setValue("Outline", pen);
@@ -611,18 +662,18 @@ void MainWindow::setFile1(QString filename)
                 tr("DiffPDF - Choose File #1"), currentPath,
                 tr("PDF files (*.pdf)"));
     if (!filename.isEmpty()) {
-        if (filename == file2Label->text()) {
+        if (filename == filename2Label->text()) {
             QMessageBox::warning(this, tr("DiffPDF - Error"),
                     tr("Cannot compare a file to itself."));
             return;
         }
-        file1Label->setText(filename);
+        filename1Label->setText(filename);
         updateUi();
         int page_count = writeFileInfo(filename);
         pages1LineEdit->setText(tr("1-%1").arg(page_count));
         currentPath = QFileInfo(filename).canonicalPath();
         setFile2Button->setFocus();
-        if (file2Label->text().isEmpty())
+        if (filename2Label->text().isEmpty())
             statusLabel->setText(tr("Choose second file"));
         else
             statusLabel->setText(tr("Ready to compare"));
@@ -637,18 +688,18 @@ void MainWindow::setFile2(QString filename)
                 tr("DiffPDF - Choose File #2"), currentPath,
                 tr("PDF files (*.pdf)"));
     if (!filename.isEmpty()) {
-        if (filename == file1Label->text()) {
+        if (filename == filename1Label->text()) {
             QMessageBox::warning(this, tr("DiffPDF - Error"),
                     tr("Cannot compare a file to itself."));
             return;
         }
-        file2Label->setText(filename);
+        filename2Label->setText(filename);
         updateUi();
         int page_count = writeFileInfo(filename);
         pages2LineEdit->setText(tr("1-%1").arg(page_count));
         currentPath = QFileInfo(filename).canonicalPath();
         compareButton->setFocus();
-        if (file1Label->text().isEmpty())
+        if (filename1Label->text().isEmpty())
             statusLabel->setText(tr("Choose first file"));
         else
             statusLabel->setText(tr("Ready to compare"));
@@ -773,11 +824,11 @@ void MainWindow::compare()
         return;
     }
     cancel = false;
-    QString filename1 = file1Label->text();
+    QString filename1 = filename1Label->text();
     PdfDocument pdf1 = getPdf(filename1);
     if (!pdf1)
         return;
-    QString filename2 = file2Label->text();
+    QString filename2 = filename2Label->text();
     PdfDocument pdf2 = getPdf(filename2);
     if (!pdf2) {
         return;
@@ -889,7 +940,7 @@ MainWindow::Difference MainWindow::getTheDifference(PdfPage page1,
             return TextualDifference;
 
     if (comparisonComboBox->itemData(
-            comparisonComboBox->currentIndex()) == VisualDifference) {
+            comparisonComboBox->currentIndex()) == Appearance) {
         QImage image1 = page1->renderToImage();
         QImage image2 = page2->renderToImage();
         if (image1 != image2)
@@ -909,15 +960,14 @@ void MainWindow::options()
 
 void MainWindow::about()
 {
-    static const QString version("0.6.0");
+    static const QString version("1.0.0");
 
     QMessageBox::about(this, tr("DiffPDF - About"),
     tr("<p><b>DiffPDF</a> %1</b> by Mark Summerfield."
     "<p>Copyright &copy; 2008-10 "
     "<a href=\"http://www.qtrac.eu\">Qtrac</a> Ltd. All rights reserved."
-    "<p>This program compares the text (and optionally the visual "
-    "appearance) of each page in two PDF files. "
-    "It was inspired by an idea "
+    "<p>This program compares the text or the visual appearance of "
+    "each page in two PDF files. It was inspired by an idea "
     "from Jasmin Blanchette, and incorporates many of his suggestions. "
     "Thanks also to David Paleino."
     "<p>To learn how to use the program click the <b>File #1</b> button "

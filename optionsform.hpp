@@ -12,7 +12,6 @@
     for more details.
 */
 
-
 #include <QBrush>
 #include <QDialog>
 #include <QPen>
