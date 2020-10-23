@@ -21,8 +21,9 @@ available in the program's tooltips.
 Compiling and Installing DiffPDF
 ================================
 
-Prerequisites: A C++ compiler that supports tr1, the Qt4 libraries, and
-the Poppler libraries (including the Qt4 headers).
+Prerequisites: A C++ compiler that supports tr1, the Qt4 libraries
+(minimum recommended is Qt 4.5), and the Poppler libraries (including
+the Qt4 headers).
 
 1. Unpack the archive file, diffpdf-XXX.tar.gz
 2. Change directory to diffpdf-XXX

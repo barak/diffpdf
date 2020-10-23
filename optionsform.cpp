@@ -10,110 +10,185 @@
     for more details.
 */
 
+#include "generic.hpp"
 #include "optionsform.hpp"
-#include <QtGui>
+#include <QCheckBox>
+#include <QColor>
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QFormLayout>
+#include <QGroupBox>
+#include <QPushButton>
+#include <QVBoxLayout>
 
-QPixmap penStyleSwatch(const Qt::PenStyle style, const QColor
-        &color=Qt::black, const QSize &size=QSize(32, 24));
 
-QPixmap penStyleSwatch(const Qt::PenStyle style, const QColor &color,
-                       const QSize &size)
+OptionsForm::OptionsForm(QPen *pen, QBrush *brush, bool *showToolTips,
+                         QWidget *parent)
+    : QDialog(parent), m_pen(pen), m_brush(brush),
+      m_showToolTips(showToolTips)
 {
-    QPixmap pixmap(size);
-    pixmap.fill(Qt::transparent);
-    QPainter painter(&pixmap);
-    QPen pen(style);
-    pen.setColor(color);
-    pen.setWidth(3);
-    painter.setPen(pen);
-    const int Y = size.height() / 2;
-    painter.drawLine(0, Y, size.width(), Y);
-    painter.end();
-    return pixmap;
-}
+    this->pen = *m_pen;
+    this->brush = *m_brush;
 
+    createWidgets();
+    createLayout();
+    createConnections();
 
-OptionsForm::OptionsForm(QWidget *parent)
-    : QDialog(parent)
-{
-    QSettings settings;
-
-    QPushButton *highlightColorButton = new QPushButton(
-            tr("Highlight &Color..."));
-    highlightColorLabel = new QLabel();
-    QPixmap pixmap(60, 3);
-    highlight_color = settings.value("HighlightColor", Qt::yellow)
-                                     .value<QColor>();
-    pixmap.fill(highlight_color);
-    highlightColorLabel->setPixmap(pixmap);
-    QLabel *lineStyleLabel = new QLabel(tr("&Line Style:"));
-    lineStyleComboBox = new QComboBox();
-    updateLineStyleCombobox();
-    lineStyleLabel->setBuddy(lineStyleComboBox);
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(
-            QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
-
-    QGridLayout *layout = new QGridLayout();
-    layout->addWidget(highlightColorButton, 0, 0);
-    layout->addWidget(highlightColorLabel, 0, 1);
-    layout->addWidget(lineStyleLabel, 1, 0);
-    layout->addWidget(lineStyleComboBox, 1, 1);
-    layout->addWidget(buttonBox, 3, 0, 1, 2);
-    setLayout(layout);
-    highlightColorButton->setFocus();
-
-    connect(highlightColorButton, SIGNAL(clicked()),
-            this, SLOT(setColor()));
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
+    updateSwatches();
+    updateUi();
     setWindowTitle(tr("DiffPDF - Options"));
 }
 
 
-void OptionsForm::updateLineStyleCombobox()
+void OptionsForm::createWidgets()
 {
-    int index = lineStyleComboBox->currentIndex();
-    lineStyleComboBox->clear();
-    lineStyleComboBox->addItem(QIcon(penStyleSwatch(Qt::SolidLine,
-            highlight_color)), tr("Solid Line"), Qt::SolidLine);
-    lineStyleComboBox->addItem(QIcon(penStyleSwatch(Qt::DashLine,
-            highlight_color)), tr("Dashed Line"), Qt::DashLine);
-    lineStyleComboBox->addItem(QIcon(penStyleSwatch(Qt::DotLine,
-            highlight_color)), tr("Dotted Line"), Qt::DotLine);
-    lineStyleComboBox->addItem(QIcon(penStyleSwatch(Qt::DashDotLine,
-            highlight_color)), tr("Dash-Dotted Line"), Qt::DashDotLine);
-    lineStyleComboBox->addItem(QIcon(penStyleSwatch(Qt::DashDotDotLine,
-            highlight_color)), tr("Dash-Dot-Dotted Line"),
-            Qt::DashDotDotLine);
-    if (index == -1) {
-        QSettings settings;
-        index = lineStyleComboBox->findData(settings.value("LineStyle"));
-        if (index == -1)
-            index = 0;
+    colorComboBox = new QComboBox;
+    foreach (const QString &name, QColor::colorNames()) {
+        QColor color(name);
+        colorComboBox->addItem(colorSwatch(color), name, color);
     }
-    lineStyleComboBox->setCurrentIndex(index);
+    colorComboBox->setCurrentIndex(colorComboBox->findData(pen.color()));
+
+    QColor color = pen.color();
+    color.setAlpha(32); // semi-transparent for painting (stored as solid)
+
+    brushStyleComboBox = new QComboBox;
+    typedef QPair<QString, Qt::BrushStyle> BrushPair;
+    foreach (const BrushPair &pair, QList<BrushPair>()
+            << qMakePair(tr("No Brush"), Qt::NoBrush)
+            << qMakePair(tr("Solid"), Qt::SolidPattern)
+            << qMakePair(tr("Dense #1"), Qt::Dense1Pattern)
+            << qMakePair(tr("Dense #2"), Qt::Dense2Pattern)
+            << qMakePair(tr("Dense #3"), Qt::Dense3Pattern)
+            << qMakePair(tr("Dense #4"), Qt::Dense4Pattern)
+            << qMakePair(tr("Dense #5"), Qt::Dense5Pattern)
+            << qMakePair(tr("Dense #6"), Qt::Dense6Pattern)
+            << qMakePair(tr("Horizontal"), Qt::HorPattern)
+            << qMakePair(tr("Vertical"), Qt::VerPattern)
+            << qMakePair(tr("Cross"), Qt::CrossPattern)
+            << qMakePair(tr("Diagonal /"), Qt::BDiagPattern)
+            << qMakePair(tr("Diagonal \\"), Qt::FDiagPattern)
+            << qMakePair(tr("Diagonal Cross"), Qt::DiagCrossPattern))
+        brushStyleComboBox->addItem(brushSwatch(pair.second, color),
+                                                pair.first, pair.second);
+    brushStyleComboBox->setCurrentIndex(brushStyleComboBox->findData(
+                brush.style()));
+
+    penStyleComboBox = new QComboBox;
+    typedef QPair<QString, Qt::PenStyle> PenPair;
+    foreach (const PenPair &pair, QList<PenPair>()
+            << qMakePair(tr("No Pen"), Qt::NoPen)
+            << qMakePair(tr("Solid"), Qt::SolidLine)
+            << qMakePair(tr("Dashed"), Qt::DashLine)
+            << qMakePair(tr("Dotted"), Qt::DotLine)
+            << qMakePair(tr("Dash-Dotted"), Qt::DashDotLine)
+            << qMakePair(tr("Dash-Dot-Dotted"), Qt::DashDotDotLine))
+        penStyleComboBox->addItem(penStyleSwatch(pair.second, color),
+                                  pair.first, pair.second);
+    penStyleComboBox->setCurrentIndex(penStyleComboBox->findData(
+                pen.style()));
+
+    showToolTipsCheckBox = new QCheckBox(tr("Show &Tooltips in "
+                                            "the main window"));
+    showToolTipsCheckBox->setChecked(*m_showToolTips);
+
+    buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok|
+                                     QDialogButtonBox::Cancel);
 }
 
 
-void OptionsForm::setColor()
+void OptionsForm::createLayout()
 {
-    QPixmap pixmap(60, 3);
-    QColor color = QColorDialog::getColor(highlight_color, this);
-    if (color.isValid()) {
-        highlight_color = color;
-        pixmap.fill(highlight_color);
-        highlightColorLabel->setPixmap(pixmap);
-        updateLineStyleCombobox();
-    }
+    QFormLayout *mainLayout = new QFormLayout;
+    mainLayout->addRow(tr("Base Colo&r:"), colorComboBox);
+    mainLayout->addRow(tr("Out&line:"), penStyleComboBox);
+    mainLayout->addRow(tr("&Fill:"), brushStyleComboBox);
+    QGroupBox *box = new QGroupBox(tr("Highlighting"));
+    box->setToolTip(tr("<p>The outline and fill are used to highlight "
+            "differences using a semi-transparent version of the base "
+            "color"));
+    box->setLayout(mainLayout);
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(box);
+    layout->addWidget(showToolTipsCheckBox);
+    layout->addWidget(buttonBox);
+    setLayout(layout);
+}
+
+
+void OptionsForm::createConnections()
+{
+    connect(colorComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(updateColor(int)));
+    connect(penStyleComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(updatePenStyle(int)));
+    connect(penStyleComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(updateUi()));
+    connect(brushStyleComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(updateBrushStyle(int)));
+    connect(brushStyleComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(updateUi()));
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+}
+
+
+void OptionsForm::updateColor(int index)
+{
+    QColor color = colorComboBox->itemData(index).value<QColor>();
+    brush.setColor(color);
+    pen.setColor(color);
+    updateSwatches();
+}
+
+
+void OptionsForm::updatePenStyle(int index)
+{
+    pen.setStyle(static_cast<Qt::PenStyle>(
+                 penStyleComboBox->itemData(index).toInt()));
+}
+
+
+void OptionsForm::updateBrushStyle(int index)
+{
+    brush.setStyle(static_cast<Qt::BrushStyle>(
+                   brushStyleComboBox->itemData(index).toInt()));
+}
+
+
+void OptionsForm::updateSwatches()
+{
+    QColor color = colorComboBox->itemData(
+            colorComboBox->currentIndex()).value<QColor>();
+    color.setAlpha(32); // semi-transparent for painting (stored as solid)
+    for (int i = 0; i < brushStyleComboBox->count(); ++i)
+        brushStyleComboBox->setItemIcon(i, brushSwatch(
+                static_cast<Qt::BrushStyle>(
+                    brushStyleComboBox->itemData(i).toInt()), color));
+    for (int i = 0; i < penStyleComboBox->count(); ++i)
+        penStyleComboBox->setItemIcon(i, penStyleSwatch(
+                static_cast<Qt::PenStyle>(
+                    penStyleComboBox->itemData(i).toInt()), color));
+}
+
+
+void OptionsForm::updateUi()
+{
+    Qt::BrushStyle brushStyle = static_cast<Qt::BrushStyle>(
+            brushStyleComboBox->itemData(
+                    brushStyleComboBox->currentIndex()).toInt());
+    Qt::PenStyle penStyle = static_cast<Qt::PenStyle>(
+            penStyleComboBox->itemData(
+                    penStyleComboBox->currentIndex()).toInt());
+    buttonBox->button(QDialogButtonBox::Ok)->setEnabled(
+            !(brushStyle == Qt::NoBrush && penStyle == Qt::NoPen));
 }
 
 
 void OptionsForm::accept()
 {
-    QSettings settings;
-    settings.setValue("HighlightColor", highlight_color);
-    settings.setValue("LineStyle", lineStyleComboBox->itemData(
-                      lineStyleComboBox->currentIndex()));
+    *m_pen = pen;
+    *m_brush = brush;
+    *m_showToolTips = showToolTipsCheckBox->isChecked();
     QDialog::accept();
 }

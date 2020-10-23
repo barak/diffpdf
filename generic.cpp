@@ -12,6 +12,11 @@
 
 #include "generic.hpp"
 #include <QRectF>
+#include <QPainter>
+#include <QPen>
+#include <QPixmapCache>
+
+const QSize SwatchSize(24, 24);
 
 
 void scaleRect(int dpi, QRectF *rect)
@@ -32,3 +37,76 @@ void scaleRect(int dpi, QRectF *rect)
 }
 
 
+QPixmap colorSwatch(const QColor &color)
+{
+    QString key = QString("COLORSWATCH:%1").arg(color.name());
+    QPixmap pixmap(SwatchSize);
+#if QT_VERSION >= 0x040600
+    if (!QPixmapCache::find(key, &pixmap)) {
+#else
+    if (!QPixmapCache::find(key, pixmap)) {
+#endif
+        pixmap.fill(Qt::transparent);
+        {
+            QPainter painter(&pixmap);
+            painter.setRenderHints(QPainter::Antialiasing);
+            painter.setPen(Qt::NoPen);
+            painter.setBrush(color);
+            painter.drawEllipse(0, 0, SwatchSize.width(),
+                                SwatchSize.height());
+        }
+        QPixmapCache::insert(key, pixmap);
+    }
+    return pixmap;
+}
+
+
+QPixmap brushSwatch(const Qt::BrushStyle style, const QColor &color)
+{
+    QString key = QString("BRUSHSTYLESWATCH:%1:%2")
+        .arg(static_cast<int>(style)).arg(color.name());
+    QPixmap pixmap(SwatchSize);
+#if QT_VERSION >= 0x040600
+    if (!QPixmapCache::find(key, &pixmap)) {
+#else
+    if (!QPixmapCache::find(key, pixmap)) {
+#endif
+        pixmap.fill(Qt::transparent);
+        {
+            QPainter painter(&pixmap);
+            painter.setRenderHint(QPainter::Antialiasing);
+            painter.setPen(Qt::NoPen);
+            painter.setBrush(QBrush(color, style));
+            painter.drawRect(0, 0, SwatchSize.width(),
+                             SwatchSize.height());
+        }
+        QPixmapCache::insert(key, pixmap);
+    }
+    return pixmap;
+}
+
+
+QPixmap penStyleSwatch(const Qt::PenStyle style, const QColor &color)
+{
+    QString key = QString("PENSTYLESWATCH:%1:%2")
+        .arg(static_cast<int>(style)).arg(color.name());
+    QPixmap pixmap(SwatchSize);
+#if QT_VERSION >= 0x040600
+    if (!QPixmapCache::find(key, &pixmap)) {
+#else
+    if (!QPixmapCache::find(key, pixmap)) {
+#endif
+        pixmap.fill(Qt::transparent);
+        {
+            QPainter painter(&pixmap);
+            QPen pen(style);
+            pen.setColor(color);
+            pen.setWidth(2);
+            painter.setPen(pen);
+            const int Y = SwatchSize.height() / 2;
+            painter.drawLine(0, Y, SwatchSize.width(), Y);
+        }
+        QPixmapCache::insert(key, pixmap);
+    }
+    return pixmap;
+}
