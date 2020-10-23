@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2011-12 Qtrac Ltd. All rights reserved.
+    Copyright © 2011-13 Qtrac Ltd. All rights reserved.
     This program or module is free software: you can redistribute it
     and/or modify it under the terms of the GNU General Public License
     as published by the Free Software Foundation, either version 2 of
@@ -20,20 +20,20 @@
 #include <QTextBrowser>
 
 
-static const QString Version("2.1.1");
+static const QString Version("2.1.3");
 
 
 AboutForm::AboutForm(QWidget *parent) : QDialog(parent)
 {
-    setAttribute(Qt::WA_DeleteOnClose);
     QTextBrowser *aboutBrowser = new QTextBrowser;
     aboutBrowser->setReadOnly(true);
+    aboutBrowser->setOpenExternalLinks(true);
     aboutBrowser->setHtml(tr(
     "<table border=0>"
     "<tr><td width=90%><b>%1</a> %2</b> by Mark Summerfield</td>"
     "<td rowspan=3><img align=right src=\":/icon.png\"></td></tr>"
     "<tr><td><tt>&lt;mark@qtrac.eu&gt;</tt>.</td></tr>"
-    "<tr><td colspan=2>Copyright &copy; 2008-12 "
+    "<tr><td colspan=2>Copyright &copy; 2008-13 "
     "<a href=\"http://www.qtrac.eu\">Qtrac</a> Ltd. All rights reserved."
     "</td></tr>"
     "<tr><td colspan=2>Built with Qt %3 and Poppler %4.</td></tr>"
@@ -73,12 +73,14 @@ AboutForm::AboutForm(QWidget *parent) : QDialog(parent)
     "resulting in Characters mode</td></tr>"
     "<tr><td>&bull;</td><td bgcolor=\"#F0F0F0\"><i>Pavel Fric</i> &mdash; "
     "Czech translation</td></tr>"
-    "<tr><td>&bull;</td><td bgcolor=\"#F0F0F0\"><i>Pierre-Alain</i> "
-    "Bandinelli&mdash; French translation</td></tr>"
+    "<tr><td>&bull;</td><td bgcolor=\"#F0F0F0\"><i>Pierre-Alain "
+    "Bandinelli</i>&mdash; French translation</td></tr>"
     "<tr><td>&bull;</td><td bgcolor=\"#F0F0F0\"><i>Rainer Krachten</i> "
     "&mdash; German translation and various suggestions</td></tr>"
     "<tr><td>&bull;</td><td>Rory Gordon &mdash; suggested adding "
     "drag and drop</td></tr>"
+    "<tr><td>&bull;</td><td>Bryan Huh &mdash; subtle bug fix"
+    "</td></tr>"
     "<tr><td>&bull;</td><td><b>Steven Lee</b> &mdash; creating "
     "Windows binaries</td></tr>"
     "</table>"));

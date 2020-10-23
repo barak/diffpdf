@@ -43,13 +43,13 @@ Compiling and Installing DiffPDF (Mac-specific notes are at the end.)
 ================================
 
 Prerequisites: A C++ compiler, the Qt 4 libraries (I test with Qt 4.7
-and Qt 4.6. Earlier Qt's may work although Qt 4.4 and 4.5 will at least
-need a compiler with tr1 support), and the Poppler libraries (including
-Poppler's Qt 4 headers). Linux and BSD users should be able to get
-everything through their package management system---and some distros
-already include diffpdf so you don't even have to build it. Mac OS X
-users can get a compiler by installing Xcode; you'll need to get Qt and
-Poppler separately.
+and Qt 4.8. Earlier Qt's may work although Qt 4.4 and 4.5 will at least
+need a compiler with tr1 support), and the Poppler libraries (at least
+0.20.1, including Poppler's Qt 4 headers). Linux and BSD users should be
+able to get everything through their package management system---and
+some distros already include diffpdf so you don't even have to build it.
+Mac OS X users can get a compiler by installing Xcode; you'll need to
+get Qt and Poppler separately.
 
 1. Unpack the archive file, diffpdf-XXX.tar.gz
     $ tar xvfz diffpdf-XXX.tar.gz
@@ -86,7 +86,7 @@ License
 =======
 
 This program was written by Mark Summerfield.
-Copyright (c) 2008-12 Qtrac Ltd. All rights reserved.
+Copyright © 2008-13 Qtrac Ltd. All rights reserved.
 
 This program is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -114,7 +114,7 @@ $ curl -O http://www.qtrac.eu/diffpdf-1.5.0.tar.gz
 $ tar xvfz diffpdf-1.5.0.tar.gz
 $ cd diffpdf-1.5.0
 $ lrelease diffpdf.pro
-$ qmake spec=macx-g++
+$ qmake -spec macx-g++
 $ make
 
 Here's how to make a .dmg:
