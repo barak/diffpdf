@@ -19,6 +19,7 @@
 class QCheckBox;
 class QComboBox;
 class QDialogButtonBox;
+class QDoubleSpinBox;
 
 
 class OptionsForm : public QDialog
@@ -26,8 +27,8 @@ class OptionsForm : public QDialog
     Q_OBJECT
 
 public:
-    OptionsForm(QPen *pen, QBrush *brush, bool *showToolTips,
-                QWidget *parent=0);
+    OptionsForm(QPen *pen, QBrush *brush, qreal *ruleWidth,
+                bool *showToolTips, QWidget *parent=0);
 
 private slots:
     void updateColor(int index);
@@ -45,11 +46,13 @@ private:
     QComboBox *colorComboBox;
     QComboBox *brushStyleComboBox;
     QComboBox *penStyleComboBox;
+    QDoubleSpinBox *ruleWidthSpinBox;
     QCheckBox *showToolTipsCheckBox;
     QDialogButtonBox *buttonBox;
 
     QPen *m_pen;
     QBrush *m_brush;
+    qreal *m_ruleWidth;
     bool *m_showToolTips;
     QPen pen;
     QBrush brush;
