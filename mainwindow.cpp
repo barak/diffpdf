@@ -390,11 +390,21 @@ void MainWindow::updateUi()
 {
     compareButton->setEnabled(!filename1LineEdit->text().isEmpty() &&
                               !filename2LineEdit->text().isEmpty());
+    QPushButton *button = qobject_cast<QPushButton*>(focusWidget());
+    bool enableNavigationButton = (button == previousButton ||
+                                   button == nextButton);
     previousButton->setEnabled(viewDiffComboBox->count() > 1 &&
             viewDiffComboBox->currentIndex() > 0);
     nextButton->setEnabled(viewDiffComboBox->count() > 1 &&
             viewDiffComboBox->currentIndex() + 1 <
             viewDiffComboBox->count());
+    if (enableNavigationButton && !(previousButton->isEnabled() &&
+                                    nextButton->isEnabled())) {
+        if (previousButton->isEnabled())
+            previousButton->setFocus();
+        else
+            nextButton->setFocus();
+    }
 }
 
 
@@ -1081,7 +1091,7 @@ void MainWindow::help()
 
 void MainWindow::about()
 {
-    static const QString version("1.2.0");
+    static const QString version("1.2.2");
 
     QMessageBox::about(this, tr("DiffPDF - About"),
     tr("<p><b>DiffPDF</a> %1</b> by Mark Summerfield."
@@ -1090,7 +1100,8 @@ void MainWindow::about()
     "<p>This program compares the text or the visual appearance of "
     "each page in two PDF files. It was inspired by an idea "
     "from Jasmin Blanchette, and incorporates many of his suggestions. "
-    "Thanks also to David Paleino."
+    "Thanks also to Steven Lee for building Windows versions, "
+    "Dirk Loss for building Mac OS X versions, and to David Paleino."
     "<p>To learn how to use the program click the <b>Help</b> button "
     "or press <b>F1</b>."
     "<p>If you like DiffPDF and you develop software you might like "

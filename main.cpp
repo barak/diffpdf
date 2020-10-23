@@ -26,14 +26,15 @@ int main(int argc, char *argv[])
     app.setApplicationName("DiffPDF");
     app.setWindowIcon(QIcon(":/icon.png"));
 
+    QStringList args = app.arguments();
     QString filename1;
     QString filename2;
-    if (argc > 1) {
-        filename1 = argv[1];
+    if (args.count() > 1) {
+        filename1 = args.at(1);
         if (!filename1.toLower().endsWith(".pdf"))
             filename1.clear();
-        if (argc > 2) {
-            filename2 = argv[2];
+        if (args.count() > 2) {
+            filename2 = args.at(2);
             if (!filename2.toLower().endsWith(".pdf"))
                 filename2.clear();
             else if (filename1.isEmpty()) {
