@@ -12,7 +12,7 @@ Build-Depends:
  , qttools5-dev,
  , qttools5-dev-tools,
 Standards-Version: 4.5.0
-Homepage: http://www.qtrac.eu/diffpdf.html
+Homepage: http://www.qtrac.eu/diffpdf-foss.html
 Vcs-Git: https://salsa.debian.org/debian/diffpdf.git
 Vcs-Browser: https://salsa.debian.org/debian/diffpdf
 

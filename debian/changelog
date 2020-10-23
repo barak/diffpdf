@@ -17,8 +17,10 @@ diffpdf (2.1.3-2) UNRELEASED; urgency=medium
   * Patch some spelling errors
   * Use dh13 facilities in debian/rules
   * OpenML parallel comparison patch by Sebastian Gerke (closes: #878060)
+  * Move homepage to upstream "FOSS" disclaimer page (closes: #776833)
+  * Update debian/watch uscan support file
 
- -- Barak A. Pearlmutter <bap@debian.org>  Fri, 23 Oct 2020 14:48:33 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Fri, 23 Oct 2020 15:30:30 +0100
 
 diffpdf (2.1.3-1.2) unstable; urgency=medium
 

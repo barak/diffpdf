@@ -1,2 +1,2 @@
-version=3
-http://www.qtrac.eu/diffpdf.html diffpdf-(\d+.*)\.tar\.gz
+version=4
+http://www.qtrac.eu/@PACKAGE@-foss.html .*@PACKAGE@-@ANY_VERSION@@ARCHIVE_EXT@
