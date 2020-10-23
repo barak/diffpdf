@@ -49,7 +49,7 @@ public:
     MainWindow(const Debug debug,
             const InitialComparisonMode comparisonMode,
             const QString &filename1, const QString &filename2,
-            QWidget *parent=0);
+            const QString &language, QWidget *parent=0);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -71,13 +71,17 @@ private slots:
     void controlDockLocationChanged(Qt::DockWidgetArea area);
     void actionDockLocationChanged(Qt::DockWidgetArea area);
     void zoningDockLocationChanged(Qt::DockWidgetArea area);
+    void marginsDockLocationChanged(Qt::DockWidgetArea area);
     void controlTopLevelChanged(bool floating);
     void actionTopLevelChanged(bool floating);
     void zoningTopLevelChanged(bool floating);
+    void marginsTopLevelChanged(bool floating);
     void logTopLevelChanged(bool floating);
     void previousPages();
     void nextPages();
     void showZones();
+    void showMargins();
+    void setAMargin(const QPoint &pos);
 
 private:
     enum Difference {NoDifference, TextualDifference, VisualDifference};
@@ -116,6 +120,20 @@ private:
     const TextBoxList zoneYxOrdered(const TextBoxList &list);
     void showZones(const int Width, const TextBoxList &list,
             QLabel *label);
+    void showMargins(QLabel *label);
+    void saveAsPdf(const int start, const int end, const PdfDocument &pdf1,
+            const PdfDocument &pdf2, const QString &header);
+    bool paintSaveAs(QPainter *painter, const int index,
+            const PdfDocument &pdf1, const PdfDocument &pdf2,
+            const QString &header, const QRect &rect,
+            const QRect &leftRect, const QRect &rightRect);
+    void saveAsImages(const int start, const int end,
+            const PdfDocument &pdf1, const PdfDocument &pdf2,
+            const QString &header);
+    void computeImageOffsets(const QSize &size, int *x, int *y,
+            int *width, int *height);
+    QRectF pointRectForMargins(const QSize &size);
+    QRect pixelRectForMargins(const QSize &size);
 
     QPushButton *setFile1Button;
     LineEdit *filename1LineEdit;
@@ -164,19 +182,33 @@ private:
     QCheckBox *showZonesCheckBox;
     QBoxLayout *zoningLayout;
     QDockWidget *zoningDockWidget;
+    QGroupBox *marginsGroupBox;
+    QLabel *topMarginLabel;
+    QSpinBox *topMarginSpinBox;
+    QLabel *bottomMarginLabel;
+    QSpinBox *bottomMarginSpinBox;
+    QLabel *leftMarginLabel;
+    QSpinBox *leftMarginSpinBox;
+    QLabel *rightMarginLabel;
+    QSpinBox *rightMarginSpinBox;
+    QBoxLayout *marginsLayout;
+    QDockWidget *marginsDockWidget;
 
     QBrush brush;
     QPen pen;
     QString currentPath;
     Qt::DockWidgetArea controlDockArea;
     Qt::DockWidgetArea actionDockArea;
+    Qt::DockWidgetArea marginsDockArea;
     Qt::DockWidgetArea zoningDockArea;
+    Qt::DockWidgetArea logDockArea;
     bool cancel;
     bool showToolTips;
     bool combineTextHighlighting;
     QString saveFilename;
     bool saveAll;
     SavePages savePages;
+    const QString language;
     Debug debug;
 };
 
