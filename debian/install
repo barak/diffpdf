@@ -1,2 +1,3 @@
 diffpdf                   /usr/bin/
 debian/diffpdf.desktop    /usr/share/applications/
+debian/diffpdf.svg        /usr/share/icons/hicolor/scalable/apps/

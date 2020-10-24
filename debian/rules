@@ -11,9 +11,5 @@ execute_before_dh_auto_build:
 		lrelease $$i; \
 	done
 
-execute_after_dh_auto_install:
-	mkdir -p debian/diffpdf/usr/share/icons/hicolor/64x64/apps
-	cp images/icon.png debian/diffpdf/usr/share/icons/hicolor/64x64/apps/diffpdf.png
-
 %:
 	dh $@

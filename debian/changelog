@@ -21,11 +21,11 @@ diffpdf (2.1.3-2) UNRELEASED; urgency=medium
   * Update debian/watch uscan support file
   * Do not check extensions patch by Johannes Schauer (closes: #776837)
   * Remove obsolete debian/dirs
-  * Install upstream 64x64 PNG icon; delete 32x32 XPM icon in debian/
   * Override a few more stray lintian spelling false alarms.
   * Add some keywords to desktop file to placate lintian.
+  * Draw and install scalable SVG icon instead of lo-res one.
 
- -- Barak A. Pearlmutter <bap@debian.org>  Sat, 24 Oct 2020 11:26:00 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Sat, 24 Oct 2020 13:14:14 +0100
 
 diffpdf (2.1.3-1.2) unstable; urgency=medium
 
