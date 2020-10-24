@@ -6,10 +6,8 @@
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 export QT_SELECT=5
 
-execute_before_dh_auto_build:
-	for i in *.ts; do \
-		lrelease $$i; \
-	done
-
 %:
 	dh $@
+
+execute_before_dh_auto_build:
+	lrelease diffpdf.pro
