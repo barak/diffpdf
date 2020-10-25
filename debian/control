@@ -1,8 +1,7 @@
 Source: diffpdf
 Section: utils
 Priority: optional
-Maintainer: David Paleino <dapal@debian.org>
-Uploaders: Barak A. Pearlmutter <bap@debian.org>
+Maintainer: Barak A. Pearlmutter <bap@debian.org>
 Build-Depends:
  debhelper-compat (= 13)
  , qt5-qmake

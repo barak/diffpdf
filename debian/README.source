@@ -1,0 +1,13 @@
+Upstream has taken this proprietary. The last upstream release with a
+free license was 2.1.3, and the homepage swizzled to
+http://www.qtrac.eu/diffpdf-foss.html with the addition of the "-foss".
+
+A couple unofficial forks have popped up. One is at
+https://gitlab.com/eang/diffpdf.git by Elvis Angelaccio
+<elvis.angelaccio@kde.org> which ported from qt4 to qt5, switched the
+build system to cmake, and added an option to save a PDF showing the
+differences. The Debian version has patches for a qt5 port, MPI
+parallel comparison for an enormous mulicore speedup, and various
+minor tweaks.
+
+ -- Barak A. Pearlmutter <bap@debian.org>, Sun, 25 Oct 2020 15:20:36 +0000
