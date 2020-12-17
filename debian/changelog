@@ -1,7 +1,7 @@
 diffpdf (2.1.3-3) UNRELEASED; urgency=medium
 
   * Take over as formal maintainer (with great thanks to David Paleino!)
-  * Document history and points to forks in README.source
+  * Document history and pointers to forks in README.source
 
  -- Barak A. Pearlmutter <bap@debian.org>  Sun, 25 Oct 2020 15:22:17 +0000
 
