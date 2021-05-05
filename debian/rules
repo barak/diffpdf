@@ -9,5 +9,15 @@ export QT_SELECT=5
 %:
 	dh $@
 
-execute_before_dh_auto_build:
-	lrelease diffpdf.pro
+execute_after_dh_auto_install:
+	@echo "*** cmake defaults CMAKE_INSTALL_DOCDIR=/usr/share/doc/DiffPDF"
+	@echo "    should be /usr/share/doc/diffpdf"
+	-mkdir --parent debian/diffpdf/usr/share/doc/diffpdf
+	-mv --verbose debian/diffpdf/usr/share/doc/DiffPDF/* \
+		      debian/diffpdf/usr/share/doc/diffpdf/
+	-rmdir --verbose debian/diffpdf/usr/share/doc/DiffPDF
+	@echo "*** Remove extra copy of upstream change log."
+	-rm --verbose debian/diffpdf/usr/share/doc/diffpdf/CHANGES
+	@echo "*** Rename desktop file in accord with Debian conventions."
+	-mv --verbose debian/diffpdf/usr/share/applications/eu.qtrac.diffpdf.desktop \
+		      debian/diffpdf/usr/share/applications/diffpdf.desktop

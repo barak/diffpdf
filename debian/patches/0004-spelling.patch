@@ -99,7 +99,7 @@ index 815e9c4..9379258 100644
      </message>
      <message>
 diff --git a/mainwindow.cpp b/mainwindow.cpp
-index c9dac53..176ad66 100644
+index 30b369b..d2113c9 100644
 --- a/mainwindow.cpp
 +++ b/mainwindow.cpp
 @@ -132,7 +132,7 @@ void MainWindow::createWidgets(const QString &filename1,

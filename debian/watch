@@ -1,2 +1,3 @@
 version=4
 http://www.qtrac.eu/@PACKAGE@-foss.html .*@PACKAGE@-@ANY_VERSION@@ARCHIVE_EXT@
+https://gitlab.com/eang/@PACKAGE@/tags?sort=updated_desc .*/@PACKAGE@-v?@ANY_VERSION@@ARCHIVE_EXT@

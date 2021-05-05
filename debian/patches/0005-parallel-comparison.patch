@@ -18,29 +18,11 @@ OpenMP parallelized comparison of two PDFs
 
      Now it only takes  a few seconds to compare two testsuitereports
 ---
- diffpdf.pro    |  6 ++--
  mainwindow.cpp | 87 +++++++++++++++++++++++++++++++++++++---------------------
- 2 files changed, 58 insertions(+), 35 deletions(-)
+ 1 file changed, 55 insertions(+), 32 deletions(-)
 
-diff --git a/diffpdf.pro b/diffpdf.pro
-index 0a444aa..7095cf6 100644
---- a/diffpdf.pro
-+++ b/diffpdf.pro
-@@ -32,9 +32,9 @@ TRANSLATIONS += diffpdf_de.ts
- TRANSLATIONS += diffpdf_es.ts
- CODECFORTR    = UTF-8
- LIBS	     += -lpoppler-qt5
--QMAKE_CFLAGS += $$(CPPFLAGS) $$(CFLAGS)
--QMAKE_CXXFLAGS += $$(CPPFLAGS) $$(CXXFLAGS)
--QMAKE_LFLAGS += $$(LDFLAGS)
-+QMAKE_CFLAGS += $$(CPPFLAGS) $$(CFLAGS) -fopenmp
-+QMAKE_CXXFLAGS += $$(CPPFLAGS) $$(CXXFLAGS) -fopenmp
-+QMAKE_LFLAGS += $$(LDFLAGS) -fopenmp
- QT += widgets printsupport
- win32 {
-     CONFIG += release
 diff --git a/mainwindow.cpp b/mainwindow.cpp
-index 176ad66..9492725 100644
+index d2113c9..2608253 100644
 --- a/mainwindow.cpp
 +++ b/mainwindow.cpp
 @@ -44,6 +44,7 @@

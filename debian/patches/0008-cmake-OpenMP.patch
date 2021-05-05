@@ -1,0 +1,30 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Thu, 6 May 2021 09:25:27 +0100
+Subject: cmake OpenMP
+
+Tell cmake to check if OpenMP is available and if so egage the
+appropriate compiler flags.
+---
+ CMakeLists.txt | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b36aa24..50b7e49 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -8,6 +8,15 @@ set(CMAKE_CXX_STANDARD 14)
+ set(CMAKE_INCLUDE_CURRENT_DIR ON)
+ set(CMAKE_AUTOMOC ON)
+ 
++find_package(OpenMP)
++if(OPENMP_FOUND)
++    add_compile_options(${OpenMP_CXX_FLAGS})
++    if(NOT MSVC)
++        set(CMAKE_EXE_LINKER_FLAGS
++            "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
++    endif()
++endif()
++
+ find_package(ECM REQUIRED NO_MODULE)
+ set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+ 

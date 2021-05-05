@@ -1,0 +1,10 @@
+Document: diffpdf
+Title: DiffPDF Manual
+Author: Mark Summerfield
+Abstract: DiffPDF a GUI application used to compare two PDF files
+ and this document explains how to use it.
+Section: Office
+
+Format: HTML
+Index: /usr/share/doc/diffpdf/help.html
+Files: /usr/share/doc/diffpdf/*.html

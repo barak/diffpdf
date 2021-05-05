@@ -5,13 +5,13 @@ Subject: fix lintian warning, hyphen-used-as-minus-sign
 Origin: vendor
 Forwarded: no
 ---
- diffpdf.1 | 2 +-
+ diffpdf.1.cmake | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/diffpdf.1 b/diffpdf.1
-index 067315b..320fc24 100644
---- a/diffpdf.1
-+++ b/diffpdf.1
+diff --git a/diffpdf.1.cmake b/diffpdf.1.cmake
+index dcf3739..8f7cf31 100644
+--- a/diffpdf.1.cmake
++++ b/diffpdf.1.cmake
 @@ -25,7 +25,7 @@ second. This will make DiffPDF compare pages in the pairs (1, 1), (2,
  .PP
  If the program is passed two PDF filenames on the command line it will

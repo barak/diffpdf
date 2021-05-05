@@ -1,0 +1,24 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Wed, 5 May 2021 17:48:40 +0100
+Subject: desktop
+
+---
+ eu.qtrac.diffpdf.desktop | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/eu.qtrac.diffpdf.desktop b/eu.qtrac.diffpdf.desktop
+index 9e2aecc..685051e 100644
+--- a/eu.qtrac.diffpdf.desktop
++++ b/eu.qtrac.diffpdf.desktop
+@@ -1,8 +1,10 @@
+ [Desktop Entry]
++Version=1.0
+ Type=Application
+ Exec=diffpdf
+ Icon=diffpdf
+ Terminal=false
+ Name=DiffPDF
+-Comment=DiffPDF is used to compare two PDF files.
++Comment=Compare two PDF files
+ Categories=Qt;Office;
++Keywords=Docs;Document;Text;Viewer;History;Write;
