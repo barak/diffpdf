@@ -8,6 +8,15 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
+find_package(OpenMP)
+if(OPENMP_FOUND)
+    add_compile_options(${OpenMP_CXX_FLAGS})
+    if(NOT MSVC)
+        set(CMAKE_EXE_LINKER_FLAGS
+            "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
+    endif()
+endif()
+
 find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
