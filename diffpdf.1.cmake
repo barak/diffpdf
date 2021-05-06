@@ -1,4 +1,4 @@
-.TH DIFFPDF 1 "2013-10-15" "diffpdf v2.1.3"
+.TH DIFFPDF 1 "2013-10-15" "diffpdf v@DIFFPDF_VERSION@"
 .SH NAME
 diffpdf \- compare two PDF files textually or visually
 .SH SYNOPSIS

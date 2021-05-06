@@ -76,9 +76,9 @@ void OptionsForm::createWidgets()
             << qMakePair(tr("Diagonal \\"), Qt::FDiagPattern)
             << qMakePair(tr("Diagonal Cross"), Qt::DiagCrossPattern))
         brushStyleComboBox->addItem(brushSwatch(pair.second, color),
-                                                pair.first, pair.second);
+                                                pair.first, QBrush(pair.second));
     brushStyleComboBox->setCurrentIndex(brushStyleComboBox->findData(
-                brush.style()));
+                QBrush(brush.style())));
 
     penStyleComboBox = new QComboBox;
     typedef QPair<QString, Qt::PenStyle> PenPair;
@@ -90,9 +90,9 @@ void OptionsForm::createWidgets()
             << qMakePair(tr("Dash-Dotted"), Qt::DashDotLine)
             << qMakePair(tr("Dash-Dot-Dotted"), Qt::DashDotDotLine))
         penStyleComboBox->addItem(penStyleSwatch(pair.second, color),
-                                  pair.first, pair.second);
+                                  pair.first, QBrush(pair.second));
     penStyleComboBox->setCurrentIndex(penStyleComboBox->findData(
-                pen.style()));
+                QBrush(pen.style())));
 
     alphaSpinBox = new QSpinBox;
     alphaSpinBox->setRange(1, 100);
@@ -186,20 +186,20 @@ void OptionsForm::createLayout()
 
 void OptionsForm::createConnections()
 {
-    connect(colorComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateColor(int)));
-    connect(penStyleComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updatePenStyle(int)));
-    connect(penStyleComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateUi()));
-    connect(brushStyleComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateBrushStyle(int)));
-    connect(brushStyleComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateUi()));
-    connect(alphaSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateSwatches()));
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(colorComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &OptionsForm::updateColor);
+    connect(penStyleComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &OptionsForm::updatePenStyle);
+    connect(penStyleComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &OptionsForm::updateUi);
+    connect(brushStyleComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &OptionsForm::updateBrushStyle);
+    connect(brushStyleComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &OptionsForm::updateUi);
+    connect(alphaSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &OptionsForm::updateSwatches);
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &OptionsForm::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 

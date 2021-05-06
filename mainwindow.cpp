@@ -513,107 +513,107 @@ void MainWindow::createDockWidgets()
 
 void MainWindow::createConnections()
 {
-    connect(area1->verticalScrollBar(), SIGNAL(valueChanged(int)),
-            area2->verticalScrollBar(), SLOT(setValue(int)));
-    connect(area2->verticalScrollBar(), SIGNAL(valueChanged(int)),
-            area1->verticalScrollBar(), SLOT(setValue(int)));
-    connect(area1->horizontalScrollBar(), SIGNAL(valueChanged(int)),
-            area2->horizontalScrollBar(), SLOT(setValue(int)));
-    connect(area2->horizontalScrollBar(), SIGNAL(valueChanged(int)),
-            area1->horizontalScrollBar(), SLOT(setValue(int)));
+    connect(area1->verticalScrollBar(), &QAbstractSlider::valueChanged,
+            area2->verticalScrollBar(), &QAbstractSlider::setValue);
+    connect(area2->verticalScrollBar(), &QAbstractSlider::valueChanged,
+            area1->verticalScrollBar(), &QAbstractSlider::setValue);
+    connect(area1->horizontalScrollBar(), &QAbstractSlider::valueChanged,
+            area2->horizontalScrollBar(), &QAbstractSlider::setValue);
+    connect(area2->horizontalScrollBar(), &QAbstractSlider::valueChanged,
+            area1->horizontalScrollBar(), &QAbstractSlider::setValue);
 
-    connect(filename1LineEdit, SIGNAL(textEdited(const QString&)),
-            this, SLOT(updateUi()));
+    connect(filename1LineEdit, &QLineEdit::textEdited,
+            this, &MainWindow::updateUi);
     connect(filename1LineEdit,
-            SIGNAL(filenamesDropped(const QStringList&)),
-            this, SLOT(setFiles1(const QStringList&)));
-    connect(filename2LineEdit, SIGNAL(textEdited(const QString&)),
-            this, SLOT(updateUi()));
+            &LineEdit::filenamesDropped,
+            this, &MainWindow::setFiles1);
+    connect(filename2LineEdit, &QLineEdit::textEdited,
+            this, &MainWindow::updateUi);
     connect(filename2LineEdit,
-            SIGNAL(filenamesDropped(const QStringList&)),
-            this, SLOT(setFiles2(const QStringList&)));
+            &LineEdit::filenamesDropped,
+            this, &MainWindow::setFiles2);
 
-    connect(page1Label, SIGNAL(filenamesDropped(const QStringList&)),
-            this, SLOT(setFiles1(const QStringList&)));
-    connect(page2Label, SIGNAL(filenamesDropped(const QStringList&)),
-            this, SLOT(setFiles2(const QStringList&)));
+    connect(page1Label, &Label::filenamesDropped,
+            this, &MainWindow::setFiles1);
+    connect(page2Label, &Label::filenamesDropped,
+            this, &MainWindow::setFiles2);
 
-    connect(compareComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateUi()));
-    connect(compareComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateViews()));
+    connect(compareComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &MainWindow::updateUi);
+    connect(compareComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &MainWindow::updateViews);
 
-    connect(viewDiffComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateViews(int)));
-    connect(viewDiffComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateUi()));
-    connect(showComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(updateViews()));
-    connect(previousButton, SIGNAL(clicked()),
-            this, SLOT(previousPages()));
-    connect(nextButton, SIGNAL(clicked()), this, SLOT(nextPages()));
-    connect(setFile1Button, SIGNAL(clicked()), this, SLOT(setFile1()));
-    connect(setFile2Button, SIGNAL(clicked()), this, SLOT(setFile2()));
-    connect(compareButton, SIGNAL(clicked()), this, SLOT(compare()));
-    connect(zoomSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
-    connect(zoningGroupBox, SIGNAL(toggled(bool)),
-            this, SLOT(updateUi()));
-    connect(zoningGroupBox, SIGNAL(toggled(bool)),
-            this, SLOT(updateViews()));
-    connect(columnsSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
-    connect(toleranceRSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
-    connect(toleranceYSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
-    connect(showZonesCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(updateViews()));
-    connect(marginsGroupBox, SIGNAL(toggled(bool)),
-            this, SLOT(updateUi()));
-    connect(marginsGroupBox, SIGNAL(toggled(bool)),
-            this, SLOT(updateViews()));
-    connect(leftMarginSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
-    connect(rightMarginSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
-    connect(topMarginSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
-    connect(bottomMarginSpinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(updateViews()));
-    connect(page1Label, SIGNAL(clicked(const QPoint&)),
-            this, SLOT(setAMargin(const QPoint&)));
-    connect(page2Label, SIGNAL(clicked(const QPoint&)),
-            this, SLOT(setAMargin(const QPoint&)));
+    connect(viewDiffComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &MainWindow::updateViews);
+    connect(viewDiffComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &MainWindow::updateUi);
+    connect(showComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+            this, &MainWindow::updateViews);
+    connect(previousButton, &QAbstractButton::clicked,
+            this, &MainWindow::previousPages);
+    connect(nextButton, &QAbstractButton::clicked, this, &MainWindow::nextPages);
+    connect(setFile1Button, &QAbstractButton::clicked, this, [this] { setFile1();});
+    connect(setFile2Button, &QAbstractButton::clicked, this, [this] { setFile2();});
+    connect(compareButton, &QAbstractButton::clicked, this, &MainWindow::compare);
+    connect(zoomSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
+    connect(zoningGroupBox, &QGroupBox::toggled,
+            this, &MainWindow::updateUi);
+    connect(zoningGroupBox, &QGroupBox::toggled,
+            this, &MainWindow::updateViews);
+    connect(columnsSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
+    connect(toleranceRSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
+    connect(toleranceYSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
+    connect(showZonesCheckBox, &QAbstractButton::toggled,
+            this, &MainWindow::updateViews);
+    connect(marginsGroupBox, &QGroupBox::toggled,
+            this, &MainWindow::updateUi);
+    connect(marginsGroupBox, &QGroupBox::toggled,
+            this, &MainWindow::updateViews);
+    connect(leftMarginSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
+    connect(rightMarginSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
+    connect(topMarginSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
+    connect(bottomMarginSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+            this, &MainWindow::updateViews);
+    connect(page1Label, &Label::clicked,
+            this, &MainWindow::setAMargin);
+    connect(page2Label, &Label::clicked,
+            this, &MainWindow::setAMargin);
 
-    connect(optionsButton, SIGNAL(clicked()), this, SLOT(options()));
-    connect(saveButton, SIGNAL(clicked()), this, SLOT(save()));
-    connect(helpButton, SIGNAL(clicked()), this, SLOT(help()));
-    connect(aboutButton, SIGNAL(clicked()), this, SLOT(about()));
-    connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(optionsButton, &QAbstractButton::clicked, this, &MainWindow::options);
+    connect(saveButton, &QAbstractButton::clicked, this, &MainWindow::save);
+    connect(helpButton, &QAbstractButton::clicked, this, &MainWindow::help);
+    connect(aboutButton, &QAbstractButton::clicked, this, &MainWindow::about);
+    connect(quitButton, &QAbstractButton::clicked, this, &QWidget::close);
 
     connect(controlDockWidget,
-            SIGNAL(dockLocationChanged(Qt::DockWidgetArea)),
-            this, SLOT(controlDockLocationChanged(Qt::DockWidgetArea)));
+            &QDockWidget::dockLocationChanged,
+            this, &MainWindow::controlDockLocationChanged);
     connect(actionDockWidget,
-            SIGNAL(dockLocationChanged(Qt::DockWidgetArea)),
-            this, SLOT(actionDockLocationChanged(Qt::DockWidgetArea)));
+            &QDockWidget::dockLocationChanged,
+            this, &MainWindow::actionDockLocationChanged);
     connect(zoningDockWidget,
-            SIGNAL(dockLocationChanged(Qt::DockWidgetArea)),
-            this, SLOT(zoningDockLocationChanged(Qt::DockWidgetArea)));
+            &QDockWidget::dockLocationChanged,
+            this, &MainWindow::zoningDockLocationChanged);
     connect(marginsDockWidget,
-            SIGNAL(dockLocationChanged(Qt::DockWidgetArea)),
-            this, SLOT(marginsDockLocationChanged(Qt::DockWidgetArea)));
-    connect(controlDockWidget, SIGNAL(topLevelChanged(bool)),
-            this, SLOT(controlTopLevelChanged(bool)));
-    connect(actionDockWidget, SIGNAL(topLevelChanged(bool)),
-            this, SLOT(actionTopLevelChanged(bool)));
-    connect(zoningDockWidget, SIGNAL(topLevelChanged(bool)),
-            this, SLOT(zoningTopLevelChanged(bool)));
-    connect(marginsDockWidget, SIGNAL(topLevelChanged(bool)),
-            this, SLOT(marginsTopLevelChanged(bool)));
-    connect(logDockWidget, SIGNAL(topLevelChanged(bool)),
-            this, SLOT(logTopLevelChanged(bool)));
+            &QDockWidget::dockLocationChanged,
+            this, &MainWindow::marginsDockLocationChanged);
+    connect(controlDockWidget, &QDockWidget::topLevelChanged,
+            this, &MainWindow::controlTopLevelChanged);
+    connect(actionDockWidget, &QDockWidget::topLevelChanged,
+            this, &MainWindow::actionTopLevelChanged);
+    connect(zoningDockWidget, &QDockWidget::topLevelChanged,
+            this, &MainWindow::zoningTopLevelChanged);
+    connect(marginsDockWidget, &QDockWidget::topLevelChanged,
+            this, &MainWindow::marginsTopLevelChanged);
+    connect(logDockWidget, &QDockWidget::topLevelChanged,
+            this, &MainWindow::logTopLevelChanged);
 }
 
 

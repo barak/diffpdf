@@ -25,27 +25,11 @@ http://www.qtrac.eu/comparepdf.html.)
 
 Home page: http://www.qtrac.eu/diffpdf.html
 
-Windows Users
-=============
-
-Download the zip file, e.g., diffpdf-1.9.2.zip (where the number will
-vary depending on the version). Navigate to the file in Windows Explorer
-and use the context menu to choose the Extract All option. It doesn't
-matter what folder you extract to, but best to use one specifically for
-DiffPDF. The folder will contain diffpdf.exe and may contain some .dll
-files too. If there are .dll files, you must not move diffpdf.exe to any
-other folder!
-
-Once unzipped you can double-click diffpdf.exe to run it. You might also
-like to add a shortcut to it from the desktop or from the start menu.
-
-Compiling and Installing DiffPDF (Mac-specific notes are at the end.)
+Compiling and Installing DiffPDF
 ================================
 
-Prerequisites: A C++ compiler, the Qt 4 libraries (I test with Qt 4.7
-and Qt 4.8. Earlier Qt's may work although Qt 4.4 and 4.5 will at least
-need a compiler with tr1 support), and the Poppler libraries (at least
-0.20.1, including Poppler's Qt 4 headers). Linux and BSD users should be
+Prerequisites: A C++ compiler, KDE's Extra CMake Modules, the Qt 5 libraries,
+and the Poppler libraries. Linux and BSD users should be
 able to get everything through their package management system---and
 some distros already include diffpdf so you don't even have to build it.
 Mac OS X users can get a compiler by installing Xcode; you'll need to
@@ -55,15 +39,16 @@ get Qt and Poppler separately.
     $ tar xvfz diffpdf-XXX.tar.gz
 2. Change directory to diffpdf-XXX
     $ cd diffpdf-XXX
-3. Run lrelease; on some sytems this might be called lrelease-qt4
-    $ lrelease diffpdf.pro
-4. Run qmake; on some systems, run qmake-qt4
-    $ qmake
+3. Create a build folder and go there;
+    $ mkdir build && cd build
+4. Run cmake;
+    $ cmake ..
 5. Run make
     $ make
-6. Copy or soft-link the diffpdf executable to somewhere on your PATH
-7. Only the executable is needed; all the files that were unpacked or
-   generated can be safely deleted.
+6. Optional: install the diffpdf executable;
+    $ make install
+7. Only the executable is needed (although `make install` will install also other files);
+   all the files that were unpacked or generated can be safely deleted.
 
 That's it!
 
@@ -95,37 +80,3 @@ option), any later version. This program is distributed in the hope that
 it will be useful, but WITHOUT ANY WARRANTY; without even the implied
 warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License (in file gpl-2.0.txt) for more details.
-
-
-Building on Mac OS X
-====================
-
-Here's how to build it:
-
-$ /usr/bin/ruby -e "$(curl -fsSL https://raw.github.com/gist/323731)"
-$ brew install qt
-$ brew install poppler --with-qt4
-
-# Dirs must be writeable because macdeployqt modifies copied files
-$ chmod -R u+w /usr/local/Cellar/qt/
-$ chmod -R u+w /usr/local/Cellar/poppler/
-
-$ curl -O http://www.qtrac.eu/diffpdf-1.5.0.tar.gz
-$ tar xvfz diffpdf-1.5.0.tar.gz
-$ cd diffpdf-1.5.0
-$ lrelease diffpdf.pro
-$ qmake -spec macx-g++
-$ make
-
-Here's how to make a .dmg:
-
-# Fix references, remove unneeded Frameworks and build DMG
-$ macdeployqt diffpdf.app/
-$ cd diffpdf.app/Contents/Frameworks/
-$ rm -r QtDeclarative.framework/ QtNetwork.framework/
-QtScript.framework/ QtSql.framework/ QtSvg.framework/
-QtXmlPatterns.framework/
-$ cd ../../..
-$ hdiutil create diffpdf-1.5.0.dmg -srcfolder diffpdf.app/
-
-Thanks to Dirk Loss for this information.

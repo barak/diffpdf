@@ -11,17 +11,14 @@
 */
 
 #include "aboutform.hpp"
-#include <poppler-version.h>
+#include "diffpdfversion.h"
+
 #include <QApplication>
 #include <QHBoxLayout>
 #include <QSettings>
 #include <QShortcut>
 #include <QTabWidget>
 #include <QTextBrowser>
-
-
-static const QString Version("2.1.3");
-
 
 AboutForm::AboutForm(QWidget *parent) : QDialog(parent)
 {
@@ -52,7 +49,7 @@ AboutForm::AboutForm(QWidget *parent) : QDialog(parent)
     "</ul>"
     "I also provide training and consultancy in C++, Go, Python&nbsp;2, "
     "Python&nbsp;3, C++/Qt, and PyQt4.").arg(qApp->applicationName())
-            .arg(Version).arg(qVersion()).arg(POPPLER_VERSION));
+            .arg(DIFFPDF_VERSION_STRING).arg(qVersion()).arg(POPPLER_VERSION));
     QTextBrowser *contributorsBrowser = new QTextBrowser;
     contributorsBrowser->setReadOnly(true);
     contributorsBrowser->setHtml(tr("<table>"
@@ -83,6 +80,8 @@ AboutForm::AboutForm(QWidget *parent) : QDialog(parent)
     "</td></tr>"
     "<tr><td>&bull;</td><td><b>Steven Lee</b> &mdash; creating "
     "Windows binaries</td></tr>"
+    "<tr><td>&bull;</td><td><b>Elvis Angelaccio</b> &mdash; Qt5 and "
+    "CMake port</td></tr>"
     "</table>"));
     QTextBrowser *licenceBrowser = new QTextBrowser;
     licenceBrowser->setReadOnly(true);

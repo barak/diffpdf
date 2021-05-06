@@ -94,11 +94,11 @@ void SaveForm::createLayout()
 
 void SaveForm::createConnections()
 {
-    connect(chooseFileButton, SIGNAL(clicked()), this, SLOT(chooseFile()));
-    connect(filenameLineEdit, SIGNAL(textChanged(const QString&)),
-            this, SLOT(updateUi()));
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(chooseFileButton, &QAbstractButton::clicked, this, &SaveForm::chooseFile);
+    connect(filenameLineEdit, &QLineEdit::textChanged,
+            this, &SaveForm::updateUi);
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &SaveForm::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 
