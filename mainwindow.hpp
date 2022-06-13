@@ -51,7 +51,7 @@ public:
     MainWindow(const Debug debug,
             const InitialComparisonMode comparisonMode,
             const QString &filename1, const QString &filename2,
-            const QString &language, QWidget *parent=0);
+            const QString &language, const bool saveAndQuit = false, QWidget *parent=0);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -214,6 +214,7 @@ private:
     Debug debug;
     AboutForm *aboutForm;
     HelpForm *helpForm;
+    const bool saveAndQuit;
 };
 
 #endif // MAINWINDOW_HPP
