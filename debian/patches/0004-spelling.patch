@@ -99,10 +99,10 @@ index 815e9c4..9379258 100644
      </message>
      <message>
 diff --git a/mainwindow.cpp b/mainwindow.cpp
-index 30b369b..d2113c9 100644
+index 0a26f9d..39f7db0 100644
 --- a/mainwindow.cpp
 +++ b/mainwindow.cpp
-@@ -132,7 +132,7 @@ void MainWindow::createWidgets(const QString &filename1,
+@@ -133,7 +133,7 @@ void MainWindow::createWidgets(const QString &filename1,
      pages1LineEdit->setToolTip(tr("<p>Pages can be specified using ranges "
                  "such as 1-10, and multiple ranges can be used, e.g., "
                  "1-10, 12-15, 20, 22, 35-39. This makes it "
@@ -111,7 +111,7 @@ index 30b369b..d2113c9 100644
                  "has one or more additional pages.<p>For example, if "
                  "file1.pdf has pages 1-30 and file2.pdf has pages 1-31 "
                  "with the extra page being page 14, the two page ranges "
-@@ -174,7 +174,7 @@ void MainWindow::createWidgets(const QString &filename1,
+@@ -175,7 +175,7 @@ void MainWindow::createWidgets(const QString &filename1,
                  "<b>Appearance</b> comparison mode is chosen, in "
                  "which case the comparison is done visually. "
                  "Visual differences can occur if a paragraph is "

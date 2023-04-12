@@ -7,11 +7,11 @@ Subject: do not require the file extension to be pdf
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/main.cpp b/main.cpp
-index 321ecc4..0a61396 100644
+index 7a6566d..94c2a25 100644
 --- a/main.cpp
 +++ b/main.cpp
-@@ -92,9 +92,9 @@ int main(int argc, char *argv[])
-             debug = DebugShowTextsAndYX;
+@@ -96,9 +96,9 @@ int main(int argc, char *argv[])
+             saveAndQuit = true;
          else if (optionsOK && arg == "--")
              optionsOK = false;
 -        else if (filename1.isEmpty() && arg.toLower().endsWith(".pdf"))

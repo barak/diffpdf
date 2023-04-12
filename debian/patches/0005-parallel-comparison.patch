@@ -22,7 +22,7 @@ OpenMP parallelized comparison of two PDFs
  1 file changed, 55 insertions(+), 32 deletions(-)
 
 diff --git a/mainwindow.cpp b/mainwindow.cpp
-index d2113c9..2608253 100644
+index 39f7db0..cdd6a54 100644
 --- a/mainwindow.cpp
 +++ b/mainwindow.cpp
 @@ -44,6 +44,7 @@
@@ -33,7 +33,7 @@ index d2113c9..2608253 100644
  
  
  MainWindow::MainWindow(const Debug debug,
-@@ -1415,40 +1416,62 @@ const QPair<int, int> MainWindow::comparePages(const QString &filename1,
+@@ -1425,40 +1426,62 @@ const QPair<int, int> MainWindow::comparePages(const QString &filename1,
      QList<int> pages1 = getPageList(1, pdf1);
      QList<int> pages2 = getPageList(2, pdf2);
      int total = qMin(pages1.count(), pages2.count());

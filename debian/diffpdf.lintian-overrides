@@ -1,6 +1,6 @@
 # they're translations merged into the program
-diffpdf: spelling-error-in-binary usr/bin/diffpdf ment meant
-diffpdf: spelling-error-in-binary usr/bin/diffpdf absolut absolute
-diffpdf: spelling-error-in-binary usr/bin/diffpdf Programm Program
-diffpdf: spelling-error-in-binary usr/bin/diffpdf exemple example
-diffpdf: spelling-error-in-binary usr/bin/diffpdf inclues includes
+diffpdf: spelling-error-in-binary ment meant [usr/bin/diffpdf]
+diffpdf: spelling-error-in-binary absolut absolute [usr/bin/diffpdf]
+diffpdf: spelling-error-in-binary Programm Program [usr/bin/diffpdf]
+diffpdf: spelling-error-in-binary exemple example [usr/bin/diffpdf]
+diffpdf: spelling-error-in-binary inclues includes [usr/bin/diffpdf]
