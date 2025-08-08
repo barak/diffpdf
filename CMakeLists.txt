@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.1)
 
-set(DIFFPDF_VERSION 2.1.3.1)
+set(DIFFPDF_VERSION 2.1.3.2)
 project(DiffPDF VERSION ${DIFFPDF_VERSION})
 
-set(QT_MIN_VERSION 5.7.0)
-set(CMAKE_CXX_STANDARD 14)
+set(QT_MIN_VERSION 6.0.0)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
@@ -24,14 +24,14 @@ include(ECMSetupVersion)
 include(FeatureSummary)
 include(GNUInstallDirs)
 
-find_package(Qt5 ${QT_MIN_VERSION} REQUIRED COMPONENTS
+find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS
     Core
     Gui
     LinguistTools
     PrintSupport
     Widgets)
 
-find_package(Poppler REQUIRED COMPONENTS Core Qt5)
+find_package(Poppler REQUIRED COMPONENTS Core Qt6)
 
 set(diffpdf_SRCS
     aboutform.cpp
@@ -53,17 +53,17 @@ ecm_setup_version(PROJECT
 configure_file(diffpdf.1.cmake diffpdf.1)
 
 file(GLOB diffpdf_TS *.ts)
-qt5_add_translation(diffpdf_QM ${diffpdf_TS})
+qt6_add_translation(diffpdf_QM ${diffpdf_TS})
 
 configure_file(resources.qrc.cmake resources.qrc)
-qt5_add_resources(diffpdf_SRCS ${CMAKE_BINARY_DIR}/resources.qrc)
+qt6_add_resources(diffpdf_SRCS ${CMAKE_BINARY_DIR}/resources.qrc)
 
 add_executable(diffpdf ${diffpdf_SRCS} ${diffpdf_QM})
 
 target_link_libraries(diffpdf
-    Poppler::Qt5
-    Qt5::PrintSupport
-    Qt5::Widgets)
+    Poppler::Qt6
+    Qt6::PrintSupport
+    Qt6::Widgets)
 
 target_compile_definitions(diffpdf PRIVATE -DPOPPLER_VERSION="${Poppler_VERSION}")
 

@@ -164,7 +164,7 @@ const QString strippedFilename(const QString &filename)
     QString filename_ = filename;
     if (filename_.startsWith(FilePrefix))
         filename_ = filename_.mid(FilePrefix.length());
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     if (filename_.startsWith("/"))
         filename_ = filename_.mid(1);
 #endif

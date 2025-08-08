@@ -12,7 +12,7 @@
     for more details.
 */
 
-#include <poppler-qt5.h>
+#include <poppler-qt6.h>
 #include <QMetaType>
 #include <QPair>
 #include <QPixmap>
@@ -22,15 +22,10 @@ class QColor;
 class QMimeData;
 class QRectF;
 
-#if QT_VERSION >= 0x040600
+// Qt6 always uses QSharedPointer
 typedef QSharedPointer<Poppler::Document> PdfDocument;
 typedef QSharedPointer<Poppler::Page> PdfPage;
 typedef QSharedPointer<Poppler::TextBox> PdfTextBox;
-#else
-typedef std::tr1::shared_ptr<Poppler::Document> PdfDocument;
-typedef std::tr1::shared_ptr<Poppler::Page> PdfPage;
-typedef std::tr1::shared_ptr<Poppler::TextBox> PdfTextBox;
-#endif
 typedef QList<PdfTextBox> TextBoxList;
 
 enum InitialComparisonMode{CompareAppearance=0, CompareCharacters=1,

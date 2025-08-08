@@ -28,7 +28,7 @@ Home page: http://www.qtrac.eu/diffpdf.html
 Compiling and Installing DiffPDF
 ================================
 
-Prerequisites: A C++ compiler, KDE's Extra CMake Modules, the Qt 5 libraries,
+Prerequisites: A C++ compiler, KDE's Extra CMake Modules, the Qt 6 libraries,
 and the Poppler libraries. Linux and BSD users should be
 able to get everything through their package management system---and
 some distros already include diffpdf so you don't even have to build it.

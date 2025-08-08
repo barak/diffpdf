@@ -14,12 +14,8 @@
 
 #include "generic.hpp"
 #include "saveform.hpp"
-#if QT_VERSION >= 0x040600
 #include <QSharedPointer>
-#else
-#include <tr1/memory>
-#endif
-#include <poppler-qt5.h>
+#include <poppler-qt6.h>
 #include <QBrush>
 #include <QList>
 #include <QMainWindow>

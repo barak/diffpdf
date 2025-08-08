@@ -16,7 +16,6 @@
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QSettings>
-#include <QTextCodec>
 #include <QTextStream>
 #include <QTranslator>
 
@@ -24,7 +23,7 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     app.setCursorFlashTime(0);
 #endif
     app.setOrganizationName("Qtrac Ltd.");
@@ -107,7 +106,7 @@ int main(int argc, char *argv[])
 
     QTranslator qtTranslator;
     qtTranslator.load("qt_" + language,
-        QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+        QLibraryInfo::path(QLibraryInfo::TranslationsPath));
     app.installTranslator(&qtTranslator);
     QTranslator appTranslator;
     appTranslator.load("diffpdf_" + language, ":/");
