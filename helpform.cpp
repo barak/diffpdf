@@ -32,7 +32,6 @@ HelpForm::HelpForm(const QString &language, QWidget *parent)
     QFile file(filename);
     file.open(QIODevice::ReadOnly|QIODevice::Text);
     QTextStream in(&file);
-    in.setCodec("UTF-8");
     viewer->setHtml(in.readAll());
     viewer->setReadOnly(true);
     setCentralWidget(viewer);

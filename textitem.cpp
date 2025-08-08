@@ -152,7 +152,6 @@ void TextItems::debug(const int page, const int ToleranceY,
                                 .arg(file.errorString())));
     }
     QTextStream out(&file);
-    out.setCodec("UTF-8");
     out << "Page #" << page << ": "
         << (ComparingWords ? "Words" : "Characters") << " mode\n";
     for (int i = 0; i < items.count(); ++i) {

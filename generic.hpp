@@ -45,9 +45,9 @@ struct PagePair
 
     bool isNull() { return left == -1 || right == -1; }
 
-    const int left;
-    const int right;
-    const bool hasVisualDifference;
+    int left;
+    int right;
+    bool hasVisualDifference;
 };
 Q_DECLARE_METATYPE(PagePair)
 
