@@ -1,0 +1,22 @@
+Source: diffpdf
+Section: graphics
+Priority: optional
+Maintainer: Barak A. Pearlmutter <barak+github@pearlmutter.net>
+Build-Depends:
+ debhelper-compat (= 13),
+ qt6-base-dev,
+ qt6-tools-dev-tools,
+ libpoppler-qt6-dev,
+ cmake,
+ pkg-config,
+ libpoppler-dev,
+Standards-Version: 4.6.2
+Homepage: https://github.com/barak/diffpdf
+Vcs-Git: https://github.com/barak/diffpdf.git
+Vcs-Browser: https://github.com/barak/diffpdf
+
+Package: diffpdf
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: PDF files comparison tool
+ Tool for visually comparing two PDF files, now using Qt6 and Poppler-Qt6.
