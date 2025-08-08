@@ -1,0 +1,24 @@
+# Build directory
+build/
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+
+# Generated files
+diffpdf
+diffpdfversion.h
+resources.qrc
+diffpdf.1
+*.qm
+
+# IDE files
+.vscode/
+.vs/
+*.user
+
+# OS files
+.DS_Store
+Thumbs.db
