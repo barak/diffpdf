@@ -1,0 +1,12 @@
+Description: Fix FTBFS with CMake 4
+Author: Adrian Bunk <bunk@debian.org>
+Bug-Debian: https://bugs.debian.org/1112844
+
+--- diffpdf-2.1.3.1.orig/CMakeLists.txt
++++ diffpdf-2.1.3.1/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 3.1)
++cmake_minimum_required(VERSION 3.5)
+ 
+ set(DIFFPDF_VERSION 2.1.3.1)
+ project(DiffPDF VERSION ${DIFFPDF_VERSION})
