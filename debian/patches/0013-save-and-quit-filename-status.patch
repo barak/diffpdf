@@ -1,0 +1,322 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Thu, 1 Oct 2026 16:00:00 +0100
+Subject: --save-and-quit: output filename, exit status, no dialogs
+
+Make --save-and-quit usable from scripts:
+
+ - --save-and-quit=FILE saves to FILE instead of diff.pdf.
+ - Exit with status 0 if the files appear the same, 1 if they differ,
+   and 2 on trouble, as diff(1) does.  Nothing is written if the files
+   appear the same.
+ - Do not show the main window, and report errors on stderr rather than
+   in modal message boxes, which would block an unattended run.
+ - Check that the output file can be written before rendering into it.
+ - Fix comparing two files given on the command line in batch mode: both
+   filename fields start out filled in, so setFile1() saw the second
+   file there.
+ - Document the options and exit status in the man page.
+
+Forwarded: no
+---
+--- a/diffpdf.1.cmake
++++ b/diffpdf.1.cmake
+@@ -26,6 +26,27 @@ second. This will make DiffPDF compare p
+ If the program is passed two PDF filenames on the command line it will
+ start up and compare those files in Text mode (or in Appearance mode if
+ the filenames are preceded by \-a or \-\-appearance).
++.SH OPTIONS
++.TP
++.BR \-a ", " \-\-appearance ", " \-c ", " \-\-characters ", " \-w ", " \-\-words
++Set the initial comparison mode.
++.TP
++.BR \-\-save\-and\-quit [ =\fIfile.pdf\fP ]
++Compare the two files given without showing a window.  If they differ,
++save the differing pages, with the differences highlighted, to
++.I file.pdf
++(default
++.IR diff.pdf ),
++replacing any existing file.  If they appear to be the same, no file
++is written.
++.TP
++.B \-\-help
++Show all options.
++.SH "EXIT STATUS"
++With
++.BR \-\-save\-and\-quit ,
++the exit status is 0 if the files appear to be the same, 1 if they
++differ, and 2 if there was trouble (e.g., a file could not be read).
+ .SH FILES
+ .TP
+ .I ~/.config/DiffPDF/DiffPDF.conf
+--- a/main.cpp
++++ b/main.cpp
+@@ -51,7 +51,8 @@ int main(int argc, char *argv[])
+     const QString LanguageOption = "--language=";
+     QString filename1;
+     QString filename2;
+-    bool saveAndQuit = false;
++    const QString SaveAndQuitOption = "--save-and-quit";
++    QString saveAndQuitFilename;
+     QString language = QLocale::system().name();
+     bool optionsOK = true;
+     Debug debug = DebugOff;
+@@ -89,7 +90,11 @@ int main(int argc, char *argv[])
+                 "etc.)\n"
+                 "--debug=3          as --debug=3 but also includes "
+                 "coordinates in y, x order\n"
+-                "--save-and-quit    save the diff to diff.pdf and quit immediately\n"
++                "--save-and-quit[=file.pdf]\n"
++                "                   compare without showing a window; if "
++                "the files differ save the differences to file.pdf "
++                "(default diff.pdf); exit with status 0 if the files "
++                "appear the same, 1 if they differ, 2 on error\n"
+                 "\nRun the program without the --help option and click "
+                 "About to see copyright and license details\n"
+                 ;
+@@ -102,8 +107,13 @@ int main(int argc, char *argv[])
+             debug = DebugShowTexts;
+         else if (optionsOK && (arg == "--debug=3" || arg == "--debug3"))
+             debug = DebugShowTextsAndYX;
+-        else if (optionsOK && arg == "--save-and-quit")
+-            saveAndQuit = true;
++        else if (optionsOK && arg == SaveAndQuitOption)
++            saveAndQuitFilename = "diff.pdf";
++        else if (optionsOK && arg.startsWith(SaveAndQuitOption + "=")) {
++            saveAndQuitFilename = arg.mid(SaveAndQuitOption.length() + 1);
++            if (saveAndQuitFilename.isEmpty())
++                saveAndQuitFilename = "diff.pdf";
++        }
+         else if (optionsOK && arg == "--")
+             optionsOK = false;
+         else if (filename1.isEmpty())
+@@ -124,9 +134,10 @@ int main(int argc, char *argv[])
+     app.installTranslator(&appTranslator);
+ 
+     MainWindow window(debug, comparisonMode, filename1, filename2,
+-            language.left(2), saveAndQuit); // We want de not de_DE etc.
++            language.left(2), saveAndQuitFilename); // We want de not de_DE etc.
+ 
+-    window.show();
++    if (saveAndQuitFilename.isEmpty())
++        window.show();
+     return app.exec();
+ }
+ 
+--- a/mainwindow.cpp
++++ b/mainwindow.cpp
+@@ -44,6 +44,7 @@
+ #include <QSettings>
+ #include <QSpinBox>
+ #include <QSplitter>
++#include <QTextStream>
+ #ifdef _OPENMP
+ #include <omp.h>
+ #endif
+@@ -52,7 +53,8 @@
+ MainWindow::MainWindow(const Debug debug,
+         const InitialComparisonMode comparisonMode,
+         const QString &filename1, const QString &filename2,
+-        const QString &language, const bool saveAndQuit, QWidget *parent)
++        const QString &language, const QString &saveAndQuitFilename,
++        QWidget *parent)
+     : QMainWindow(parent),
+       controlDockArea(Qt::RightDockWidgetArea),
+       actionDockArea(Qt::RightDockWidgetArea),
+@@ -61,7 +63,8 @@ MainWindow::MainWindow(const Debug debug
+       logDockArea(Qt::RightDockWidgetArea), cancel(false),
+       saveAll(true), savePages(SaveBothPages), language(language),
+       debug(debug), aboutForm(0), helpForm(0),
+-      saveAndQuit(saveAndQuit)
++      saveAndQuitFilename(saveAndQuitFilename),
++      saveAndQuit(!saveAndQuitFilename.isEmpty()), pagesCompared(0)
+ {
+     currentPath = QDir::homePath();
+     QSettings settings;
+@@ -624,22 +627,16 @@ void MainWindow::createConnections()
+ void MainWindow::initialize(const QString &filename1,
+                             const QString &filename2)
+ {
++    if (saveAndQuit) {
++        saveAndQuitCompare(filename1, filename2);
++        return;
++    }
+     if (!filename1.isEmpty()) {
+         setFile1(filename1);
+         setFile2Button->setFocus();
+         if (!filename2.isEmpty()) {
+             setFile2(filename2);
+             compare();
+-
+-            if (saveAndQuit) {
+-                saveFilename = "diff.pdf";
+-                PdfDocument pdf1 = PdfDocument(Poppler::Document::load(filename1));
+-                PdfDocument pdf2 = PdfDocument(Poppler::Document::load(filename2));
+-                // Item 0 of viewDiffComboBox is "(Not viewing)"
+-                saveAsPdf(1, viewDiffComboBox->count(), pdf1, pdf2,
+-                          filename1 + " - " + filename2);
+-                QApplication::quit();
+-            }
+         }
+     }
+     else
+@@ -647,6 +644,66 @@ void MainWindow::initialize(const QStrin
+ }
+ 
+ 
++// Compare without user interaction, save any differences, and exit with
++// a status like that of diff(1): 0 if the files appear to be the same,
++// 1 if they differ, and 2 if there was trouble.
++void MainWindow::saveAndQuitCompare(const QString &filename1,
++                                    const QString &filename2)
++{
++    if (filename1.isEmpty() || filename2.isEmpty()) {
++        reportError(tr("--save-and-quit needs two PDF files to compare."));
++        QApplication::exit(2);
++        return;
++    }
++    PdfDocument pdf1 = getPdf(filename1);
++    PdfDocument pdf2 = getPdf(filename2);
++    if (!pdf1 || !pdf2) {
++        QApplication::exit(2);
++        return;
++    }
++    if (QFileInfo(filename1).canonicalFilePath() ==
++        QFileInfo(filename2).canonicalFilePath()) {
++        QApplication::exit(0); // A file is the same as itself
++        return;
++    }
++    // Both line edits start out holding the names given on the command
++    // line, so setFile1() must not see filename2 there yet.
++    filename2LineEdit->clear();
++    setFile1(filename1);
++    setFile2(filename2);
++    pagesCompared = 0;
++    compare();
++    if (pagesCompared == 0) {
++        reportError(tr("No pages were compared."));
++        QApplication::exit(2);
++        return;
++    }
++    // Item 0 of viewDiffComboBox is "(Not viewing)"
++    const int count = viewDiffComboBox->count();
++    if (count <= 1) {
++        QApplication::exit(0);
++        return;
++    }
++    saveFilename = saveAndQuitFilename;
++    {
++        QFile file(saveFilename);
++        if (!file.open(QIODevice::WriteOnly)) {
++            reportError(tr("Cannot write '%1': %2.").arg(saveFilename)
++                        .arg(file.errorString()));
++            QApplication::exit(2);
++            return;
++        }
++    }
++    saveAsPdf(1, count, pdf1, pdf2, filename1 + " - " + filename2);
++    if (!QFileInfo(saveFilename).isFile()) {
++        reportError(tr("Failed to write '%1'.").arg(saveFilename));
++        QApplication::exit(2);
++        return;
++    }
++    QApplication::exit(1);
++}
++
++
+ void MainWindow::updateUi()
+ {
+     compareButton->setEnabled(!filename1LineEdit->text().isEmpty() &&
+@@ -1194,8 +1251,7 @@ void MainWindow::setFile1(QString filena
+                 tr("PDF files (*.pdf)"));
+     if (!filename.isEmpty()) {
+         if (filename == filename2LineEdit->text()) {
+-            QMessageBox::warning(this, tr("DiffPDF — Error"),
+-                    tr("Cannot compare a file to itself."));
++            reportError(tr("Cannot compare a file to itself."));
+             return;
+         }
+         filename1LineEdit->setText(filename);
+@@ -1228,8 +1284,7 @@ void MainWindow::setFile2(QString filena
+                 tr("PDF files (*.pdf)"));
+     if (!filename.isEmpty()) {
+         if (filename == filename1LineEdit->text()) {
+-            QMessageBox::warning(this, tr("DiffPDF — Error"),
+-                    tr("Cannot compare a file to itself."));
++            reportError(tr("Cannot compare a file to itself."));
+             return;
+         }
+         filename2LineEdit->setText(filename);
+@@ -1258,11 +1313,9 @@ PdfDocument MainWindow::getPdf(const QSt
+ {
+     PdfDocument pdf(Poppler::Document::load(filename));
+     if (!pdf)
+-        QMessageBox::warning(this, tr("DiffPDF — Error"),
+-                tr("Cannot load '%1'.").arg(filename));
++        reportError(tr("Cannot load '%1'.").arg(filename));
+     else if (pdf->isLocked()) {
+-        QMessageBox::warning(this, tr("DiffPDF — Error"),
+-                tr("Cannot read a locked PDF ('%1').").arg(filename));
++        reportError(tr("Cannot read a locked PDF ('%1').").arg(filename));
+ #if QT_VERSION >= 0x040600
+         pdf.clear();
+ #else
+@@ -1319,8 +1372,19 @@ void MainWindow::writeLine(const QString
+ }
+ 
+ 
++void MainWindow::reportError(const QString &text)
++{
++    if (saveAndQuit)
++        QTextStream(stderr) << "diffpdf: " << text << "\n";
++    else
++        QMessageBox::warning(this, tr("DiffPDF — Error"), text);
++}
++
++
+ void MainWindow::writeError(const QString &text)
+ {
++    if (saveAndQuit)
++        QTextStream(stderr) << "diffpdf: " << text << "\n";
+     logEdit->appendHtml(tr("<font color=red>%1</font>").arg(text));
+     logEdit->ensureCursorVisible();
+ }
+@@ -1413,6 +1477,7 @@ void MainWindow::compare()
+     time.start();
+     const QPair<int, int> pair = comparePages(filename1, pdf1, filename2,
+                                               pdf2);
++    pagesCompared = pair.first;
+     compareUpdateUi(pair, time.elapsed());
+ }
+ 
+--- a/mainwindow.hpp
++++ b/mainwindow.hpp
+@@ -51,7 +51,9 @@ public:
+     MainWindow(const Debug debug,
+             const InitialComparisonMode comparisonMode,
+             const QString &filename1, const QString &filename2,
+-            const QString &language, const bool saveAndQuit = false, QWidget *parent=0);
++            const QString &language,
++            const QString &saveAndQuitFilename = QString(),
++            QWidget *parent=0);
+ 
+ protected:
+     void closeEvent(QCloseEvent *event);
+@@ -100,6 +102,9 @@ private:
+     int writeFileInfo(const QString &filename);
+     void writeLine(const QString &text);
+     void writeError(const QString &text);
++    void reportError(const QString &text);
++    void saveAndQuitCompare(const QString &filename1,
++                            const QString &filename2);
+     PdfDocument getPdf(const QString &filename);
+     QList<int> getPageList(int which, PdfDocument pdf);
+     Difference getTheDifference(PdfPage page1, PdfPage page2);
+@@ -214,6 +219,8 @@ private:
+     Debug debug;
+     AboutForm *aboutForm;
+     HelpForm *helpForm;
++    const QString saveAndQuitFilename;
++    int pagesCompared;
+     const bool saveAndQuit;
+ };
+ 

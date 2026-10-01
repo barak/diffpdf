@@ -244,7 +244,7 @@ Forwarded: no
      app.setCursorFlashTime(0);
  #endif
      app.setOrganizationName("DiffPDF");
-@@ -116,12 +115,12 @@ int main(int argc, char *argv[])
+@@ -126,12 +125,12 @@ int main(int argc, char *argv[])
  
  
      QTranslator qtTranslator;
@@ -261,7 +261,7 @@ Forwarded: no
 +        app.installTranslator(&appTranslator);
  
      MainWindow window(debug, comparisonMode, filename1, filename2,
-             language.left(2), saveAndQuit); // We want de not de_DE etc.
+             language.left(2), saveAndQuitFilename); // We want de not de_DE etc.
 --- a/mainwindow.cpp
 +++ b/mainwindow.cpp
 @@ -44,6 +44,9 @@
@@ -271,21 +271,10 @@ Forwarded: no
 +#include <QElapsedTimer>
 +#include <QPageLayout>
 +#include <QRegularExpression>
+ #include <QTextStream>
  #ifdef _OPENMP
  #include <omp.h>
- #endif
-@@ -633,8 +636,8 @@ void MainWindow::initialize(const QStrin
- 
-             if (saveAndQuit) {
-                 saveFilename = "diff.pdf";
--                PdfDocument pdf1 = PdfDocument(Poppler::Document::load(filename1));
--                PdfDocument pdf2 = PdfDocument(Poppler::Document::load(filename2));
-+                PdfDocument pdf1 = PdfDocument(Poppler::Document::load(filename1).release());
-+                PdfDocument pdf2 = PdfDocument(Poppler::Document::load(filename2).release());
-                 // Item 0 of viewDiffComboBox is "(Not viewing)"
-                 saveAsPdf(1, viewDiffComboBox->count(), pdf1, pdf2,
-                           filename1 + " - " + filename2);
-@@ -818,7 +821,7 @@ void MainWindow::updateViews(int index)
+@@ -875,7 +878,7 @@ void MainWindow::updateViews(int index)
      PdfDocument pdf1 = getPdf(filename1);
      if (!pdf1)
          return;
@@ -294,7 +283,7 @@ Forwarded: no
      if (!page1)
          return;
  
-@@ -826,7 +829,7 @@ void MainWindow::updateViews(int index)
+@@ -883,7 +886,7 @@ void MainWindow::updateViews(int index)
      PdfDocument pdf2 = getPdf(filename2);
      if (!pdf2)
          return;
@@ -303,16 +292,16 @@ Forwarded: no
      if (!page2)
          return;
  
-@@ -1256,7 +1259,7 @@ void MainWindow::setFile2(QString filena
+@@ -1311,7 +1314,7 @@ void MainWindow::setFile2(QString filena
  
  PdfDocument MainWindow::getPdf(const QString &filename)
  {
 -    PdfDocument pdf(Poppler::Document::load(filename));
 +    PdfDocument pdf(Poppler::Document::load(filename).release());
      if (!pdf)
-         QMessageBox::warning(this, tr("DiffPDF — Error"),
-                 tr("Cannot load '%1'.").arg(filename));
-@@ -1297,7 +1300,7 @@ int MainWindow::writeFileInfo(const QStr
+         reportError(tr("Cannot load '%1'.").arg(filename));
+     else if (pdf->isLocked()) {
+@@ -1350,7 +1353,7 @@ int MainWindow::writeFileInfo(const QStr
      writeLine(tr("Page count: %1.").arg(page_count));
      if (page_count > 0) {
          const double PointToMM = 0.3527777777;
@@ -321,7 +310,7 @@ Forwarded: no
          QSize size = page1->pageSize();
          writeLine(tr("Page size: %1pt x %2pt (%3mm x %4mm).")
                    .arg(size.width()).arg(size.height())
-@@ -1333,7 +1336,7 @@ QList<int> MainWindow::getPageList(int w
+@@ -1397,7 +1400,7 @@ QList<int> MainWindow::getPageList(int w
      bool error = false;
      QList<int> pages;
      QString page_string = pagesEdit->text();
@@ -330,7 +319,7 @@ Forwarded: no
      QStringList page_list = page_string.split(",");
      bool ok;
      foreach (const QString &page, page_list) {
-@@ -1409,7 +1412,7 @@ void MainWindow::compare()
+@@ -1473,7 +1476,7 @@ void MainWindow::compare()
      pdf2->setRenderHint(Poppler::Document::TextAntialiasing);
  
      comparePrepareUi();
@@ -339,7 +328,7 @@ Forwarded: no
      time.start();
      const QPair<int, int> pair = comparePages(filename1, pdf1, filename2,
                                                pdf2);
-@@ -1456,8 +1459,8 @@ const QPair<int, int> MainWindow::compar
+@@ -1521,8 +1524,8 @@ const QPair<int, int> MainWindow::compar
      {
          // A Poppler document must not be rendered from several threads at
          // once, so each thread works on its own copies.
@@ -350,7 +339,7 @@ Forwarded: no
          for (int bit = 1; doc1 && doc2 && bit <= 0x100; bit <<= 1) {
              const Poppler::Document::RenderHint hint =
                      static_cast<Poppler::Document::RenderHint>(bit);
-@@ -1470,8 +1473,8 @@ const QPair<int, int> MainWindow::compar
+@@ -1535,8 +1538,8 @@ const QPair<int, int> MainWindow::compar
                  continue;
              const int p1 = pages1.at(i);
              const int p2 = pages2.at(i);
@@ -361,7 +350,7 @@ Forwarded: no
              if (!page1)
                  errorData[i] = tr("Failed to read page %1 from '%2'.")
                                .arg(p1 + 1).arg(filename1);
-@@ -1700,10 +1703,10 @@ void MainWindow::saveAsImages(const int
+@@ -1765,10 +1768,10 @@ void MainWindow::saveAsImages(const int
          const PdfDocument &pdf1, const PdfDocument &pdf2,
          const QString &header)
  {
@@ -374,7 +363,7 @@ Forwarded: no
      if (!page2)
          return;
      int width = 2 * (savePages == SaveBothPages
-@@ -1753,8 +1756,8 @@ void MainWindow::saveAsPdf(const int sta
+@@ -1818,8 +1821,8 @@ void MainWindow::saveAsPdf(const int sta
      printer.setOutputFormat(QPrinter::PdfFormat);
      printer.setColorMode(QPrinter::Color);
      printer.setCreator(tr("DiffPDF"));
@@ -385,7 +374,7 @@ Forwarded: no
      QPainter painter(&printer);
      painter.setRenderHints(QPainter::Antialiasing|
              QPainter::TextAntialiasing|QPainter::SmoothPixmapTransform);
-@@ -1789,10 +1792,10 @@ bool MainWindow::paintSaveAs(QPainter *p
+@@ -1854,10 +1857,10 @@ bool MainWindow::paintSaveAs(QPainter *p
          .value<PagePair>();
      if (pair.isNull())
          return false;
@@ -398,7 +387,7 @@ Forwarded: no
      if (!page2)
          return false;
      const QPair<QString, QString> keys = cacheKeys(index, pair);
-@@ -1849,7 +1852,7 @@ void MainWindow::showZones()
+@@ -1914,7 +1917,7 @@ void MainWindow::showZones()
      PdfDocument pdf1 = getPdf(filename1);
      if (!pdf1)
          return;
@@ -407,7 +396,7 @@ Forwarded: no
      if (!page1)
          return;
      const TextBoxList list1 = getTextBoxes(page1);
-@@ -1859,7 +1862,7 @@ void MainWindow::showZones()
+@@ -1924,7 +1927,7 @@ void MainWindow::showZones()
      PdfDocument pdf2 = getPdf(filename2);
      if (!pdf2)
          return;
@@ -416,7 +405,7 @@ Forwarded: no
      if (!page2)
          return;
      const TextBoxList list2 = getTextBoxes(page2);
-@@ -1870,7 +1873,7 @@ void MainWindow::showZones()
+@@ -1935,7 +1938,7 @@ void MainWindow::showZones()
  void MainWindow::showZones(const int Width, const TextBoxList &list,
                             QLabel *label)
  {
@@ -425,7 +414,7 @@ Forwarded: no
          return;
      const bool ComparingWords = compareComboBox->currentIndex() ==
                                  CompareWords;
-@@ -1883,7 +1886,7 @@ void MainWindow::showZones(const int Wid
+@@ -1948,7 +1951,7 @@ void MainWindow::showZones(const int Wid
              columnsSpinBox->value());
      const int DPI = static_cast<int>(POINTS_PER_INCH *
              (zoomSpinBox->value() / 100.0));
@@ -434,7 +423,7 @@ Forwarded: no
      QPainter painter(&pixmap);
      painter.setPen(Qt::green);
      for (int i = 0; i < paths.count(); ++i) {
-@@ -1912,11 +1915,11 @@ void MainWindow::showMargins()
+@@ -1977,11 +1980,11 @@ void MainWindow::showMargins()
  
  void MainWindow::showMargins(QLabel *label)
  {
@@ -448,7 +437,7 @@ Forwarded: no
      QPainter painter(&pixmap);
      painter.setPen(Qt::cyan);
      int left = leftMarginSpinBox->value();
-@@ -1948,12 +1951,11 @@ void MainWindow::showMargins(QLabel *lab
+@@ -2013,12 +2016,11 @@ void MainWindow::showMargins(QLabel *lab
  
  void MainWindow::setAMargin(const QPoint &pos)
  {

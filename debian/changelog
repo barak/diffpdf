@@ -10,7 +10,9 @@ diffpdf (2.1.3.1-4) UNRELEASED; urgency=medium
     own Poppler document, as concurrent rendering of one document crashed
     intermittently; initialize per-page results; log in page order.
   * --save-and-quit: do not append a blank page or drop the last
-    differing page.
+    differing page; accept --save-and-quit=FILE; exit 0/1/2 for
+    same/different/trouble like diff(1); report errors on stderr instead
+    of in dialogs and do not show the window; document in man page.
   * Store settings in ~/.config/DiffPDF/ rather than ~/.config/Qtrac Ltd./,
     migrating old settings, and document this in the man page
     (closes: #767157)

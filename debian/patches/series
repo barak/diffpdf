@@ -9,4 +9,5 @@
 0010-fix-signal-slot-regressions.patch
 0011-config-location.patch
 0012-antialiased-appearance-comparison.patch
-0013-qt6.patch
+0013-save-and-quit-filename-status.patch
+0014-qt6.patch
