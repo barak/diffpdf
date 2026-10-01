@@ -22,6 +22,23 @@ held in a QVariant, and QString::arg() no longer takes char16_t.
 
 Forwarded: no
 ---
+ CMakeLists.txt       | 18 +++++++++---------
+ diffpdf_cz.ts        |  1 -
+ diffpdf_de.ts        |  1 -
+ diffpdf_es.ts        |  1 -
+ diffpdf_fr.ts        |  1 -
+ generic.cpp          | 20 +++++---------------
+ generic.hpp          | 14 ++++----------
+ helpform.cpp         |  1 -
+ main.cpp             | 13 ++++++-------
+ mainwindow.cpp       | 52 +++++++++++++++++++++++++++-------------------------
+ mainwindow.hpp       |  6 +-----
+ sequence_matcher.cpp |  3 ++-
+ textitem.cpp         |  5 ++---
+ 13 files changed, 56 insertions(+), 80 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 2661cff..81672d1 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.16)
@@ -75,6 +92,8 @@ Forwarded: no
  
  target_compile_definitions(diffpdf PRIVATE -DPOPPLER_VERSION="${Poppler_VERSION}")
  
+diff --git a/diffpdf_cz.ts b/diffpdf_cz.ts
+index 35cb23a..e7e83f7 100644
 --- a/diffpdf_cz.ts
 +++ b/diffpdf_cz.ts
 @@ -1,7 +1,6 @@
@@ -85,6 +104,8 @@ Forwarded: no
  <context>
      <name>AboutForm</name>
      <message>
+diff --git a/diffpdf_de.ts b/diffpdf_de.ts
+index 01a1ce3..92b07e5 100644
 --- a/diffpdf_de.ts
 +++ b/diffpdf_de.ts
 @@ -1,7 +1,6 @@
@@ -95,6 +116,8 @@ Forwarded: no
  <context>
      <name>AboutForm</name>
      <message>
+diff --git a/diffpdf_es.ts b/diffpdf_es.ts
+index c3341df..61e4268 100644
 --- a/diffpdf_es.ts
 +++ b/diffpdf_es.ts
 @@ -1,7 +1,6 @@
@@ -105,6 +128,8 @@ Forwarded: no
  <context>
      <name>AboutForm</name>
      <message>
+diff --git a/diffpdf_fr.ts b/diffpdf_fr.ts
+index 9379258..4e59b54 100644
 --- a/diffpdf_fr.ts
 +++ b/diffpdf_fr.ts
 @@ -1,7 +1,6 @@
@@ -115,6 +140,8 @@ Forwarded: no
  <context>
      <name>AboutForm</name>
      <message>
+diff --git a/generic.cpp b/generic.cpp
+index 13603e3..0dd1646 100644
 --- a/generic.cpp
 +++ b/generic.cpp
 @@ -75,11 +75,7 @@ QPixmap colorSwatch(const QColor &color)
@@ -129,7 +156,7 @@ Forwarded: no
          pixmap.fill(Qt::transparent);
          {
              QPainter painter(&pixmap);
-@@ -100,11 +96,7 @@ QPixmap brushSwatch(const Qt::BrushStyle
+@@ -100,11 +96,7 @@ QPixmap brushSwatch(const Qt::BrushStyle style, const QColor &color)
      QString key = QString("BRUSHSTYLESWATCH:%1:%2:%3")
          .arg(static_cast<int>(style)).arg(color.name()).arg(color.alpha());
      QPixmap pixmap(SwatchSize);
@@ -141,7 +168,7 @@ Forwarded: no
          pixmap.fill(Qt::transparent);
          {
              QPainter painter(&pixmap);
-@@ -125,11 +117,7 @@ QPixmap penStyleSwatch(const Qt::PenStyl
+@@ -125,11 +117,7 @@ QPixmap penStyleSwatch(const Qt::PenStyle style, const QColor &color)
      QString key = QString("PENSTYLESWATCH:%1:%2")
          .arg(static_cast<int>(style)).arg(color.name());
      QPixmap pixmap(SwatchSize);
@@ -153,7 +180,7 @@ Forwarded: no
          pixmap.fill(Qt::transparent);
          {
              QPainter painter(&pixmap);
-@@ -149,8 +137,10 @@ QPixmap penStyleSwatch(const Qt::PenStyl
+@@ -149,8 +137,10 @@ QPixmap penStyleSwatch(const Qt::PenStyle style, const QColor &color)
  const TextBoxList getTextBoxes(PdfPage page, const QRectF &rect)
  {
      TextBoxList boxes;
@@ -166,7 +193,7 @@ Forwarded: no
          if (rect.isEmpty() || rect.contains(box_ptr->boundingBox()))
              boxes.append(box_ptr);
      }
-@@ -164,7 +154,7 @@ const QString strippedFilename(const QSt
+@@ -164,7 +154,7 @@ const QString strippedFilename(const QString &filename)
      QString filename_ = filename;
      if (filename_.startsWith(FilePrefix))
          filename_ = filename_.mid(FilePrefix.length());
@@ -175,6 +202,8 @@ Forwarded: no
      if (filename_.startsWith("/"))
          filename_ = filename_.mid(1);
  #endif
+diff --git a/generic.hpp b/generic.hpp
+index 1e9afce..0445fbc 100644
 --- a/generic.hpp
 +++ b/generic.hpp
 @@ -12,7 +12,7 @@
@@ -215,9 +244,11 @@ Forwarded: no
  };
  Q_DECLARE_METATYPE(PagePair)
  
+diff --git a/helpform.cpp b/helpform.cpp
+index 052453f..5f377fe 100644
 --- a/helpform.cpp
 +++ b/helpform.cpp
-@@ -32,7 +32,6 @@ HelpForm::HelpForm(const QString &langua
+@@ -32,7 +32,6 @@ HelpForm::HelpForm(const QString &language, QWidget *parent)
      QFile file(filename);
      file.open(QIODevice::ReadOnly|QIODevice::Text);
      QTextStream in(&file);
@@ -225,6 +256,8 @@ Forwarded: no
      viewer->setHtml(in.readAll());
      viewer->setReadOnly(true);
      setCentralWidget(viewer);
+diff --git a/main.cpp b/main.cpp
+index 85fa576..758891c 100644
 --- a/main.cpp
 +++ b/main.cpp
 @@ -16,7 +16,6 @@
@@ -262,6 +295,8 @@ Forwarded: no
  
      MainWindow window(debug, comparisonMode, filename1, filename2,
              language.left(2), saveAndQuitFilename); // We want de not de_DE etc.
+diff --git a/mainwindow.cpp b/mainwindow.cpp
+index a2e4284..9befd0f 100644
 --- a/mainwindow.cpp
 +++ b/mainwindow.cpp
 @@ -44,6 +44,9 @@
@@ -292,7 +327,7 @@ Forwarded: no
      if (!page2)
          return;
  
-@@ -1311,7 +1314,7 @@ void MainWindow::setFile2(QString filena
+@@ -1311,7 +1314,7 @@ void MainWindow::setFile2(QString filename)
  
  PdfDocument MainWindow::getPdf(const QString &filename)
  {
@@ -301,7 +336,7 @@ Forwarded: no
      if (!pdf)
          reportError(tr("Cannot load '%1'.").arg(filename));
      else if (pdf->isLocked()) {
-@@ -1350,7 +1353,7 @@ int MainWindow::writeFileInfo(const QStr
+@@ -1350,7 +1353,7 @@ int MainWindow::writeFileInfo(const QString &filename)
      writeLine(tr("Page count: %1.").arg(page_count));
      if (page_count > 0) {
          const double PointToMM = 0.3527777777;
@@ -310,7 +345,7 @@ Forwarded: no
          QSize size = page1->pageSize();
          writeLine(tr("Page size: %1pt x %2pt (%3mm x %4mm).")
                    .arg(size.width()).arg(size.height())
-@@ -1397,7 +1400,7 @@ QList<int> MainWindow::getPageList(int w
+@@ -1397,7 +1400,7 @@ QList<int> MainWindow::getPageList(int which, PdfDocument pdf)
      bool error = false;
      QList<int> pages;
      QString page_string = pagesEdit->text();
@@ -328,7 +363,7 @@ Forwarded: no
      time.start();
      const QPair<int, int> pair = comparePages(filename1, pdf1, filename2,
                                                pdf2);
-@@ -1521,8 +1524,8 @@ const QPair<int, int> MainWindow::compar
+@@ -1521,8 +1524,8 @@ const QPair<int, int> MainWindow::comparePages(const QString &filename1,
      {
          // A Poppler document must not be rendered from several threads at
          // once, so each thread works on its own copies.
@@ -339,7 +374,7 @@ Forwarded: no
          for (int bit = 1; doc1 && doc2 && bit <= 0x100; bit <<= 1) {
              const Poppler::Document::RenderHint hint =
                      static_cast<Poppler::Document::RenderHint>(bit);
-@@ -1535,8 +1538,8 @@ const QPair<int, int> MainWindow::compar
+@@ -1535,8 +1538,8 @@ const QPair<int, int> MainWindow::comparePages(const QString &filename1,
                  continue;
              const int p1 = pages1.at(i);
              const int p2 = pages2.at(i);
@@ -350,7 +385,7 @@ Forwarded: no
              if (!page1)
                  errorData[i] = tr("Failed to read page %1 from '%2'.")
                                .arg(p1 + 1).arg(filename1);
-@@ -1765,10 +1768,10 @@ void MainWindow::saveAsImages(const int
+@@ -1765,10 +1768,10 @@ void MainWindow::saveAsImages(const int start, const int end,
          const PdfDocument &pdf1, const PdfDocument &pdf2,
          const QString &header)
  {
@@ -363,7 +398,7 @@ Forwarded: no
      if (!page2)
          return;
      int width = 2 * (savePages == SaveBothPages
-@@ -1818,8 +1821,8 @@ void MainWindow::saveAsPdf(const int sta
+@@ -1818,8 +1821,8 @@ void MainWindow::saveAsPdf(const int start, const int end,
      printer.setOutputFormat(QPrinter::PdfFormat);
      printer.setColorMode(QPrinter::Color);
      printer.setCreator(tr("DiffPDF"));
@@ -374,7 +409,7 @@ Forwarded: no
      QPainter painter(&printer);
      painter.setRenderHints(QPainter::Antialiasing|
              QPainter::TextAntialiasing|QPainter::SmoothPixmapTransform);
-@@ -1854,10 +1857,10 @@ bool MainWindow::paintSaveAs(QPainter *p
+@@ -1854,10 +1857,10 @@ bool MainWindow::paintSaveAs(QPainter *painter, const int index,
          .value<PagePair>();
      if (pair.isNull())
          return false;
@@ -414,7 +449,7 @@ Forwarded: no
          return;
      const bool ComparingWords = compareComboBox->currentIndex() ==
                                  CompareWords;
-@@ -1948,7 +1951,7 @@ void MainWindow::showZones(const int Wid
+@@ -1948,7 +1951,7 @@ void MainWindow::showZones(const int Width, const TextBoxList &list,
              columnsSpinBox->value());
      const int DPI = static_cast<int>(POINTS_PER_INCH *
              (zoomSpinBox->value() / 100.0));
@@ -437,7 +472,7 @@ Forwarded: no
      QPainter painter(&pixmap);
      painter.setPen(Qt::cyan);
      int left = leftMarginSpinBox->value();
-@@ -2013,12 +2016,11 @@ void MainWindow::showMargins(QLabel *lab
+@@ -2013,12 +2016,11 @@ void MainWindow::showMargins(QLabel *label)
  
  void MainWindow::setAMargin(const QPoint &pos)
  {
@@ -452,6 +487,8 @@ Forwarded: no
      int x = pos.x();
      int y = pos.y();
      const int HorizontalMiddle = size.width() / 2;
+diff --git a/mainwindow.hpp b/mainwindow.hpp
+index 64baa74..eca2b51 100644
 --- a/mainwindow.hpp
 +++ b/mainwindow.hpp
 @@ -14,12 +14,8 @@
@@ -468,6 +505,8 @@ Forwarded: no
  #include <QBrush>
  #include <QList>
  #include <QMainWindow>
+diff --git a/sequence_matcher.cpp b/sequence_matcher.cpp
+index cc65425..6e01ec0 100644
 --- a/sequence_matcher.cpp
 +++ b/sequence_matcher.cpp
 @@ -12,6 +12,7 @@
@@ -478,7 +517,7 @@ Forwarded: no
  
  
  RangesPair computeRanges(SequenceMatcher *matcher)
-@@ -136,7 +137,7 @@ QList<Match> SequenceMatcher::get_matchi
+@@ -136,7 +137,7 @@ QList<Match> SequenceMatcher::get_matching_blocks()
                  offsets.append(Offsets(i + k, a_high, j + k, b_high));
          }
      }
@@ -487,9 +526,11 @@ Forwarded: no
  
      int i1 = 0;
      int j1 = 0;
+diff --git a/textitem.cpp b/textitem.cpp
+index f7ce133..e25e352 100644
 --- a/textitem.cpp
 +++ b/textitem.cpp
-@@ -130,7 +130,7 @@ const QList<QPainterPath> TextItems::gen
+@@ -130,7 +130,7 @@ const QList<QPainterPath> TextItems::generateZones(const int Width,
          const int Column = ((Columns == 1) ? 0
              : (rect.width() > Span) ? Columns : rect.right() / Span);
          const int y = normalizedY(static_cast<int>(rect.y()), ToleranceY);
@@ -498,7 +539,7 @@ Forwarded: no
      }
      return zonesForColumn.values();
  }
-@@ -152,7 +152,6 @@ void TextItems::debug(const int page, co
+@@ -152,7 +152,6 @@ void TextItems::debug(const int page, const int ToleranceY,
                                  .arg(file.errorString())));
      }
      QTextStream out(&file);
@@ -506,7 +547,7 @@ Forwarded: no
      out << "Page #" << page << ": "
          << (ComparingWords ? "Words" : "Characters") << " mode\n";
      for (int i = 0; i < items.count(); ++i) {
-@@ -160,7 +159,7 @@ void TextItems::debug(const int page, co
+@@ -160,7 +159,7 @@ void TextItems::debug(const int page, const int ToleranceY,
          const QRect rect = item.toRect();
          out << item.text;
          if (!ComparingWords)

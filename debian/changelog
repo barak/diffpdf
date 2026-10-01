@@ -1,4 +1,4 @@
-diffpdf (2.1.3.1-4) UNRELEASED; urgency=medium
+diffpdf (2.1.3.1-4) unstable; urgency=medium
 
   * Fix regressions from the port to new-style signal/slot connections:
     - changing zoom, margins, etc. no longer jumps to an unrelated page

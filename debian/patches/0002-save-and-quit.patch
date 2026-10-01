@@ -9,13 +9,14 @@ and exits.  Taken from https://gitlab.com/eang/diffpdf (pianoslum).
  box rather than up to the page count of the longer document, which
  appended a blank page, or dropped the last difference when every page
  differed.]
-
 ---
  main.cpp       |  8 +++++++-
- mainwindow.cpp | 15 ++++++++++++---
+ mainwindow.cpp | 16 +++++++++++++---
  mainwindow.hpp |  3 ++-
- 3 files changed, 21 insertions(+), 5 deletions(-)
+ 3 files changed, 22 insertions(+), 5 deletions(-)
 
+diff --git a/main.cpp b/main.cpp
+index 321ecc4..7a6566d 100644
 --- a/main.cpp
 +++ b/main.cpp
 @@ -41,6 +41,7 @@ int main(int argc, char *argv[])
@@ -61,6 +62,8 @@ and exits.  Taken from https://gitlab.com/eang/diffpdf (pianoslum).
      window.show();
      return app.exec();
  }
+diff --git a/mainwindow.cpp b/mainwindow.cpp
+index 30b369b..1d088d5 100644
 --- a/mainwindow.cpp
 +++ b/mainwindow.cpp
 @@ -49,7 +49,7 @@
@@ -72,7 +75,7 @@ and exits.  Taken from https://gitlab.com/eang/diffpdf (pianoslum).
      : QMainWindow(parent),
        controlDockArea(Qt::RightDockWidgetArea),
        actionDockArea(Qt::RightDockWidgetArea),
-@@ -57,7 +57,8 @@ MainWindow::MainWindow(const Debug debug
+@@ -57,7 +57,8 @@ MainWindow::MainWindow(const Debug debug,
        zoningDockArea(Qt::RightDockWidgetArea),
        logDockArea(Qt::RightDockWidgetArea), cancel(false),
        saveAll(true), savePages(SaveBothPages), language(language),
@@ -82,7 +85,7 @@ and exits.  Taken from https://gitlab.com/eang/diffpdf (pianoslum).
  {
      currentPath = QDir::homePath();
      QSettings settings;
-@@ -626,6 +627,16 @@ void MainWindow::initialize(const QStrin
+@@ -626,6 +627,16 @@ void MainWindow::initialize(const QString &filename1,
          if (!filename2.isEmpty()) {
              setFile2(filename2);
              compare();
@@ -99,7 +102,7 @@ and exits.  Taken from https://gitlab.com/eang/diffpdf (pianoslum).
          }
      }
      else
-@@ -1675,7 +1686,6 @@ void MainWindow::saveAsImages(const int
+@@ -1675,7 +1686,6 @@ void MainWindow::saveAsImages(const int start, const int end,
      }
  }
  
@@ -107,6 +110,8 @@ and exits.  Taken from https://gitlab.com/eang/diffpdf (pianoslum).
  void MainWindow::saveAsPdf(const int start, const int end,
          const PdfDocument &pdf1, const PdfDocument &pdf2,
          const QString &header)
+diff --git a/mainwindow.hpp b/mainwindow.hpp
+index 448d21c..aa62a7a 100644
 --- a/mainwindow.hpp
 +++ b/mainwindow.hpp
 @@ -51,7 +51,7 @@ public:

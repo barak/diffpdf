@@ -11,9 +11,15 @@ first run, and document the file in the man page.
 Bug-Debian: https://bugs.debian.org/767157
 Forwarded: no
 ---
+ diffpdf.1.cmake |  7 +++++++
+ main.cpp        | 12 +++++++++++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/diffpdf.1.cmake b/diffpdf.1.cmake
+index 8f7cf31..c85d93f 100644
 --- a/diffpdf.1.cmake
 +++ b/diffpdf.1.cmake
-@@ -26,6 +26,13 @@ second. This will make DiffPDF compare p
+@@ -26,6 +26,13 @@ second. This will make DiffPDF compare pages in the pairs (1, 1), (2,
  If the program is passed two PDF filenames on the command line it will
  start up and compare those files in Text mode (or in Appearance mode if
  the filenames are preceded by \-a or \-\-appearance).
@@ -27,6 +33,8 @@ Forwarded: no
  .SH "SEE ALSO"
  For a command line tool for comparing PDF files see
  http://www.qtrac.eu/comparepdf.html.
+diff --git a/main.cpp b/main.cpp
+index 94c2a25..e9b5052 100644
 --- a/main.cpp
 +++ b/main.cpp
 @@ -27,9 +27,19 @@ int main(int argc, char *argv[])

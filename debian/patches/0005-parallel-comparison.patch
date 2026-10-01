@@ -31,7 +31,11 @@ OpenMP parallelized comparison of two PDFs
  intermittently (in lcms2) when comparing appearance.]
 Bug-Debian: https://bugs.debian.org/878060
 ---
+ mainwindow.cpp | 96 ++++++++++++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 73 insertions(+), 23 deletions(-)
 
+diff --git a/mainwindow.cpp b/mainwindow.cpp
+index 1354318..c70667d 100644
 --- a/mainwindow.cpp
 +++ b/mainwindow.cpp
 @@ -44,6 +44,9 @@
@@ -44,7 +48,7 @@ Bug-Debian: https://bugs.debian.org/878060
  
  
  MainWindow::MainWindow(const Debug debug,
-@@ -1426,40 +1429,87 @@ const QPair<int, int> MainWindow::compar
+@@ -1426,40 +1429,87 @@ const QPair<int, int> MainWindow::comparePages(const QString &filename1,
      QList<int> pages1 = getPageList(1, pdf1);
      QList<int> pages2 = getPageList(2, pdf2);
      int total = qMin(pages1.count(), pages2.count());

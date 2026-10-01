@@ -12,9 +12,14 @@ the same antialiased rendering for comparison as for display.
 Bug-Debian: https://bugs.debian.org/1007939
 Forwarded: no
 ---
+ mainwindow.cpp | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/mainwindow.cpp b/mainwindow.cpp
+index 499a15e..92b3d95 100644
 --- a/mainwindow.cpp
 +++ b/mainwindow.cpp
-@@ -893,16 +893,16 @@ const QPair<QPixmap, QPixmap> MainWindow
+@@ -893,16 +893,16 @@ const QPair<QPixmap, QPixmap> MainWindow::populatePixmaps(
                  (zoomSpinBox->value() / 100.0));
          const bool compareText = compareComboBox->currentIndex() !=
                                   CompareAppearance;

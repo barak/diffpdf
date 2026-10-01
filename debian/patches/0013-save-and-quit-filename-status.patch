@@ -18,9 +18,17 @@ Make --save-and-quit usable from scripts:
 
 Forwarded: no
 ---
+ diffpdf.1.cmake |  21 ++++++++++++
+ main.cpp        |  23 +++++++++----
+ mainwindow.cpp  | 105 +++++++++++++++++++++++++++++++++++++++++++++-----------
+ mainwindow.hpp  |   9 ++++-
+ 4 files changed, 131 insertions(+), 27 deletions(-)
+
+diff --git a/diffpdf.1.cmake b/diffpdf.1.cmake
+index c85d93f..3d01a33 100644
 --- a/diffpdf.1.cmake
 +++ b/diffpdf.1.cmake
-@@ -26,6 +26,27 @@ second. This will make DiffPDF compare p
+@@ -26,6 +26,27 @@ second. This will make DiffPDF compare pages in the pairs (1, 1), (2,
  If the program is passed two PDF filenames on the command line it will
  start up and compare those files in Text mode (or in Appearance mode if
  the filenames are preceded by \-a or \-\-appearance).
@@ -48,6 +56,8 @@ Forwarded: no
  .SH FILES
  .TP
  .I ~/.config/DiffPDF/DiffPDF.conf
+diff --git a/main.cpp b/main.cpp
+index e9b5052..85fa576 100644
 --- a/main.cpp
 +++ b/main.cpp
 @@ -51,7 +51,8 @@ int main(int argc, char *argv[])
@@ -102,6 +112,8 @@ Forwarded: no
      return app.exec();
  }
  
+diff --git a/mainwindow.cpp b/mainwindow.cpp
+index 92b3d95..a2e4284 100644
 --- a/mainwindow.cpp
 +++ b/mainwindow.cpp
 @@ -44,6 +44,7 @@
@@ -122,7 +134,7 @@ Forwarded: no
      : QMainWindow(parent),
        controlDockArea(Qt::RightDockWidgetArea),
        actionDockArea(Qt::RightDockWidgetArea),
-@@ -61,7 +63,8 @@ MainWindow::MainWindow(const Debug debug
+@@ -61,7 +63,8 @@ MainWindow::MainWindow(const Debug debug,
        logDockArea(Qt::RightDockWidgetArea), cancel(false),
        saveAll(true), savePages(SaveBothPages), language(language),
        debug(debug), aboutForm(0), helpForm(0),
@@ -159,7 +171,7 @@ Forwarded: no
          }
      }
      else
-@@ -647,6 +644,66 @@ void MainWindow::initialize(const QStrin
+@@ -647,6 +644,66 @@ void MainWindow::initialize(const QString &filename1,
  }
  
  
@@ -226,7 +238,7 @@ Forwarded: no
  void MainWindow::updateUi()
  {
      compareButton->setEnabled(!filename1LineEdit->text().isEmpty() &&
-@@ -1194,8 +1251,7 @@ void MainWindow::setFile1(QString filena
+@@ -1194,8 +1251,7 @@ void MainWindow::setFile1(QString filename)
                  tr("PDF files (*.pdf)"));
      if (!filename.isEmpty()) {
          if (filename == filename2LineEdit->text()) {
@@ -236,7 +248,7 @@ Forwarded: no
              return;
          }
          filename1LineEdit->setText(filename);
-@@ -1228,8 +1284,7 @@ void MainWindow::setFile2(QString filena
+@@ -1228,8 +1284,7 @@ void MainWindow::setFile2(QString filename)
                  tr("PDF files (*.pdf)"));
      if (!filename.isEmpty()) {
          if (filename == filename1LineEdit->text()) {
@@ -246,7 +258,7 @@ Forwarded: no
              return;
          }
          filename2LineEdit->setText(filename);
-@@ -1258,11 +1313,9 @@ PdfDocument MainWindow::getPdf(const QSt
+@@ -1258,11 +1313,9 @@ PdfDocument MainWindow::getPdf(const QString &filename)
  {
      PdfDocument pdf(Poppler::Document::load(filename));
      if (!pdf)
@@ -260,7 +272,7 @@ Forwarded: no
  #if QT_VERSION >= 0x040600
          pdf.clear();
  #else
-@@ -1319,8 +1372,19 @@ void MainWindow::writeLine(const QString
+@@ -1319,8 +1372,19 @@ void MainWindow::writeLine(const QString &text)
  }
  
  
@@ -288,6 +300,8 @@ Forwarded: no
      compareUpdateUi(pair, time.elapsed());
  }
  
+diff --git a/mainwindow.hpp b/mainwindow.hpp
+index aa62a7a..64baa74 100644
 --- a/mainwindow.hpp
 +++ b/mainwindow.hpp
 @@ -51,7 +51,9 @@ public:

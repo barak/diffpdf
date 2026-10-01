@@ -23,6 +23,12 @@ Bug-Debian: https://bugs.debian.org/1051422
 Bug-Debian: https://bugs.debian.org/1094167
 Forwarded: no
 ---
+ mainwindow.cpp  | 26 +++++++++++++-------------
+ optionsform.cpp |  8 ++++----
+ 2 files changed, 17 insertions(+), 17 deletions(-)
+
+diff --git a/mainwindow.cpp b/mainwindow.cpp
+index c70667d..499a15e 100644
 --- a/mainwindow.cpp
 +++ b/mainwindow.cpp
 @@ -545,14 +545,14 @@ void MainWindow::createConnections()
@@ -85,6 +91,8 @@ Forwarded: no
      connect(page1Label, &Label::clicked,
              this, &MainWindow::setAMargin);
      connect(page2Label, &Label::clicked,
+diff --git a/optionsform.cpp b/optionsform.cpp
+index 37489b0..03d6049 100644
 --- a/optionsform.cpp
 +++ b/optionsform.cpp
 @@ -76,9 +76,9 @@ void OptionsForm::createWidgets()
