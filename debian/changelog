@@ -6,8 +6,9 @@ diffpdf (2.1.3.1-4) UNRELEASED; urgency=medium
     - choosing a pen or brush style no longer disables OK in the options
       dialog (closes: #1094167)
   * Parallel comparison: only touch the GUI from the GUI thread, which
-    caused QSocketNotifier and QTextBlock warnings, initialize per-page
-    results, and log in page order.
+    caused QSocketNotifier and QTextBlock warnings; give each thread its
+    own Poppler document, as concurrent rendering of one document crashed
+    intermittently; initialize per-page results; log in page order.
   * --save-and-quit: do not append a blank page or drop the last
     differing page.
   * Store settings in ~/.config/DiffPDF/ rather than ~/.config/Qtrac Ltd./,

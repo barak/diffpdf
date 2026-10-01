@@ -26,7 +26,9 @@ OpenMP parallelized comparison of two PDFs
  which were left uninitialized for pages that failed to load or were
  skipped on cancel, report log lines in page order, keep partial results
  on cancel as the serial code did, and correct the count of pages
- compared.]
+ compared.  Give each thread its own Poppler::Document, since rendering
+ pages of one document concurrently is not thread safe and crashed
+ intermittently (in lcms2) when comparing appearance.]
 Bug-Debian: https://bugs.debian.org/878060
 ---
 
@@ -42,18 +44,11 @@ Bug-Debian: https://bugs.debian.org/878060
  
  
  MainWindow::MainWindow(const Debug debug,
-@@ -1426,40 +1429,69 @@ const QPair<int, int> MainWindow::compar
+@@ -1426,40 +1429,87 @@ const QPair<int, int> MainWindow::compar
      QList<int> pages1 = getPageList(1, pdf1);
      QList<int> pages2 = getPageList(2, pdf2);
      int total = qMin(pages1.count(), pages2.count());
 -    int number = 0;
--    int index = 0;
--    while (!pages1.isEmpty() && !pages2.isEmpty()) {
--        int p1 = pages1.takeFirst();
--        PdfPage page1(pdf1->page(p1));
--        if (!page1) {
--            writeError(tr("Failed to read page %1 from '%2'.")
--                          .arg(p1 + 1).arg(filename1));
 +
 +    // Pages are compared in parallel, but only the thread that called us
 +    // (OpenMP thread 0, the GUI thread) may touch widgets or process events.
@@ -62,48 +57,73 @@ Bug-Debian: https://bugs.debian.org/878060
 +    QVector<Difference> difference(total, NoDifference);
 +    QVector<bool> compared(total, false);
 +    QVector<QString> error(total);
++    // Threads write through these rather than QVector::operator[], which
++    // may detach
++    Difference *const differenceData = difference.data();
++    bool *const comparedData = compared.data();
++    QString *const errorData = error.data();
 +    int processed = 0;
 +
-+#pragma omp parallel for schedule(dynamic)
-+    for (int i = 0; i < total; ++i) {
-+        if (cancel)
-             continue;
--        }
--        int p2 = pages2.takeFirst();
-+        const int p1 = pages1.at(i);
-+        const int p2 = pages2.at(i);
-+        PdfPage page1(pdf1->page(p1));
-         PdfPage page2(pdf2->page(p2));
--        if (!page2) {
--            writeError(tr("Failed to read page %1 from '%2'.")
--                          .arg(p2 + 1).arg(filename2));
-+        if (!page1)
-+            error[i] = tr("Failed to read page %1 from '%2'.")
-+                          .arg(p1 + 1).arg(filename1);
-+        else if (!page2)
-+            error[i] = tr("Failed to read page %1 from '%2'.")
-+                          .arg(p2 + 1).arg(filename2);
-+        else
-+            difference[i] = getTheDifference(page1, page2);
-+        compared[i] = true;
-+        int done;
++#pragma omp parallel
++    {
++        // A Poppler document must not be rendered from several threads at
++        // once, so each thread works on its own copies.
++        PdfDocument doc1(Poppler::Document::load(filename1));
++        PdfDocument doc2(Poppler::Document::load(filename2));
++        for (int bit = 1; doc1 && doc2 && bit <= 0x100; bit <<= 1) {
++            const Poppler::Document::RenderHint hint =
++                    static_cast<Poppler::Document::RenderHint>(bit);
++            doc1->setRenderHint(hint, pdf1->renderHints().testFlag(hint));
++            doc2->setRenderHint(hint, pdf2->renderHints().testFlag(hint));
++        }
++#pragma omp for schedule(dynamic)
++        for (int i = 0; i < total; ++i) {
++            if (cancel)
++                continue;
++            const int p1 = pages1.at(i);
++            const int p2 = pages2.at(i);
++            PdfPage page1(doc1 ? doc1->page(p1) : 0);
++            PdfPage page2(doc2 ? doc2->page(p2) : 0);
++            if (!page1)
++                errorData[i] = tr("Failed to read page %1 from '%2'.")
++                              .arg(p1 + 1).arg(filename1);
++            else if (!page2)
++                errorData[i] = tr("Failed to read page %1 from '%2'.")
++                              .arg(p2 + 1).arg(filename2);
++            else
++                differenceData[i] = getTheDifference(page1, page2);
++            comparedData[i] = true;
++            int done;
 +#pragma omp atomic capture
-+        done = ++processed;
++            done = ++processed;
 +#ifdef _OPENMP
-+        if (omp_get_thread_num() == 0)
++            if (omp_get_thread_num() == 0)
 +#endif
-+        {
-+            statusLabel->setText(tr("Comparing %1/%2").arg(done)
-+                                                      .arg(total));
-+            QApplication::processEvents();
++            {
++                statusLabel->setText(tr("Comparing %1/%2").arg(done)
++                                                          .arg(total));
++                QApplication::processEvents();
++            }
 +        }
 +    }
 +
-+    int index = 0;
+     int index = 0;
+-    while (!pages1.isEmpty() && !pages2.isEmpty()) {
+-        int p1 = pages1.takeFirst();
+-        PdfPage page1(pdf1->page(p1));
+-        if (!page1) {
+-            writeError(tr("Failed to read page %1 from '%2'.")
+-                          .arg(p1 + 1).arg(filename1));
 +    int number = 0;
 +    for (int i = 0; i < total; ++i) {
 +        if (!compared[i])
-+            continue;
+             continue;
+-        }
+-        int p2 = pages2.takeFirst();
+-        PdfPage page2(pdf2->page(p2));
+-        if (!page2) {
+-            writeError(tr("Failed to read page %1 from '%2'.")
+-                          .arg(p2 + 1).arg(filename2));
 +        const int p1 = pages1.at(i);
 +        const int p2 = pages2.at(i);
 +        if (!error[i].isEmpty()) {
