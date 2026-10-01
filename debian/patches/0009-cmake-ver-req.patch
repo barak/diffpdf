@@ -2,17 +2,20 @@ From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
 Date: Fri, 7 Nov 2025 11:17:02 +0000
 Subject: cmake ver req
 
+cmake 3.5+ for Debian
+
+cmake 3.16+ for FindPoppler
 ---
  CMakeLists.txt | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 50b7e49..2e0a284 100644
+index 50b7e49..2661cff 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -1,4 +1,4 @@
 -cmake_minimum_required(VERSION 3.1)
-+cmake_minimum_required(VERSION 3.5)
++cmake_minimum_required(VERSION 3.16)
  
  set(DIFFPDF_VERSION 2.1.3.1)
  project(DiffPDF VERSION ${DIFFPDF_VERSION})

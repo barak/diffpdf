@@ -12,8 +12,9 @@ diffpdf (2.1.3.1-3) unstable; urgency=medium
   * debhelper 14, dh-sequence-single-package
   * ack NMU
   * quit patch → quilt patch
+  * bump CMake requirement for poppler finder support
 
- -- Barak A. Pearlmutter <bap@debian.org>  Thu, 01 Oct 2026 13:22:16 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Thu, 01 Oct 2026 13:23:20 +0100
 
 diffpdf (2.1.3.1-2.1) unstable; urgency=medium
 
