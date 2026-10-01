@@ -2,14 +2,20 @@ From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
 Date: Thu, 1 Oct 2026 13:09:50 +0100
 Subject: save and quit
 
+Add a --save-and-quit option which saves the differences to diff.pdf
+and exits.  Taken from https://gitlab.com/eang/diffpdf (pianoslum).
+
+[bap 2026-10-01: Iterate over the entries of the differing-pages combo
+ box rather than up to the page count of the longer document, which
+ appended a blank page, or dropped the last difference when every page
+ differed.]
+
 ---
  main.cpp       |  8 +++++++-
  mainwindow.cpp | 15 ++++++++++++---
  mainwindow.hpp |  3 ++-
  3 files changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/main.cpp b/main.cpp
-index 321ecc4..7a6566d 100644
 --- a/main.cpp
 +++ b/main.cpp
 @@ -41,6 +41,7 @@ int main(int argc, char *argv[])
@@ -55,8 +61,6 @@ index 321ecc4..7a6566d 100644
      window.show();
      return app.exec();
  }
-diff --git a/mainwindow.cpp b/mainwindow.cpp
-index 30b369b..0a26f9d 100644
 --- a/mainwindow.cpp
 +++ b/mainwindow.cpp
 @@ -49,7 +49,7 @@
@@ -68,7 +72,7 @@ index 30b369b..0a26f9d 100644
      : QMainWindow(parent),
        controlDockArea(Qt::RightDockWidgetArea),
        actionDockArea(Qt::RightDockWidgetArea),
-@@ -57,7 +57,8 @@ MainWindow::MainWindow(const Debug debug,
+@@ -57,7 +57,8 @@ MainWindow::MainWindow(const Debug debug
        zoningDockArea(Qt::RightDockWidgetArea),
        logDockArea(Qt::RightDockWidgetArea), cancel(false),
        saveAll(true), savePages(SaveBothPages), language(language),
@@ -78,7 +82,7 @@ index 30b369b..0a26f9d 100644
  {
      currentPath = QDir::homePath();
      QSettings settings;
-@@ -626,6 +627,15 @@ void MainWindow::initialize(const QString &filename1,
+@@ -626,6 +627,16 @@ void MainWindow::initialize(const QStrin
          if (!filename2.isEmpty()) {
              setFile2(filename2);
              compare();
@@ -87,14 +91,15 @@ index 30b369b..0a26f9d 100644
 +                saveFilename = "diff.pdf";
 +                PdfDocument pdf1 = PdfDocument(Poppler::Document::load(filename1));
 +                PdfDocument pdf2 = PdfDocument(Poppler::Document::load(filename2));
-+                const int page_count = std::max(pdf1->numPages(), pdf2->numPages());
-+                saveAsPdf(0, page_count, pdf1, pdf2, filename1 + " - " + filename2);
++                // Item 0 of viewDiffComboBox is "(Not viewing)"
++                saveAsPdf(1, viewDiffComboBox->count(), pdf1, pdf2,
++                          filename1 + " - " + filename2);
 +                QApplication::quit();
 +            }
          }
      }
      else
-@@ -1675,7 +1685,6 @@ void MainWindow::saveAsImages(const int start, const int end,
+@@ -1675,7 +1686,6 @@ void MainWindow::saveAsImages(const int
      }
  }
  
@@ -102,8 +107,6 @@ index 30b369b..0a26f9d 100644
  void MainWindow::saveAsPdf(const int start, const int end,
          const PdfDocument &pdf1, const PdfDocument &pdf2,
          const QString &header)
-diff --git a/mainwindow.hpp b/mainwindow.hpp
-index 448d21c..aa62a7a 100644
 --- a/mainwindow.hpp
 +++ b/mainwindow.hpp
 @@ -51,7 +51,7 @@ public:

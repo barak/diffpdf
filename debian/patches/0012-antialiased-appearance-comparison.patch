@@ -1,0 +1,52 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Thu, 1 Oct 2026 14:00:00 +0100
+Subject: compare appearance using antialiased rendering
+
+Appearance mode rendered pages without antialiasing when deciding
+whether they differ and when computing the highlighted regions, while
+the pages shown to the user are antialiased.  Some visible differences,
+such as text printed twice at the same position (which looks bolder),
+render identically without antialiasing and so went undetected.  Use
+the same antialiased rendering for comparison as for display.
+
+Bug-Debian: https://bugs.debian.org/1007939
+Forwarded: no
+---
+--- a/mainwindow.cpp
++++ b/mainwindow.cpp
+@@ -893,16 +893,16 @@ const QPair<QPixmap, QPixmap> MainWindow
+                 (zoomSpinBox->value() / 100.0));
+         const bool compareText = compareComboBox->currentIndex() !=
+                                  CompareAppearance;
++        pdf1->setRenderHint(Poppler::Document::Antialiasing);
++        pdf1->setRenderHint(Poppler::Document::TextAntialiasing);
++        pdf2->setRenderHint(Poppler::Document::Antialiasing);
++        pdf2->setRenderHint(Poppler::Document::TextAntialiasing);
+         QImage plainImage1;
+         QImage plainImage2;
+         if (hasVisualDifference || !compareText) {
+             plainImage1 = page1->renderToImage(DPI, DPI);
+             plainImage2 = page2->renderToImage(DPI, DPI);
+         }
+-        pdf1->setRenderHint(Poppler::Document::Antialiasing);
+-        pdf1->setRenderHint(Poppler::Document::TextAntialiasing);
+-        pdf2->setRenderHint(Poppler::Document::Antialiasing);
+-        pdf2->setRenderHint(Poppler::Document::TextAntialiasing);
+         QImage image1 = page1->renderToImage(DPI, DPI);
+         QImage image2 = page2->renderToImage(DPI, DPI);
+ 
+@@ -1400,6 +1400,14 @@ void MainWindow::compare()
+         return;
+     }
+ 
++    // Compare pages as they are displayed: without antialiasing, some
++    // visible differences, such as text printed twice in the same place
++    // and so appearing bolder, render identically.
++    pdf1->setRenderHint(Poppler::Document::Antialiasing);
++    pdf1->setRenderHint(Poppler::Document::TextAntialiasing);
++    pdf2->setRenderHint(Poppler::Document::Antialiasing);
++    pdf2->setRenderHint(Poppler::Document::TextAntialiasing);
++
+     comparePrepareUi();
+     QTime time;
+     time.start();

@@ -1,0 +1,52 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Thu, 1 Oct 2026 13:50:00 +0100
+Subject: store settings under ~/.config/DiffPDF
+
+Settings were stored under ~/.config/Qtrac Ltd./, named after the
+original author's company, which is neither obvious nor appropriate now
+that the free version is maintained by others.  Use DiffPDF as the
+organization name, copy any existing settings from the old location on
+first run, and document the file in the man page.
+
+Bug-Debian: https://bugs.debian.org/767157
+Forwarded: no
+---
+--- a/diffpdf.1.cmake
++++ b/diffpdf.1.cmake
+@@ -26,6 +26,13 @@ second. This will make DiffPDF compare p
+ If the program is passed two PDF filenames on the command line it will
+ start up and compare those files in Text mode (or in Appearance mode if
+ the filenames are preceded by \-a or \-\-appearance).
++.SH FILES
++.TP
++.I ~/.config/DiffPDF/DiffPDF.conf
++User settings (window layout, zoom, margins, highlighting, etc.).
++Older versions stored these in
++.IR "~/.config/Qtrac Ltd./DiffPDF.conf" ,
++from which they are copied the first time a newer version is run.
+ .SH "SEE ALSO"
+ For a command line tool for comparing PDF files see
+ http://www.qtrac.eu/comparepdf.html.
+--- a/main.cpp
++++ b/main.cpp
+@@ -27,9 +27,19 @@ int main(int argc, char *argv[])
+ #ifdef Q_WS_MAC
+     app.setCursorFlashTime(0);
+ #endif
+-    app.setOrganizationName("Qtrac Ltd.");
++    app.setOrganizationName("DiffPDF");
+     app.setOrganizationDomain("qtrac.eu");
+     app.setApplicationName("DiffPDF");
++    {
++        // Settings used to live under the original author's company
++        // name; carry them over the first time we run.
++        QSettings settings;
++        if (settings.allKeys().isEmpty()) {
++            QSettings old("Qtrac Ltd.", "DiffPDF");
++            foreach (const QString &key, old.allKeys())
++                settings.setValue(key, old.value(key));
++        }
++    }
+     app.setWindowIcon(QIcon(":/icon.png"));
+ 
+     QTextStream out(stdout);

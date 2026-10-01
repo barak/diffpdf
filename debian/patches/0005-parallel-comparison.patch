@@ -17,45 +17,100 @@ OpenMP parallelized comparison of two PDFs
 * What was the outcome of this action?
 
      Now it only takes  a few seconds to compare two testsuitereports
----
- mainwindow.cpp | 87 +++++++++++++++++++++++++++++++++++++---------------------
- 1 file changed, 55 insertions(+), 32 deletions(-)
 
-diff --git a/mainwindow.cpp b/mainwindow.cpp
-index 39f7db0..cdd6a54 100644
+[bap 2026-10-01: Only touch the GUI (status label, log, event loop) from
+ the GUI thread, i.e., OpenMP thread 0.  Doing so from worker threads
+ caused "QSocketNotifier: Can only be used with threads started with
+ QThread" and "Cannot queue arguments of type 'QTextBlock'" warnings
+ (#1041494) and could crash.  Also initialize the per-page results,
+ which were left uninitialized for pages that failed to load or were
+ skipped on cancel, report log lines in page order, keep partial results
+ on cancel as the serial code did, and correct the count of pages
+ compared.]
+Bug-Debian: https://bugs.debian.org/878060
+---
+
 --- a/mainwindow.cpp
 +++ b/mainwindow.cpp
-@@ -44,6 +44,7 @@
+@@ -44,6 +44,9 @@
  #include <QSettings>
  #include <QSpinBox>
  #include <QSplitter>
++#ifdef _OPENMP
 +#include <omp.h>
++#endif
  
  
  MainWindow::MainWindow(const Debug debug,
-@@ -1425,40 +1426,62 @@ const QPair<int, int> MainWindow::comparePages(const QString &filename1,
+@@ -1426,40 +1429,69 @@ const QPair<int, int> MainWindow::compar
      QList<int> pages1 = getPageList(1, pdf1);
      QList<int> pages2 = getPageList(2, pdf2);
      int total = qMin(pages1.count(), pages2.count());
 -    int number = 0;
-+
-     int index = 0;
+-    int index = 0;
 -    while (!pages1.isEmpty() && !pages2.isEmpty()) {
 -        int p1 = pages1.takeFirst();
 -        PdfPage page1(pdf1->page(p1));
 -        if (!page1) {
 -            writeError(tr("Failed to read page %1 from '%2'.")
 -                          .arg(p1 + 1).arg(filename1));
--            continue;
++
++    // Pages are compared in parallel, but only the thread that called us
++    // (OpenMP thread 0, the GUI thread) may touch widgets or process events.
++    // Results and messages are therefore collected per page pair and
++    // reported in order once the parallel loop has finished.
++    QVector<Difference> difference(total, NoDifference);
++    QVector<bool> compared(total, false);
++    QVector<QString> error(total);
++    int processed = 0;
++
++#pragma omp parallel for schedule(dynamic)
++    for (int i = 0; i < total; ++i) {
++        if (cancel)
+             continue;
 -        }
 -        int p2 = pages2.takeFirst();
--        PdfPage page2(pdf2->page(p2));
++        const int p1 = pages1.at(i);
++        const int p2 = pages2.at(i);
++        PdfPage page1(pdf1->page(p1));
+         PdfPage page2(pdf2->page(p2));
 -        if (!page2) {
 -            writeError(tr("Failed to read page %1 from '%2'.")
 -                          .arg(p2 + 1).arg(filename2));
--            continue;
--        }
--        writeLine(tr("Comparing: %1 vs. %2.").arg(p1 + 1).arg(p2 + 1));
++        if (!page1)
++            error[i] = tr("Failed to read page %1 from '%2'.")
++                          .arg(p1 + 1).arg(filename1);
++        else if (!page2)
++            error[i] = tr("Failed to read page %1 from '%2'.")
++                          .arg(p2 + 1).arg(filename2);
++        else
++            difference[i] = getTheDifference(page1, page2);
++        compared[i] = true;
++        int done;
++#pragma omp atomic capture
++        done = ++processed;
++#ifdef _OPENMP
++        if (omp_get_thread_num() == 0)
++#endif
++        {
++            statusLabel->setText(tr("Comparing %1/%2").arg(done)
++                                                      .arg(total));
++            QApplication::processEvents();
++        }
++    }
++
++    int index = 0;
++    int number = 0;
++    for (int i = 0; i < total; ++i) {
++        if (!compared[i])
++            continue;
++        const int p1 = pages1.at(i);
++        const int p2 = pages2.at(i);
++        if (!error[i].isEmpty()) {
++            writeError(error[i]);
+             continue;
+         }
+         writeLine(tr("Comparing: %1 vs. %2.").arg(p1 + 1).arg(p2 + 1));
 -        QApplication::processEvents();
 -        if (cancel) {
 -            writeError(tr("Cancelled."));
@@ -63,68 +118,20 @@ index 39f7db0..cdd6a54 100644
 -        }
 -        Difference difference = getTheDifference(page1, page2);
 -        if (difference != NoDifference) {
--            QVariant v;
++        ++number;
++        if (difference[i] != NoDifference) {
+             QVariant v;
 -            v.setValue(PagePair(p1, p2, difference == VisualDifference));
--            viewDiffComboBox->addItem(tr("%1 vs. %2 %3 %4")
--                    .arg(p1 + 1).arg(p2 + 1).arg(QChar(0x2022))
--                    .arg(++index), v);
--        }
++            v.setValue(PagePair(p1, p2, difference[i] == VisualDifference));
+             viewDiffComboBox->addItem(tr("%1 vs. %2 %3 %4")
+                     .arg(p1 + 1).arg(p2 + 1).arg(QChar(0x2022))
+                     .arg(++index), v);
+         }
 -        statusLabel->setText(tr("Comparing %1/%2").arg(++number)
 -                                                  .arg(total));
-+    int number = 0;
-+    int processed = 0;
-+
-+    Difference difference[total];
-+
-+#pragma omp parallel for schedule(dynamic)
-+    for (number = 0; number < total; number++) {
-+
-+      int p1 = pages1[number];
-+      int p2 = pages2[number];
-+
-+#pragma omp critical
-+      {
-+	processed++;
-+	statusLabel->setText(tr("Comparing %1/%2").arg(processed).arg(total));
-+	writeLine(tr("Comparing: %1 vs. %2.").arg(p1 + 1).arg(p2 + 1));
-+	QApplication::processEvents();
-+      }
-+
-+      if (!cancel) {
-+
-+	PdfPage page1(pdf1->page(p1));
-+	if (!page1) {
-+#pragma omp critical
-+	  writeError(tr("Failed to read page %1 from '%2'.").arg(p1 + 1).arg(filename1));
-+	  continue;
-+	}
-+
-+	PdfPage page2(pdf2->page(p2));
-+	if (!page2) {
-+#pragma omp critical
-+	  writeError(tr("Failed to read page %1 from '%2'.").arg(p2 + 1).arg(filename2));
-+	  continue;
-+	}
-+
-+	difference[number] = getTheDifference(page1, page2);
-+      }
-+    }
-+
-+    if (!cancel) {
-+
-+      for (number = 0; number < total; number++) {
-+
-+	int p1 = pages1.takeFirst();
-+	int p2 = pages2.takeFirst();
-+
-+	if (difference[number] != NoDifference) {
-+	  QVariant v;
-+	  v.setValue(PagePair(p1, p2, difference[number] == VisualDifference));
-+	  viewDiffComboBox->addItem(tr("%1 vs. %2 %3 %4").arg(p1 + 1).arg(p2 + 1).arg(QChar(0x2022)).arg(++index), v);
-+	}
-+      }
      }
-+
++    if (cancel)
++        writeError(tr("Cancelled."));
      return qMakePair(number, total);
  }
  

@@ -1,0 +1,113 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Thu, 1 Oct 2026 13:35:00 +0100
+Subject: fix regressions from the port to new-style connect
+
+The port from SIGNAL/SLOT to functor-based connect() in 2.1.3.1
+introduced two regressions.
+
+MainWindow::updateViews(int index=-1) treats its argument as an index
+into the page-pair combobox.  The old string-based connections called
+updateViews() with no argument, but the functor-based ones forward the
+int (or bool) argument of the signal, so changing e.g. the zoom to 186%
+jumped to the 186th differing page pair, or did nothing at all if there
+were fewer pairs.  Only viewDiffComboBox should pass its index.
+
+The options dialog stored the pen and brush styles in the comboboxes as
+QBrush values, but read them back with QVariant::toInt(), which yields
+0 (Qt::NoPen and Qt::NoBrush) for a QBrush.  Changing either combobox
+therefore set both styles to "none", which disables the OK button.
+Store the style as an int, as 2.1.3 did.
+
+Bug-Debian: https://bugs.debian.org/1041494
+Bug-Debian: https://bugs.debian.org/1051422
+Bug-Debian: https://bugs.debian.org/1094167
+Forwarded: no
+---
+--- a/mainwindow.cpp
++++ b/mainwindow.cpp
+@@ -545,14 +545,14 @@ void MainWindow::createConnections()
+     connect(compareComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+             this, &MainWindow::updateUi);
+     connect(compareComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+-            this, &MainWindow::updateViews);
++            this, [this] { updateViews(); });
+ 
+     connect(viewDiffComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+             this, &MainWindow::updateViews);
+     connect(viewDiffComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+             this, &MainWindow::updateUi);
+     connect(showComboBox, qOverload<int>(&QComboBox::currentIndexChanged),
+-            this, &MainWindow::updateViews);
++            this, [this] { updateViews(); });
+     connect(previousButton, &QAbstractButton::clicked,
+             this, &MainWindow::previousPages);
+     connect(nextButton, &QAbstractButton::clicked, this, &MainWindow::nextPages);
+@@ -560,31 +560,31 @@ void MainWindow::createConnections()
+     connect(setFile2Button, &QAbstractButton::clicked, this, [this] { setFile2();});
+     connect(compareButton, &QAbstractButton::clicked, this, &MainWindow::compare);
+     connect(zoomSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+-            this, &MainWindow::updateViews);
++            this, [this] { updateViews(); });
+     connect(zoningGroupBox, &QGroupBox::toggled,
+             this, &MainWindow::updateUi);
+     connect(zoningGroupBox, &QGroupBox::toggled,
+-            this, &MainWindow::updateViews);
++            this, [this] { updateViews(); });
+     connect(columnsSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+-            this, &MainWindow::updateViews);
++            this, [this] { updateViews(); });
+     connect(toleranceRSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+-            this, &MainWindow::updateViews);
++            this, [this] { updateViews(); });
+     connect(toleranceYSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+-            this, &MainWindow::updateViews);
++            this, [this] { updateViews(); });
+     connect(showZonesCheckBox, &QAbstractButton::toggled,
+-            this, &MainWindow::updateViews);
++            this, [this] { updateViews(); });
+     connect(marginsGroupBox, &QGroupBox::toggled,
+             this, &MainWindow::updateUi);
+     connect(marginsGroupBox, &QGroupBox::toggled,
+-            this, &MainWindow::updateViews);
++            this, [this] { updateViews(); });
+     connect(leftMarginSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+-            this, &MainWindow::updateViews);
++            this, [this] { updateViews(); });
+     connect(rightMarginSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+-            this, &MainWindow::updateViews);
++            this, [this] { updateViews(); });
+     connect(topMarginSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+-            this, &MainWindow::updateViews);
++            this, [this] { updateViews(); });
+     connect(bottomMarginSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+-            this, &MainWindow::updateViews);
++            this, [this] { updateViews(); });
+     connect(page1Label, &Label::clicked,
+             this, &MainWindow::setAMargin);
+     connect(page2Label, &Label::clicked,
+--- a/optionsform.cpp
++++ b/optionsform.cpp
+@@ -76,9 +76,9 @@ void OptionsForm::createWidgets()
+             << qMakePair(tr("Diagonal \\"), Qt::FDiagPattern)
+             << qMakePair(tr("Diagonal Cross"), Qt::DiagCrossPattern))
+         brushStyleComboBox->addItem(brushSwatch(pair.second, color),
+-                                                pair.first, QBrush(pair.second));
++                                                pair.first, static_cast<int>(pair.second));
+     brushStyleComboBox->setCurrentIndex(brushStyleComboBox->findData(
+-                QBrush(brush.style())));
++                static_cast<int>(brush.style())));
+ 
+     penStyleComboBox = new QComboBox;
+     typedef QPair<QString, Qt::PenStyle> PenPair;
+@@ -90,9 +90,9 @@ void OptionsForm::createWidgets()
+             << qMakePair(tr("Dash-Dotted"), Qt::DashDotLine)
+             << qMakePair(tr("Dash-Dot-Dotted"), Qt::DashDotDotLine))
+         penStyleComboBox->addItem(penStyleSwatch(pair.second, color),
+-                                  pair.first, QBrush(pair.second));
++                                  pair.first, static_cast<int>(pair.second));
+     penStyleComboBox->setCurrentIndex(penStyleComboBox->findData(
+-                QBrush(pen.style())));
++                static_cast<int>(pen.style())));
+ 
+     alphaSpinBox = new QSpinBox;
+     alphaSpinBox->setRange(1, 100);

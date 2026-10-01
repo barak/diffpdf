@@ -6,3 +6,6 @@
 0007-desktop.patch
 0008-cmake-OpenMP.patch
 0009-cmake-ver-req.patch
+0010-fix-signal-slot-regressions.patch
+0011-config-location.patch
+0012-antialiased-appearance-comparison.patch
