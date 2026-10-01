@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Barak A. Pearlmutter <bap@debian.org>
 Build-Depends:
- debhelper-compat (= 14)
+ debhelper-compat (= 14), dh-sequence-single-binary
  , cmake
  , qt5-qmake
  , qt5-qmake:native
