@@ -40,6 +40,12 @@ identifies some false positives (i.e., page pairs that are really the
 same). False positives are quite rare. (There are no false
 negatives&mdash;differences are never missed.)
 
+<p>When a pair is reported as differing and nothing on it can be
+highlighted, a banner is drawn across the top of the left page. It
+reads <b>disparPDF: Page Sizes Differ</b> when the two pages are
+different sizes&mdash;a difference with nowhere to mark it&mdash;and
+<b>disparPDF: False Positive</b> otherwise.
+
 <h3 id="txt">Words Comparison Mode</h3>
 <p>The default comparison mode is Words which does a smart text 
 comparison word by word for each pair of pages. This mode is 
