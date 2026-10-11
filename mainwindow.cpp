@@ -317,6 +317,9 @@ void MainWindow::createWidgets(const QString &filename1,
                 false).toBool());
     topMarginLabel = new QLabel(tr("&Top:"));
     topMarginSpinBox = new QSpinBox;
+    // Room for any saved value: QSpinBox's default maximum of 99 cut a
+    // larger one before a file had set the range (updateMarginRanges())
+    topMarginSpinBox->setRange(0, 9999);
     topMarginSpinBox->setSuffix(" pt");
     topMarginSpinBox->setValue(settings.value("Margins/Top", 0).toInt());
     topMarginSpinBox->setAlignment(Qt::AlignVCenter|Qt::AlignRight);
@@ -325,6 +328,7 @@ void MainWindow::createWidgets(const QString &filename1,
     topMarginLabel->setBuddy(topMarginSpinBox);
     bottomMarginLabel = new QLabel(tr("&Bottom:"));
     bottomMarginSpinBox = new QSpinBox;
+    bottomMarginSpinBox->setRange(0, 9999);
     bottomMarginSpinBox->setSuffix(" pt");
     bottomMarginSpinBox->setValue(settings.value("Margins/Bottom", 0)
             .toInt());
@@ -334,6 +338,7 @@ void MainWindow::createWidgets(const QString &filename1,
     bottomMarginLabel->setBuddy(bottomMarginSpinBox);
     leftMarginLabel = new QLabel(tr("Le&ft:"));
     leftMarginSpinBox = new QSpinBox;
+    leftMarginSpinBox->setRange(0, 9999);
     leftMarginSpinBox->setSuffix(" pt");
     leftMarginSpinBox->setValue(settings.value("Margins/Left", 0).toInt());
     leftMarginSpinBox->setAlignment(Qt::AlignVCenter|Qt::AlignRight);
@@ -342,6 +347,7 @@ void MainWindow::createWidgets(const QString &filename1,
     leftMarginLabel->setBuddy(leftMarginSpinBox);
     rightMarginLabel = new QLabel(tr("R&ight:"));
     rightMarginSpinBox = new QSpinBox;
+    rightMarginSpinBox->setRange(0, 9999);
     rightMarginSpinBox->setSuffix(" pt");
     rightMarginSpinBox->setValue(settings.value("Margins/Right", 0)
             .toInt());
@@ -1165,6 +1171,7 @@ void MainWindow::setFile1(QString filename)
         updateUi();
         int page_count = writeFileInfo(filename);
         pages1LineEdit->setText(tr("1-%1").arg(page_count));
+        prepareBoxedFiles();
         currentPath = QFileInfo(filename).canonicalPath();
         setFile2Button->setFocus();
         if (filename2LineEdit->text().isEmpty())
@@ -1203,6 +1210,7 @@ void MainWindow::setFile2(QString filename)
         updateUi();
         int page_count = writeFileInfo(filename);
         pages2LineEdit->setText(tr("1-%1").arg(page_count));
+        prepareBoxedFiles();
         currentPath = QFileInfo(filename).canonicalPath();
         compareButton->setFocus();
         if (filename1LineEdit->text().isEmpty())
@@ -1281,6 +1289,53 @@ bool MainWindow::boxedViews(BoxedView *view1, BoxedView *view2)
 }
 
 
+// Compared inside a page box, both files rewritten to it now, rather than
+// at the next comparison, so that the margins' ranges come from the box
+void MainWindow::prepareBoxedFiles()
+{
+    if (pageBox() != PageBox::None && !comparing &&
+        !filename1LineEdit->text().isEmpty() &&
+        !filename2LineEdit->text().isEmpty()) {
+        comparedPdf(0, filename1LineEdit->text());
+        comparedPdf(1, filename2LineEdit->text());
+    }
+    updateMarginRanges();
+}
+
+
+// Each margin can be up to half the width or height, less 10pt, of what
+// is compared: the first page of the file chosen last or, inside a page
+// box, the smaller of the two files' boxes on their first pages
+void MainWindow::updateMarginRanges()
+{
+    QSizeF size = marginPageSize;
+    if (pageBox() != PageBox::None) {
+        QSizeF boxes;
+        const QString filenames[] = {filename1LineEdit->text(),
+                                     filename2LineEdit->text()};
+        for (int i = 0; i < 2; ++i) {
+            const BoxedFile &boxed = boxedFiles[i];
+            if (!boxed.isPreparedFor(filenames[i], pageBox(), boxClip()) ||
+                boxed.regions().isEmpty())
+                continue;
+            const QSizeF box = boxed.boxes().first().toPageCoordinates(
+                    boxed.regions().first().rect).size();
+            boxes = boxes.isEmpty() ? box : boxes.boundedTo(box);
+        }
+        if (!boxes.isEmpty())
+            size = boxes;
+    }
+    if (size.isEmpty())
+        return;
+    const int vertical = qMax(0, static_cast<int>(size.height() / 2) - 10);
+    const int horizontal = qMax(0, static_cast<int>(size.width() / 2) - 10);
+    topMarginSpinBox->setRange(0, vertical);
+    bottomMarginSpinBox->setRange(0, vertical);
+    leftMarginSpinBox->setRange(0, horizontal);
+    rightMarginSpinBox->setRange(0, horizontal);
+}
+
+
 // Logs the page box warnings for comparing pages1 with pages2 if verbose,
 // and counts them for the status
 void MainWindow::logBoxWarnings(const QList<int> &pages1,
@@ -1317,6 +1372,7 @@ void MainWindow::pageBoxChanged()
         page2Label->clear();
         statusLabel->setText(tr("Ready to compare"));
     }
+    prepareBoxedFiles();
     updateUi();
 }
 
@@ -1392,10 +1448,8 @@ int MainWindow::writeFileInfo(const QString &filename)
                   .arg(size.width()).arg(size.height())
                   .arg(qRound(size.width() * PointToMM))
                   .arg(qRound(size.height() * PointToMM)));
-        topMarginSpinBox->setRange(0, (size.height() / 2) - 10);
-        bottomMarginSpinBox->setRange(0, (size.height() / 2) - 10);
-        leftMarginSpinBox->setRange(0, (size.width() / 2) - 10);
-        rightMarginSpinBox->setRange(0, (size.width() / 2) - 10);
+        marginPageSize = size;
+        updateMarginRanges();
     }
     return page_count;
 }
