@@ -18,6 +18,7 @@ License: GPL-2+
 
 Files: test/data/*
 Copyright: © 2026, Barak A. Pearlmutter
+           © 2026, Yuwsuke Kieda
 License: GPL-2+
 Comment: rewritten-original.pdf and rewritten-gs.pdf are page 58 of
  Barak A. Pearlmutter, "An Investigation of the Gradient Descent Process
