@@ -104,9 +104,13 @@ int main(int argc, char *argv[])
         } else if (optionsOK && arg.startsWith(LanguageOption))
             language = arg.mid(LanguageOption.length());
         else if (optionsOK && arg == "--version") {
+            // GNU style; the manual page has its own copyright section
+            // (doc_man/disparPDF.h2m), not this
             out << CommandName << " " << AboutForm::Version << "\n"
                 << "Built with Qt " << QT_VERSION_STR << " and Poppler "
                 << POPPLER_VERSION << "\n"
+                << "Copyright (C) 2026 Yuwsuke Kieda; ConfrontaPDF (C) 2015 "
+                   "Luca Bellonda; DiffPDF (C) 2008-2013 Qtrac Ltd.\n"
                 << "License GPLv2+: GNU GPL version 2 or later "
                    "<https://gnu.org/licenses/gpl.html>\n";
             return 0;
@@ -144,6 +148,16 @@ int main(int argc, char *argv[])
                     "(the default otherwise)\n";
             out << "      --any-extension    accept files whose names do "
                 "not end in .pdf\n"
+                "      --box=BOX          compare only what is inside the "
+                "page box BOX: media,\n"
+                "                           crop, bleed, trim or art (none, "
+                "the default,\n"
+                "                           compares whole pages)\n"
+                "      --box-clip=CLIP    clip that box to the media box "
+                "(media, the default),\n"
+                "                           to the media and crop boxes "
+                "(crop), or not at all\n"
+                "                           (none)\n"
                 "      --language=LANG    use the given translation "
                 "language, e.g., en for\n"
                 "                           English, cz for Czech; "
@@ -151,8 +165,10 @@ int main(int argc, char *argv[])
                 "                           no translation\n"
                 "      --debug=2          write the text fed to the "
                 "sequence matcher into\n"
-                "                           temporary files (e.g., "
-                "/tmp/page1.txt)\n"
+                "                           files in the temporary "
+                "directory (e.g., page1-1.txt\n"
+                "                           and page1-2.txt) when "
+                "highlighting\n"
                 "      --debug=3          as --debug=2, but also with "
                 "the coordinates, in y, x\n"
                 "                           order\n"

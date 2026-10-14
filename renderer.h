@@ -13,6 +13,7 @@
 */
 
 #include "generic.hpp"
+#include "pagebox.h"
 #include "saveform.hpp"
 #include <QBrush>
 #include <QCoreApplication>
@@ -23,6 +24,7 @@
 #include <QRect>
 #include <QRectF>
 #include <QString>
+#include <QVector>
 
 class QImage;
 class QPainter;
@@ -44,6 +46,10 @@ struct RenderSettings
     int bottomMargin = 0;
     int leftMargin = 0;
     int rightMargin = 0;
+    // Comparing only inside a page box (see pagebox.h): the documents are
+    // then copies rewritten to it, and their pages are the box
+    PageBox box = PageBox::None;
+    BoxClip boxClip = BoxClip::Media;
     // In Appearance mode: -1 to highlight the differences, or the
     // QPainter::CompositionMode with which to show page 2 over page 1
     int compositionMode = -1;
@@ -61,6 +67,55 @@ struct RenderSettings
     QRect pixelRectForMargins(const QSize &imageSize) const;
 };
 
+// How the pages of a file compared inside a page box are shown: a copy of
+// the file rewritten to each page's display area (see boxDisplay() in
+// pagebox.h), and where on each of its pages the box is, in points
+struct BoxedView
+{
+    PdfDocument display;
+    QVector<QRectF> boxRects;
+};
+
+// A file compared inside a page box: its boxes, the region compared on
+// each page, and copies of it rewritten to those regions, to compare, and
+// to their pages' display areas, to show them.  Shared by MainWindow and
+// BatchCompare.
+class BoxedFile
+{
+    Q_DECLARE_TR_FUNCTIONS(BoxedFile)
+
+public:
+    // Reads filename's boxes and rewrites it to the region of box, clipped
+    // as clip says, on every page.  pageCount is how many pages Poppler
+    // finds in it, which the copy must have too.  False, with *error set,
+    // if that cannot be done.
+    bool prepare(const QString &filename, const int pageCount,
+                 const PageBox box, const BoxClip clip, QString *error);
+    // Whether prepare() was last done for these, and the file is unchanged
+    bool isPreparedFor(const QString &filename, const PageBox box,
+                       const BoxClip clip) const;
+    void clear();
+
+    const QVector<PageBoxes> &boxes() const { return m_document.allBoxes(); }
+    const QVector<BoxRegion> &regions() const { return m_regions; }
+    const QByteArray &data() const { return m_data; }   // the copy compared
+    PdfDocument load() const;
+    // The copy shown, made the first time it is asked for; false if it
+    // cannot be made, when the boxes alone are shown
+    bool view(BoxedView *view);
+
+private:
+    static QString keyFor(const QString &filename, const PageBox box,
+                          const BoxClip clip);
+
+    QString m_key;
+    BoxedDocument m_document;
+    QVector<BoxRegion> m_regions;
+    QByteArray m_data;
+    QByteArray m_displayData;
+    QVector<QRectF> m_boxRects;
+};
+
 // Renders pairs of pages with their differences highlighted (or, in
 // Appearance mode, page 2 composed over page 1), for display and for
 // saving.  Rendered pixmaps are kept in QPixmapCache.
@@ -71,10 +126,14 @@ class DifferenceRenderer
 public:
     explicit DifferenceRenderer(const RenderSettings &settings);
 
-    // The two pages of pair, rendered at the zoom
+    // The two pages of pair, rendered at the zoom.  Compared inside a page
+    // box, page1 and page2 are the boxes; given view1 and view2, each is
+    // then shown on its whole page, with the rest dimmed.
     QPair<QPixmap, QPixmap> pixmaps(const PdfPage &page1,
             const QString &filename1, const PdfPage &page2,
-            const QString &filename2, const PagePair &pair) const;
+            const QString &filename2, const PagePair &pair,
+            const BoxedView *view1 = nullptr,
+            const BoxedView *view2 = nullptr) const;
 
     // Paints pair, with header above it, into leftRect and rightRect (or
     // only leftRect if savePages is not SaveBothPages); false if a page
@@ -84,14 +143,17 @@ public:
             const QString &filename2, const PagePair &pair,
             const QString &header, const SavePages savePages,
             const QRectF &rect, const QRectF &leftRect,
-            const QRectF &rightRect) const;
+            const QRectF &rightRect, const BoxedView *view1 = nullptr,
+            const BoxedView *view2 = nullptr) const;
 
     // Saves the pairs to outputFile, one per page; false if a pair could
     // not be painted or the file could not be written
     bool saveAsPdf(const QString &outputFile, const PdfDocument &pdf1,
             const QString &filename1, const PdfDocument &pdf2,
             const QString &filename2, const QList<PagePair> &pairs,
-            const QString &header, const SavePages savePages) const;
+            const QString &header, const SavePages savePages,
+            const BoxedView *view1 = nullptr,
+            const BoxedView *view2 = nullptr) const;
 
 private:
     QPair<QString, QString> cacheKeys(const QString &filename1,
@@ -105,6 +167,8 @@ private:
             QPainterPath *highlighted2, const QImage &plainImage1,
             const QImage &plainImage2) const;
     void paintOnImage(const QPainterPath &path, QImage *image) const;
+    QImage onWholePage(const QImage &box, const BoxedView &view,
+                       const int page, const int DPI) const;
 
     const RenderSettings settings;
 };
@@ -113,5 +177,7 @@ private:
 // cannot be read, in which case *locked says whether it was because it is
 // locked
 PdfDocument loadPdf(const QString &filename, bool *locked);
+// The same, for a PDF in memory (such as one rewritten to a page box)
+PdfDocument loadPdfData(const QByteArray &data, bool *locked);
 
 #endif // RENDERER_H

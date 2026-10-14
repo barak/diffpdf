@@ -28,6 +28,7 @@
 #include <QPlainTextEdit>
 #include <QPrinter>
 #include <QSettings>
+#include <QTextStream>
 #include <QUrl>
 #include <QXmlStreamWriter>
 #include <QBuffer>
@@ -44,11 +45,12 @@ BatchCompare::BatchCompare(const Debug debug,
     render.compareMode = comparisonMode ;
     render.debug = debug;
     _status = status ;
-    cacheSizeMB = 100 ;
+    // The same default as the GUI's and the one the READMEs document;
+    // readFromSettings() may replace it, and sets the limit again
+    cacheSizeMB = 25 ;
 
     initValues();
     QPixmapCache::setCacheLimit(1000 * qBound(1, cacheSizeMB, 100));
-    //writeToSettings("test.ini");
 }
 
 
@@ -58,7 +60,6 @@ void BatchCompare::readFromSettings()
         return ;
     }
     QSettings settings(_startupParameters->settingsFile(), QSettings::IniFormat);
-    render.combineTextHighlighting = settings.value("CombineTextHighlighting",true).toBool();
     showHighlight = settings.value("ShowHighlight", -1).toInt();
     render.pen = settings.value("Outline", render.pen).value<QPen>();
     render.brush.setColor(render.pen.color());
@@ -86,39 +87,13 @@ void BatchCompare::readFromSettings()
     render.overlap = settings.value("Overlap", render.overlap).toInt();
     render.combineTextHighlighting = settings.value("CombineTextHighlighting", render.combineTextHighlighting).toBool();
     render.opacity = settings.value("Opacity", render.opacity).toInt();
-}
-
-void BatchCompare::writeToSettings(const QString &filePath)
-{
-    //WARNING: this function still to be completed.
-    QSettings settings(filePath, QSettings::IniFormat );
-    settings.setValue("CombineTextHighlighting", render.combineTextHighlighting);
-    settings.setValue("ShowHighlight", showHighlight);
-    settings.setValue("Outline", render.pen);
-    settings.setValue("Fill", render.brush);
-    settings.setValue("Zoning/Enable", render.zoning);
-
-    settings.setValue("Zoom", render.zoom);
-    settings.setValue("Columns", render.columns);
-    settings.setValue("Tolerance/R", render.toleranceR);
-    settings.setValue("Tolerance/Y", render.toleranceY);
-    settings.setValue("Margins/Exclude", render.excludeMargins);
-    /*
-    render.leftMargin = settings.value("Margins/Left", 0).toInt();
-    render.rightMargin = settings.value("Margins/Right", 0).toInt();
-    render.topMargin = settings.value("Margins/Top", 0).toInt();
-    render.bottomMargin = settings.value("Margins/Bottom", 0).toInt();
-    cacheSizeMB = settings.value("CacheSizeMB", 25).toInt();
-    render.compositionMode = settings.value("compositionMode", -1).toInt();
-*/
-    settings.setValue("SquareSize", render.squareSize);
-    settings.setValue("RuleWidth", render.ruleWidth);
-
-    settings.setValue("Overlap", render.overlap);
-    settings.setValue("CombineTextHighlighting", render.combineTextHighlighting);
-    settings.setValue("Opacity", render.opacity);
-
-    settings.sync();
+    // A value that is not a box or a clip leaves the default alone
+    parsePageBox(settings.value("PageBox/Box").toString(), &render.box);
+    parseBoxClip(settings.value("PageBox/Clip").toString(), &render.boxClip);
+    // Here as well as in the constructor, which runs before this: a
+    // CacheSizeMB in the file used only to change the variable, which
+    // --xmlResult then reported as though the limit had been set to it
+    QPixmapCache::setCacheLimit(1000 * qBound(1, cacheSizeMB, 100));
 }
 
 void BatchCompare::initValues()
@@ -152,6 +127,8 @@ void BatchCompare::initValues()
     render.overlap = 5 ;
     render.combineTextHighlighting = true ;
     render.opacity = 13 ;
+    render.box = PageBox::None;
+    render.boxClip = BoxClip::Media;
 }
 
 PdfDocument BatchCompare::getPdf(const QString &filename)
@@ -183,6 +160,8 @@ void BatchCompare::batchOperation()
     }
     _status->setDoc1Info(docInfo(pdf1, _startupParameters->file1()));
     _status->setDoc2Info(docInfo(pdf2,_startupParameters->file2() ));
+    if (!boxDocuments(&pdf1, &pdf2))
+        return;
 
     CompareResults results;
     comparePagesBatch( _status, results,
@@ -197,6 +176,49 @@ void BatchCompare::batchOperation()
             saveResultsBatch(_status, results, pdf1, pdf2 ) ;
         }
     }
+}
+
+void BatchCompare::warn(const BoxWarning &warning)
+{
+    _status->addWarning(warning);
+    QTextStream err(stderr);
+    err << tr("warning: %1").arg(warning.message) << "\n";
+}
+
+// Comparing inside a page box: replaces *pdf1 and *pdf2 with copies of
+// the files rewritten to the regions to compare, which the comparison and
+// --pdfdiff then use.  --box and --box-clip override the settings file.
+bool BatchCompare::boxDocuments(PdfDocument *pdf1, PdfDocument *pdf2)
+{
+    if (_startupParameters->pageBoxGiven())
+        render.box = _startupParameters->pageBox();
+    if (_startupParameters->boxClipGiven())
+        render.boxClip = _startupParameters->boxClip();
+    if (render.box == PageBox::None) {
+        if (_startupParameters->boxClipGiven())
+            warn({"clip-without-box", 0, QString(),
+                  tr("--box-clip is ignored without --box")});
+        return true;
+    }
+    const QString filenames[] = {_startupParameters->file1(),
+                                 _startupParameters->file2()};
+    PdfDocument *pdfs[] = {pdf1, pdf2};
+    const EError errors[] = {ErrorUnableToLoadFile1, ErrorUnableToLoadFile2};
+    for (int i = 0; i < 2; ++i) {
+        QString error;
+        PdfDocument pdf;
+        if (boxed[i].prepare(filenames[i], (*pdfs[i])->numPages(),
+                             render.box, render.boxClip, &error))
+            pdf = boxed[i].load();
+        if (!pdf) {
+            _status->setStatusWithDescription(errors[i],
+                    tr("Cannot compare inside the page boxes of '%1': %2")
+                    .arg(filenames[i], error));
+            return false;
+        }
+        *pdfs[i] = std::move(pdf);
+    }
+    return true;
 }
 
 QList<int> BatchCompare::getPageListBatch( const int which, const PdfDocument &pdf, const int startPageSet)
@@ -252,6 +274,18 @@ void BatchCompare::comparePagesBatch(
     options.leftMargin = render.leftMargin;
     options.rightMargin = render.rightMargin;
     options.maxWorkers = compareThreads;
+    if (render.box != PageBox::None) {
+        options.boxedDocument1 = boxed[0].data();
+        options.boxedDocument2 = boxed[1].data();
+        options.boxKey = pageBoxName(render.box) + "/" +
+                         boxClipName(render.boxClip);
+        const int total = qMin(pages1.count(), pages2.count());
+        for (const BoxWarning &warning : boxWarnings(
+                 boxed[0].boxes(), boxed[0].regions(), pages1.mid(0, total),
+                 boxed[1].boxes(), boxed[1].regions(), pages2.mid(0, total),
+                 render.box))
+            warn(warning);
+    }
     const QVector<PagePairResult> pairResults = comparePagesInParallel(
             filename1, pdf1, pages1, filename2, pdf2, pages2, options);
     for (int i = 0; i < pairResults.count(); ++i) {
@@ -283,11 +317,17 @@ void BatchCompare::saveResultsBatch(Status *status, CompareResults &results, con
     header = tr("%5 %1 %2 vs. %3 %1 %4").arg(bullet)
         .arg(_startupParameters->file1()).arg(_startupParameters->file2())
         .arg(QDateTime::currentDateTime().toString(Qt::ISODate)).arg(AboutForm::ProgramName);
+    // Compared inside a page box, the pages are shown whole around it
+    BoxedView views[2];
+    const bool wholePages = render.box != PageBox::None &&
+                            boxed[0].view(&views[0]) &&
+                            boxed[1].view(&views[1]);
     if (!DifferenceRenderer(render).saveAsPdf(
             _startupParameters->pdfDiffFilePath(), pdf1,
             _startupParameters->file1(), pdf2, _startupParameters->file2(),
             results.differences().mid(start, end - start), header,
-            savePages))
+            savePages, wholePages ? &views[0] : nullptr,
+            wholePages ? &views[1] : nullptr))
         status->setStatusWithDescriptionUncond(ErrorWritingPDFDiffFile,
                 tr("error while writing differences file"));
 }
@@ -295,7 +335,8 @@ void BatchCompare::saveResultsBatch(Status *status, CompareResults &results, con
 DocInfo *BatchCompare::docInfo(const PdfDocument &pdf, const QString &fileName)
 {
     DocInfo *info = new DocInfo();
-    info->fileName = QFileInfo(fileName).canonicalPath();
+    // The file, not its directory, which canonicalPath() gave
+    info->fileName = QFileInfo(fileName).canonicalFilePath();
     for (const QString &key : pdf->infoKeys()) {
         if (key == "CreationDate" || key == "ModDate")
             continue;
@@ -372,7 +413,6 @@ static QString toBoolString(const bool value)
 
 void BatchCompare::writeParameters(QXmlStreamWriter & writer)
 {
-    writeParam(writer, "CombineTextHighlighting", toBoolString(render.combineTextHighlighting) );
     writeParam(writer, "ShowHighlight", QString::number(showHighlight) );
     QVariant penVariant(render.pen);
     writeParam(writer, "Outline", penVariant );
@@ -389,6 +429,7 @@ void BatchCompare::writeParameters(QXmlStreamWriter & writer)
     writeParam(writer, "Margins/Top", QString::number(render.topMargin) );
     writeParam(writer, "Margins/Bottom", QString::number(render.bottomMargin) );
     writeParam(writer, "CacheSizeMB", QString::number(cacheSizeMB) );
+    writeParam(writer, "CompareThreads", QString::number(compareThreads) );
     writeParam(writer, "compositionMode", QString::number(render.compositionMode) );
 
     writeParam(writer, "SquareSize", QString::number(render.squareSize) );
@@ -397,6 +438,12 @@ void BatchCompare::writeParameters(QXmlStreamWriter & writer)
     writeParam(writer, "Overlap", QString::number(render.overlap) );
     writeParam(writer, "CombineTextHighlighting", toBoolString(render.combineTextHighlighting));
     writeParam(writer, "Opacity", QString::number(render.opacity) );
+    // Only when comparing inside a page box, so that the XML is as it was
+    // without one
+    if (render.box != PageBox::None) {
+        writeParam(writer, "PageBox/Box", pageBoxName(render.box));
+        writeParam(writer, "PageBox/Clip", boxClipName(render.boxClip));
+    }
 }
 
 QString BatchCompare::makeFontKey(LFontInfo *l)

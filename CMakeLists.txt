@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(disparPDF VERSION 1.0.10 LANGUAGES CXX)
+project(disparPDF VERSION 1.1.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -44,7 +44,7 @@ if(APPLE)
         message(STATUS "Homebrew prefix: ${HOMEBREW_PREFIX}")
         # 各 formula は互いに異なる .pc を提供するため相互の順序は問わない。
         # 重要なのは、いずれもが pkg-config の既定パスより前に来ること。
-        foreach(_f poppler-qt6 poppler qt@6 qt)
+        foreach(_f poppler-qt6 poppler qpdf qt@6 qt)
             disparpdf_prepend_brew_prefix(${_f})
         endforeach()
         # PATH 上の pkg-config が Intel 版 Homebrew (/usr/local) のものだと、
@@ -109,6 +109,36 @@ if(NOT POPPLER_TARGET)
     endif()
 endif()
 
+
+# ---- qpdf（ページボックスの読み取りと書き換え，pagebox.hを参照） ----
+# IMPORTEDではないINTERFACEライブラリにして，インクルードパスを-isystem
+# ではなく-Iで渡す．Apple clangは/usr/local/includeを-isystemより先に
+# 探すため，Intel版Homebrewの古いqpdfがそこに残っていると，そちらの
+# ヘッダが読まれてしまう．libqpdf.pcのCflagsにある-std=c++20は付けない
+# （ヘッダはC++17で通る）．
+add_library(disparpdf_qpdf INTERFACE)
+if(PKG_CONFIG_FOUND)
+    pkg_check_modules(QPDF QUIET libqpdf)
+endif()
+if(QPDF_FOUND)
+    target_include_directories(disparpdf_qpdf INTERFACE ${QPDF_INCLUDE_DIRS})
+    target_link_libraries(disparpdf_qpdf INTERFACE ${QPDF_LINK_LIBRARIES})
+    message(STATUS "qpdf found via pkg-config ${QPDF_VERSION}")
+else()
+    find_library(QPDF_LIB NAMES qpdf
+        HINTS ${CMAKE_PREFIX_PATH} /opt/homebrew /usr/local /usr
+        PATH_SUFFIXES lib lib64)
+    find_path(QPDF_INCLUDE NAMES qpdf/QPDF.hh
+        HINTS ${CMAKE_PREFIX_PATH} /opt/homebrew /usr/local /usr
+        PATH_SUFFIXES include)
+    if(QPDF_LIB AND QPDF_INCLUDE)
+        target_include_directories(disparpdf_qpdf INTERFACE ${QPDF_INCLUDE})
+        target_link_libraries(disparpdf_qpdf INTERFACE ${QPDF_LIB})
+        message(STATUS "qpdf found via find_library: ${QPDF_LIB}")
+    else()
+        message(FATAL_ERROR "qpdf not found.")
+    endif()
+endif()
 
 # pkg-config からバージョンを取得して POPPLER_VERSION マクロとして渡す
 # (poppler-version.h は poppler-global.h を必要とするためインクルード不可)
@@ -184,6 +214,7 @@ set(COMMON_SOURCES
     pagecompare.cpp
     renderer.cpp
     optionsform.cpp
+    pagebox.cpp
     saveform.cpp
     sequence_matcher.cpp
     startupparameters.cpp
@@ -205,6 +236,7 @@ set(COMMON_HEADERS
     lineedit.hpp
     mainwindow.hpp
     optionsform.hpp
+    pagebox.h
     pagecompare.h
     renderer.h
     saveform.hpp
@@ -223,7 +255,8 @@ add_executable(disparPDF
 )
 target_compile_definitions(disparPDF PRIVATE POPPLER_VERSION="${POPPLER_VERSION_STR}"
     DISPARPDF_VERSION="${PROJECT_VERSION}")
-target_link_libraries(disparPDF PRIVATE ${QT_LIBS} ${POPPLER_TARGET})
+target_link_libraries(disparPDF PRIVATE ${QT_LIBS} ${POPPLER_TARGET}
+    disparpdf_qpdf)
 
 if(APPLE)
     set_target_properties(disparPDF PROPERTIES MACOSX_BUNDLE TRUE)
@@ -322,7 +355,11 @@ if(HELP2MAN_EXECUTABLE AND NOT CMAKE_CROSSCOMPILING)
     set(_h2m ${CMAKE_CURRENT_SOURCE_DIR}/doc_man/disparPDF.h2m)
     add_custom_command(
         OUTPUT ${MANPAGE}
+        # --version-string rather than running --version, whose other
+        # lines (the build's Qt and Poppler) help2man put at the end of
+        # the options; the copyright comes from the [COPYRIGHT] section
         COMMAND ${HELP2MAN_EXECUTABLE} --no-info --include=${_h2m}
+                "--version-string=disparPDF ${PROJECT_VERSION}"
                 --output=${MANPAGE} $<TARGET_FILE:disparPDF>
         DEPENDS disparPDF ${_h2m}
         COMMENT "Generating the manual page with help2man"

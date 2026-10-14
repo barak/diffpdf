@@ -20,6 +20,9 @@
 // meaning no file at all).  Options:
 //   --setting KEY=VALUE   pass a settings file with KEY=VALUE in it
 //   --stdout TEXT         check that standard output contains TEXT
+//   --stderr TEXT         check that standard error contains TEXT (may be
+//                         given more than once)
+//   --xml TEXT            write --xmlResult and check that it contains TEXT
 
 #include <poppler-qt6.h>
 #include <QCoreApplication>
@@ -56,6 +59,8 @@ int main(int argc, char *argv[])
     const QString settingsFile = dir.filePath("settings.ini");
     bool haveSettings = false;
     QString expectedOutput;
+    QStringList expectedErrors;
+    QString expectedXml;
     while (!args.isEmpty() && args.first() != "--") {
         const QString option = args.takeFirst();
         if (args.isEmpty() || args.first() == "--")
@@ -69,6 +74,10 @@ int main(int argc, char *argv[])
         }
         else if (option == "--stdout")
             expectedOutput = value;
+        else if (option == "--stderr")
+            expectedErrors << value;
+        else if (option == "--xml")
+            expectedXml = value;
         else
             return fail("unknown option " + option);
     }
@@ -79,6 +88,9 @@ int main(int argc, char *argv[])
     arguments << "-b" << "--outType=0" << "--pdfdiff=" + output;
     if (haveSettings)
         arguments << "--settings=" + settingsFile;
+    const QString xmlFile = dir.filePath("result.xml");
+    if (!expectedXml.isEmpty())
+        arguments << "--xmlResult=" + xmlFile;
     arguments << args;
     QProcess process;
     QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
@@ -109,6 +121,19 @@ int main(int argc, char *argv[])
         !standardOutput.contains(expectedOutput))
         return fail("standard output does not contain '" +
                     expectedOutput + "':\n" + standardOutput);
+    for (const QString &expected : std::as_const(expectedErrors))
+        if (!standardError.contains(expected))
+            return fail("standard error does not contain '" + expected +
+                        "'");
+    if (!expectedXml.isEmpty()) {
+        QFile xml(xmlFile);
+        if (!xml.open(QIODevice::ReadOnly))
+            return fail("no XML result written");
+        const QString contents = QString::fromUtf8(xml.readAll());
+        if (!contents.contains(expectedXml))
+            return fail("the XML result does not contain '" + expectedXml +
+                        "':\n" + contents);
+    }
     if (expectedPages != "-") {
         int pages = 0;
         if (QFile::exists(output)) {

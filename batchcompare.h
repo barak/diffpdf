@@ -49,7 +49,6 @@ public:
             Status *status, QWidget *parent=0);
     void batchOperation();
     void readFromSettings();
-    void writeToSettings(const QString &filePath);
 protected:
     QString finalFileName(const QString &filename);
     DocInfo *docInfo(const PdfDocument &pdf, const QString &fileName);
@@ -57,6 +56,8 @@ protected:
 
 private:
     PdfDocument getPdf(const QString &filename);
+    bool boxDocuments(PdfDocument *pdf1, PdfDocument *pdf2);
+    void warn(const BoxWarning &warning);
 
     // batch operations
     QList<int> getPageListBatch( const int which, const PdfDocument &pdf, const int startPageSet);
@@ -79,6 +80,8 @@ private:
     StartupParameters *_startupParameters;
     Status *_status;
     CompareNotifier *_notifier;
+    // When comparing inside a page box, the two files rewritten to it
+    BoxedFile boxed[2];
 
     //---------------
 public:
@@ -86,7 +89,12 @@ public:
     RenderSettings render;
     int cacheSizeMB;
     int compareThreads;
-    int showHighlight; // kept in the settings and results files only
+    // Read from the settings file and copied into --xmlResult, and
+    // nothing else: it reaches no rendering decision.  compositionMode
+    // is what chooses between highlighting and composing.  Kept so that
+    // the XML keeps its shape for whatever reads it; not documented in
+    // the READMEs, since setting it does nothing.
+    int showHighlight;
 
     void setNotifier(CompareNotifier *newNotifier);
     void writeParameters(QXmlStreamWriter &writer);

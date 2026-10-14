@@ -11,6 +11,7 @@
 */
 
 #include "renderer.h"
+#include "pagecompare.h"
 #include "aboutform.hpp"
 #include "sequence_matcher.hpp"
 #include "textitem.hpp"
@@ -45,8 +46,12 @@ QRect RenderSettings::pixelRectForMargins(const QSize &imageSize) const
     int left = pixelOffsetForPointValue(DPI, leftMargin);
     int right = pixelOffsetForPointValue(DPI, rightMargin);
     int bottom = pixelOffsetForPointValue(DPI, bottomMargin);
-    return QRect(QPoint(left, top), QPoint(imageSize.width() - right,
-                                           imageSize.height() - bottom));
+    // QSize, not a second QPoint: the two-point form of QRect is
+    // inclusive, so it would cover one pixel more to the right and below
+    // than rectForMargins() gives in points
+    return QRect(QPoint(left, top),
+                 QSize(imageSize.width() - right - left,
+                       imageSize.height() - bottom - top));
 }
 
 
@@ -74,26 +79,38 @@ QPair<QString, QString> DifferenceRenderer::cacheKeys(
             .arg(settings.brush.style()).arg(settings.opacity)
             .arg(settings.squareSize).arg(settings.ruleWidth)
             .arg(settings.overlap).arg(settings.combineTextHighlighting);
-    const QString key = QString("%1%2:%3:%4:%5:%6:%7:%8")
+    QString box;
+    if (settings.box != PageBox::None)
+        box = pageBoxName(settings.box) + "/" + boxClipName(settings.boxClip);
+    const QString key = QString("%1%2:%3:%4:%5:%6:%7:%8:%9")
             .arg(pair.differs ? "D" : "S")
             .arg(pair.hasVisualDifference ? "V" : "T")
             .arg(settings.zoom).arg(settings.compareMode)
             .arg(settings.compositionMode).arg(zoning).arg(margins)
-            .arg(highlighting);
+            .arg(box).arg(highlighting);
+    // documentKey() rather than the name alone: re-exporting a PDF over
+    // itself leaves the name unchanged, and a pixmap cached from the
+    // previous contents would then be shown for the new ones.  The
+    // comparison keys its fingerprints the same way.
     const QString key1 = QString("1:%1:%2:%3").arg(key).arg(pair.left)
-            .arg(filename1);
+            .arg(documentKey(filename1));
     const QString key2 = QString("2:%1:%2:%3").arg(key).arg(pair.right)
-            .arg(filename2);
+            .arg(documentKey(filename2));
     return qMakePair(key1, key2);
 }
 
 
 QPair<QPixmap, QPixmap> DifferenceRenderer::pixmaps(const PdfPage &page1,
         const QString &filename1, const PdfPage &page2,
-        const QString &filename2, const PagePair &pair) const
+        const QString &filename2, const PagePair &pair,
+        const BoxedView *view1, const BoxedView *view2) const
 {
-    const QPair<QString, QString> keys = cacheKeys(filename1, filename2,
-                                                   pair);
+    QPair<QString, QString> keys = cacheKeys(filename1, filename2, pair);
+    const bool wholePages = view1 && view2;
+    if (wholePages) {
+        keys.first += ":whole";
+        keys.second += ":whole";
+    }
     QPixmap pixmap1;
     QPixmap pixmap2;
     if (QPixmapCache::find(keys.first, &pixmap1) &&
@@ -102,16 +119,26 @@ QPair<QPixmap, QPixmap> DifferenceRenderer::pixmaps(const PdfPage &page1,
 
     const int DPI = settings.dpi();
     const bool compareText = settings.compareMode != CompareAppearance;
-    QImage plainImage1;
-    QImage plainImage2;
-    if (pair.hasVisualDifference || !compareText) {
-        plainImage1 = page1->renderToImage(DPI, DPI);
-        plainImage2 = page2->renderToImage(DPI, DPI);
-    }
+    // Highlighting the differences, rather than composing page 2 over
+    // page 1
+    const bool highlighting = compareText ||
+                              settings.compositionMode == -1;
     QImage image1 = page1->renderToImage(DPI, DPI);
     QImage image2 = page2->renderToImage(DPI, DPI);
+    // The renderings as they are before anything is drawn on them.
+    // QImage is implicitly shared and painting on image1 detaches it, so
+    // these cost nothing until a highlight is painted: each page used to
+    // be rendered a second time for them -- and for the compositing
+    // modes, where they are not read at all, that second rendering was
+    // made and thrown away.
+    QImage plainImage1;
+    QImage plainImage2;
+    if (highlighting && (pair.hasVisualDifference || !compareText)) {
+        plainImage1 = image1;
+        plainImage2 = image2;
+    }
 
-    if (compareText || settings.compositionMode == -1) {
+    if (highlighting) {
         QPainterPath highlighted1;
         QPainterPath highlighted2;
         if (pair.hasVisualDifference || !compareText)
@@ -129,9 +156,19 @@ QPair<QPixmap, QPixmap> DifferenceRenderer::pixmaps(const PdfPage &page1,
             QFont font("Helvetica", 14);
             font.setOverline(true);
             font.setUnderline(true);
-            highlighted1.addText(DPI / 4, DPI / 4, font,
-                tr("%1: False Positive").arg(AboutForm::ProgramName));
+            // Pages of different sizes differ even where nothing on them
+            // does, and there is nowhere to highlight that; say so,
+            // rather than call the comparison wrong
+            const QString banner = image1.size() != image2.size()
+                    ? tr("%1: Page Sizes Differ")
+                      .arg(AboutForm::ProgramName)
+                    : tr("%1: False Positive").arg(AboutForm::ProgramName);
+            highlighted1.addText(DPI / 4, DPI / 4, font, banner);
             paintOnImage(highlighted1, &image1);
+        }
+        if (wholePages) {
+            image1 = onWholePage(image1, *view1, pair.left, DPI);
+            image2 = onWholePage(image2, *view2, pair.right, DPI);
         }
         pixmap1 = QPixmap::fromImage(image1);
         pixmap2 = QPixmap::fromImage(image2);
@@ -150,6 +187,13 @@ QPair<QPixmap, QPixmap> DifferenceRenderer::pixmaps(const PdfPage &page1,
                 QPainter::CompositionMode_DestinationOver);
         painter.fillRect(composed.rect(), Qt::white);
         painter.end();
+        // The pages are composed where they are compared, in the boxes,
+        // so that is shown on page 1's page
+        if (wholePages) {
+            pixmap1 = QPixmap::fromImage(onWholePage(image1, *view1,
+                                                     pair.left, DPI));
+            composed = onWholePage(composed, *view1, pair.left, DPI);
+        }
         pixmap2 = QPixmap::fromImage(composed);
     }
     QPixmapCache::insert(keys.first, pixmap1);
@@ -163,13 +207,21 @@ void DifferenceRenderer::computeTextHighlights(QPainterPath *highlighted1,
         const PdfPage &page2, const int DPI) const
 {
     const bool ComparingWords = settings.compareMode == CompareWords;
+    QRectF bigRect1;
+    QRectF bigRect2;
+    // Each page's own margins, as the comparison measures them (see
+    // fingerprintPage()).  With page 1's rectangle for both, words
+    // outside it on a page 2 of a different size were dropped here
+    // although the comparison had seen them, so the pair was reported as
+    // differing and then nothing was highlighted.
     QRectF rect1;
     QRectF rect2;
-    QRectF rect;
-    if (settings.excludeMargins)
-        rect = settings.pointRectForMargins(page1->pageSize());
-    const TextBoxList list1 = getTextBoxes(page1, rect);
-    const TextBoxList list2 = getTextBoxes(page2, rect);
+    if (settings.excludeMargins) {
+        rect1 = settings.pointRectForMargins(page1->pageSize());
+        rect2 = settings.pointRectForMargins(page2->pageSize());
+    }
+    const TextBoxList list1 = getTextBoxes(page1, rect1);
+    const TextBoxList list2 = getTextBoxes(page2, rect2);
     TextItems items1 = ComparingWords ? getWords(list1)
                                       : getCharacters(list1);
     TextItems items2 = ComparingWords ? getWords(list2)
@@ -202,13 +254,15 @@ void DifferenceRenderer::computeTextHighlights(QPainterPath *highlighted1,
     std::sort(indexes1.begin(), indexes1.end());
     std::sort(indexes2.begin(), indexes2.end());
     for (int index : indexes1)
-        addHighlighting(&rect1, highlighted1, items1.at(index).rect, DPI);
-    if (!rect1.isNull() && !indexes1.isEmpty())
-        highlighted1->addRect(rect1);
+        addHighlighting(&bigRect1, highlighted1, items1.at(index).rect,
+                        DPI);
+    if (!bigRect1.isNull() && !indexes1.isEmpty())
+        highlighted1->addRect(bigRect1);
     for (int index : indexes2)
-        addHighlighting(&rect2, highlighted2, items2.at(index).rect, DPI);
-    if (!rect2.isNull() && !indexes2.isEmpty())
-        highlighted2->addRect(rect2);
+        addHighlighting(&bigRect2, highlighted2, items2.at(index).rect,
+                        DPI);
+    if (!bigRect2.isNull() && !indexes2.isEmpty())
+        highlighted2->addRect(bigRect2);
 }
 
 
@@ -230,22 +284,55 @@ void DifferenceRenderer::addHighlighting(QRectF *bigRect,
 }
 
 
+// The square of image at rect, with anything beyond the image white:
+// past the edge of a page there is blank paper, while QImage::copy()
+// pads with zeroes, which differ from white.  Padding with those would
+// turn a page larger than the other into one difference covering
+// everything outside it, instead of showing what is actually on it.
+static QImage squareAt(const QImage &image, const QRect &rect)
+{
+    if (QRect(QPoint(0, 0), image.size()).contains(rect))
+        return image.copy(rect);
+    QImage square(rect.size(), image.format());
+    square.fill(Qt::white);
+    QPainter painter(&square);
+    painter.drawImage(QPoint(0, 0), image, rect);
+    painter.end();
+    return square;
+}
+
+
 void DifferenceRenderer::computeVisualHighlights(
         QPainterPath *highlighted1, QPainterPath *highlighted2,
         const QImage &plainImage1, const QImage &plainImage2) const
 {
+    if (plainImage1.isNull() || plainImage2.isNull())
+        return;
     const int SQUARE_SIZE = settings.squareSize;
-    QRect box;
+    // Over both pages, not just page 1: when they are different sizes, a
+    // difference outside page 1 is one the comparison has seen, and
+    // QImage::copy() pads whatever lies outside an image, so a square
+    // present on one page only comes out as a difference.  Excluded
+    // margins are measured on each page, as the comparison measures them
+    // (see renderForComparison()).
+    QRect box = QRect(QPoint(0, 0), plainImage1.size())
+            .united(QRect(QPoint(0, 0), plainImage2.size()));
     if (settings.excludeMargins)
-        box = settings.pixelRectForMargins(plainImage1.size());
+        box = box.intersected(
+                settings.pixelRectForMargins(plainImage1.size()).united(
+                settings.pixelRectForMargins(plainImage2.size())));
     QRect target;
-    for (int x = 0; x < plainImage1.width(); x += SQUARE_SIZE) {
-        for (int y = 0; y < plainImage1.height(); y += SQUARE_SIZE) {
-            const QRect rect(x, y, SQUARE_SIZE, SQUARE_SIZE);
-            if (!box.isEmpty() && !box.contains(rect))
-                continue;
-            QImage temp1 = plainImage1.copy(rect);
-            QImage temp2 = plainImage2.copy(rect);
+    // The squares run from the box's own corner, and the last one in
+    // each direction is cut to it, so that they cover it exactly: on a
+    // grid from the image's origin, a box edge that did not fall on the
+    // grid left a band of up to SQUARE_SIZE-1 pixels unexamined, inside
+    // the area the comparison looks at.
+    for (int x = box.left(); x <= box.right(); x += SQUARE_SIZE) {
+        for (int y = box.top(); y <= box.bottom(); y += SQUARE_SIZE) {
+            const QRect rect = QRect(x, y, SQUARE_SIZE, SQUARE_SIZE)
+                    .intersected(box);
+            QImage temp1 = squareAt(plainImage1, rect);
+            QImage temp2 = squareAt(plainImage2, rect);
             if (temp1 != temp2) {
                 if (rect.adjusted(-1, -1, 1, 1).intersects(target))
                     target = target.united(rect);
@@ -309,12 +396,47 @@ void DifferenceRenderer::paintOnImage(const QPainterPath &path,
 }
 
 
+// box, the rendering of a page compared inside a page box, on the page it
+// is on: the rest of the page is dimmed, and the box outlined
+QImage DifferenceRenderer::onWholePage(const QImage &box,
+        const BoxedView &view, const int page, const int DPI) const
+{
+    const PdfPage displayed = view.display->page(page);
+    if (!displayed || page >= view.boxRects.count())
+        return box;
+    QImage image = displayed->renderToImage(DPI, DPI);
+    if (image.isNull())
+        return box;
+    QRectF rect = view.boxRects.at(page);
+    scaleRect(DPI, &rect);
+    const QRect target(rect.topLeft().toPoint(), box.size());
+    QPainter painter(&image);
+    QPainterPath outside;
+    outside.addRect(QRectF(image.rect()));
+    if (!rect.isEmpty()) {
+        QPainterPath inside;
+        inside.addRect(QRectF(target));
+        outside = outside.subtracted(inside);
+    }
+    painter.fillPath(outside, QColor(255, 255, 255, 160));
+    if (!rect.isEmpty()) {
+        painter.drawImage(target.topLeft(), box);
+        painter.setPen(QPen(QColor(0, 112, 192), qMax(1, DPI / 72)));
+        painter.setBrush(Qt::NoBrush);
+        painter.drawRect(QRectF(target).adjusted(-0.5, -0.5, 0.5, 0.5));
+    }
+    painter.end();
+    return image;
+}
+
+
 bool DifferenceRenderer::paintPair(QPainter *painter,
         const PdfDocument &pdf1, const QString &filename1,
         const PdfDocument &pdf2, const QString &filename2,
         const PagePair &pair, const QString &header,
         const SavePages savePages, const QRectF &rect,
-        const QRectF &leftRect, const QRectF &rightRect) const
+        const QRectF &leftRect, const QRectF &rightRect,
+        const BoxedView *view1, const BoxedView *view2) const
 {
     if (pair.left < 0 || pair.right < 0)
         return false;
@@ -325,7 +447,7 @@ bool DifferenceRenderer::paintPair(QPainter *painter,
     if (!page2)
         return false;
     const QPair<QPixmap, QPixmap> images = pixmaps(page1, filename1,
-            page2, filename2, pair);
+            page2, filename2, pair, view1, view2);
     if (!header.isEmpty())
         painter->drawText(rect, header, QTextOption(Qt::AlignHCenter|
                                                     Qt::AlignTop));
@@ -351,7 +473,8 @@ bool DifferenceRenderer::saveAsPdf(const QString &outputFile,
         const PdfDocument &pdf1, const QString &filename1,
         const PdfDocument &pdf2, const QString &filename2,
         const QList<PagePair> &pairs, const QString &header,
-        const SavePages savePages) const
+        const SavePages savePages, const BoxedView *view1,
+        const BoxedView *view2) const
 {
     QPrinter printer(QPrinter::HighResolution);
     printer.setOutputFileName(outputFile);
@@ -361,6 +484,12 @@ bool DifferenceRenderer::saveAsPdf(const QString &outputFile,
     printer.setPageOrientation(savePages == SaveBothPages
             ? QPageLayout::Landscape : QPageLayout::Portrait);
     QPainter painter(&printer);
+    // The output file could not be opened.  Going on would render every
+    // pair into a painter that is not active, which costs the whole
+    // comparison's rendering and fills the terminal with Qt's warnings
+    // before the return value says it failed.
+    if (!painter.isActive())
+        return false;
     painter.setRenderHints(QPainter::Antialiasing|
             QPainter::TextAntialiasing|QPainter::SmoothPixmapTransform);
     painter.setFont(QFont("Helvetica", 11));
@@ -379,7 +508,7 @@ bool DifferenceRenderer::saveAsPdf(const QString &outputFile,
     for (int i = 0; i < pairs.count(); ++i) {
         if (!paintPair(&painter, pdf1, filename1, pdf2, filename2,
                        pairs.at(i), header, savePages, rect, leftRect,
-                       rightRect)) {
+                       rightRect, view1, view2)) {
             ok = false;
             continue;
         }
@@ -391,10 +520,9 @@ bool DifferenceRenderer::saveAsPdf(const QString &outputFile,
 }
 
 
-PdfDocument loadPdf(const QString &filename, bool *locked)
+static PdfDocument preparePdf(PdfDocument pdf, bool *locked)
 {
     *locked = false;
-    PdfDocument pdf(Poppler::Document::load(filename));
     if (pdf && pdf->isLocked()) {
         *locked = true;
         pdf.reset();
@@ -407,4 +535,103 @@ PdfDocument loadPdf(const QString &filename, bool *locked)
         pdf->setRenderHint(Poppler::Document::TextAntialiasing);
     }
     return pdf;
+}
+
+
+PdfDocument loadPdf(const QString &filename, bool *locked)
+{
+    return preparePdf(Poppler::Document::load(filename), locked);
+}
+
+
+PdfDocument loadPdfData(const QByteArray &data, bool *locked)
+{
+    return preparePdf(Poppler::Document::loadFromData(data), locked);
+}
+
+
+QString BoxedFile::keyFor(const QString &filename, const PageBox box,
+                          const BoxClip clip)
+{
+    return QString("%1\n%2/%3").arg(documentKey(filename))
+            .arg(pageBoxName(box), boxClipName(clip));
+}
+
+
+bool BoxedFile::prepare(const QString &filename, const int pageCount,
+                        const PageBox box, const BoxClip clip,
+                        QString *error)
+{
+    clear();
+    if (!m_document.load(filename, error))
+        return false;
+    // Pages are numbered the same in both, so they must agree on how many
+    // there are
+    if (m_document.pageCount() != pageCount) {
+        *error = tr("qpdf finds %1 pages and Poppler %2")
+                 .arg(m_document.pageCount()).arg(pageCount);
+        return false;
+    }
+    m_regions = m_document.regions(box, clip);
+    m_data = m_document.rewritten(m_regions, error);
+    if (m_data.isEmpty())
+        return false;
+    if (!load()) {
+        *error = tr("the rewritten copy cannot be read");
+        m_data.clear();
+        return false;
+    }
+    m_key = keyFor(filename, box, clip);
+    return true;
+}
+
+
+bool BoxedFile::isPreparedFor(const QString &filename, const PageBox box,
+                              const BoxClip clip) const
+{
+    return !m_key.isEmpty() && m_key == keyFor(filename, box, clip);
+}
+
+
+void BoxedFile::clear()
+{
+    m_key.clear();
+    m_document = BoxedDocument();
+    m_regions.clear();
+    m_data.clear();
+    m_displayData.clear();
+    m_boxRects.clear();
+}
+
+
+PdfDocument BoxedFile::load() const
+{
+    bool locked = false;
+    return loadPdfData(m_data, &locked);
+}
+
+
+bool BoxedFile::view(BoxedView *view)
+{
+    if (m_data.isEmpty())
+        return false;
+    if (m_displayData.isEmpty()) {
+        QVector<BoxRegion> areas;
+        QVector<QRectF> boxRects;
+        for (int page = 0; page < m_document.pageCount(); ++page) {
+            const BoxDisplay display = boxDisplay(m_document.boxes(page),
+                                                  m_regions.at(page));
+            BoxRegion area;
+            area.rect = display.area;
+            areas.append(area);
+            boxRects.append(display.boxRect);
+        }
+        QString error;
+        m_displayData = m_document.rewritten(areas, &error);
+        m_boxRects = boxRects;
+    }
+    bool locked = false;
+    view->display = loadPdfData(m_displayData, &locked);
+    view->boxRects = m_boxRects;
+    return view->display != nullptr;
 }

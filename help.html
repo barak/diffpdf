@@ -11,13 +11,15 @@
 <li><a href="#ran">Page Ranges</a></li>
 <li><a href="#off">Page Offset</a></li>
 <li><a href="#mar">Margins</a></li>
+<li><a href="#box">Page Boxes</a></li>
 <li><a href="#sav">Saving</a></li>
 <li><a href="#opt">The Options Dialog</a></li>
 <li><a href="#dock">Dock Windows</a></li>
 </ul>
 
 This tool can be used via command line or as a GUI program.
-<br/>disparPDFc is optimized for command line processing on Windows and operates without GUI.
+<br/>disparPDFc is disparPDF run by another name (a symbolic link to it, or
+on Windows a copy), which is always in batch mode and needs no display.
 
 <h3 id="bas">GUI Basic Usage</h3>
 <p>Click the <b>File #1</b> button to choose one PDF file and then
@@ -40,8 +42,15 @@ identifies some false positives (i.e., page pairs that are really the
 same). False positives are quite rare. (There are no false
 negatives&mdash;differences are never missed.)
 
+<p>When a pair is reported as differing and nothing on it can be
+highlighted, a banner is drawn across the top of the left page. It
+reads <b>disparPDF: Page Sizes Differ</b> when the two pages are
+different sizes&mdash;a difference with nowhere to mark it&mdash;and
+<b>disparPDF: False Positive</b> otherwise.
+
 <h3 id="txt">Words Comparison Mode</h3>
-<p>The default comparison mode is Words which does a smart text 
+<p>The default comparison mode in the window is Words (batch mode compares
+the appearance unless told otherwise), which does a smart text 
 comparison word by word for each pair of pages. This mode is 
 fairly liberal regarding 
 whitespace and tries to ignore layout changes (within a page) insofar 
@@ -73,7 +82,7 @@ differences that aren't immediately apparent.
 <p>Zoning is an experimental feature designed to produce more accurate
 results (i.e., fewer false positives). Its main use is for pages that
 have tables or that mix alphabetic and logographic text, since these can
-cause the underlying popplar PDF library to provide the page's words
+cause the underlying Poppler PDF library to provide the page's words
 mixed up. <font color="red">Warning:</font> using zoning for large
 complex pages (bigger than A4, multiple columns, tables) in Characters
 mode can be very slow. (The current focus for the zoning code is
@@ -88,8 +97,8 @@ rectangles for the rectangles to be placed in the same zone. Lower
 values create more zones; higher values create fewer zones. More
 zones are  expensive to compute but can produce more accurate 
 results; fewer zones may reduce false positives. The Tolerance/Y value
-is is used for rounding <i>y</i> coordinates to the nearest multiple of
-this value. For example, if Tolerance/Y is 5
+is used for rounding <i>y</i> coordinates up to a multiple of this
+value. For example, if Tolerance/Y is 5
 and a word at position (452,137) is followed by a superscript at
 (468,140), both will be treated as having a <i>y</i> coordinate of 140.
 
@@ -125,12 +134,54 @@ comparing again, is quick.
 
 <h3 id="mar">Margins</h3>
 <p>It is possible to make <font color="darkgreen">disparPDF</font> ignore
-any text that is above a specified top margin, below a specified bottom
+anything that is above a specified top margin, below a specified bottom
 margin, left of a specified left margin, and right of a specified right
 margin. One or more of these margins can be specified by, first,
 checking the <b>Exclude Margins</b> checkbox, and second by setting
 any of the margins. Margins can be set by clicking on a page view or by
-using the margin spinboxes.
+using the margin spinboxes. Each can be up to half the page's width or
+height, less 10pt (of the first page of the file chosen last). When
+comparing inside a page box, the margins are measured from the box's
+edges, and can be up to half the smaller of the two files' boxes.
+
+<h3 id="box">Page Boxes</h3>
+<p>A PDF page can have up to five boundaries (ISO 32000-2:2020, 14.11.2):
+the <b>MediaBox</b>, the physical medium; the <b>CropBox</b>, to which it
+is clipped when displayed or printed; the <b>BleedBox</b>, to which it is
+clipped in production; the <b>TrimBox</b>, the finished page after
+trimming; and the <b>ArtBox</b>, the page's meaningful content. In the
+<b>Page Box</b> dock, <b>Page boundary</b> chooses one of them, and only
+what is inside it is compared&mdash;crop marks, colour bars or bleed
+outside the trim box, say, are ignored. <b>Whole page</b> compares the
+pages as they are, and <b>Restore Default</b> goes back to it.
+
+<p><b>Clipped to</b> says what the box is clipped to: the
+<b>MediaBox</b>, as the standard requires (the default); the
+<b>MediaBox and CropBox</b>, so that only what a viewer shows is
+compared; or <b>Nothing (as written)</b>, so that all of the box is, even where it
+extends past the MediaBox.
+
+<p>A page without the chosen box uses its default: the CropBox for the
+BleedBox, TrimBox and ArtBox, the MediaBox for the CropBox. Text is
+judged character by character, so in a word that straddles the box's
+edge only the characters inside it count. The pages are lined up on the
+box's top left corner, so a page with bleed matches the same page
+trimmed. In the views, and in what is saved, each page is shown whole,
+the part outside the box dimmed and the box outlined in blue; nothing
+outside it is highlighted. In Appearance mode, the composing choices of
+<b>Show</b> compose page 2 over page 1 inside the boxes, where they are
+compared, shown on page 1's page. Boxes, like margins, are in default
+user space units: <tt>/UserUnit</tt> is not applied.
+
+<p>Changing the box or the clipping forgets the comparison: click
+<b>Compare</b> again. Warnings&mdash;a box missing, the two files' boxes
+in different places or of different sizes, a box past the CropBox or
+the MediaBox, or nothing left of it&mdash;go to the Log, and the status
+counts them; in batch mode they go to standard error and into the
+<tt>--xmlResult</tt> file, and leave the result code alone. In batch
+mode <tt>--box-clip</tt> without <tt>--box</tt> is ignored, with a
+warning. The choice is kept for next time, except when it came from
+<tt>--box</tt> or <tt>--box-clip</tt> and was not changed in the window.
 
 <h3 id="sav">Saving</h3>
 <p>Use the <b>Save As</b> button to pop up a Save dialog. This dialog
@@ -140,79 +191,116 @@ image formats). The dialog supports saving the current or all left
 pages, right pages, or both pages. 
 
 <h3 id="opt">The Options Dialog</h3>
-<p>This dialog is invoked by clicking the <b>Options</b> button. 
-The dialog supports changing the highlighting color, whether to use 
-a pen or fill or both, and the fill's opacity. The Square Size is used 
-when doing Appearance mode comparisons: the smaller the size the more 
-fine-grained the highlighting is&mdash;and the slower to compute. 
-The Rule width determines the thickness of the margin rules which are 
-used to indicate the vertical position of differences; the rules can 
-be switched off using a Rule width of 0.
+<p>This dialog is invoked by clicking the <b>Options</b> button. It has
+three tabs.
+
+<p><b>General</b> has <b>Show Tooltips in the Main Window</b>, which
+turns off the tooltips of the main window's controls; <b>Rule width</b>, the thickness of the
+margin rules that indicate the vertical position of differences, which
+a width of 0 switches off; and <b>Files to compare</b>, choosing
+whether the Choose dialogs offer only files whose names end in
+<tt>.pdf</tt> or any file. (A name typed into the File&nbsp;#1 or
+File&nbsp;#2 box, or a file dropped on the window, is taken whatever it
+is called; on the command line, <tt>--any-extension</tt> allows any
+name.)
+
+<p><b>Highlighting</b> has the base color, whether to use an outline or
+a fill or both, and the fill's opacity, and <b>Combine Highlighting in
+Text Modes</b>, which merges neighbouring text highlights into one.
+
+<p><b>Performance</b> has the <b>Square Size</b>, used in Appearance
+mode comparisons&mdash;the smaller the size the more fine-grained the
+highlighting is, and the slower to compute&mdash;and the <b>Cache
+Size</b>, the memory in MB that rendered pages may use.
 
 <h3 id="dock">Dock Windows</h3>
-<p>The Controls, Actions, Margins, Zoning, and Log views are in dock
+<p>The Controls, Actions, Margins, Page Box, Zoning, and Log views are in dock
 widgets&mdash;these can be dragged into other dock areas (in which case
 they will reshape themselves as necessary), or dragged to float free.
-The Margins, Zoning, and Log views can also be closed; right click a
+The Margins, Page Box, Zoning, and Log views can also be closed; right click a
 dock area splitter and check their checkbox to open them again. These
 views may be shown tabbed: if there is enough space they can be dragged
 out of their tabs and all shown in full.
 
 <h3 id="cli">Command Line Usage</h3>
-<p><font color="darkgreen">disparPDF</font> can be run from a console in two modes:
-<ul>
-<li>batch for automating checks, without GUI</li>
-<li>opening the GUI and comparing files</li>
-</ul>
-files listed on the command line, 
-<font color="darkgreen">disparPDF</font> will start up and
-immediately compare them in Words mode, or in Appearance mode 
-if their names are preceded with <tt>-a</tt> or 
-<tt>--appearance</tt> on the command line, 
-or in Characters mode if their names are preceded with <tt>-c</tt> or 
-<tt>--character</tt> on the command line. Run 
-<font color="darkgreen">disparPDF </font> with <tt>--help</tt> to see all
-the command line options. (This won't work on Windows, although the
-other command line options will.) Here is the <tt>--help</tt>
-output:
+<p><font color="darkgreen">disparPDF</font> can be run from a console
+in two ways: with the window, given the files to compare, and in batch
+mode for automating checks, without a window.
+
+<p>Given two files on the command line,
+<font color="darkgreen">disparPDF</font> starts up and compares them
+straight away, in the mode last used in the window (Words at first)
+unless <tt>-a</tt> (<tt>--appearance</tt>), <tt>-c</tt>
+(<tt>--characters</tt>) or <tt>-w</tt> (<tt>--words</tt>) is given. With <tt>--batch</tt>, or run under the name
+<tt>disparPDFc</tt>, it compares them without a window and prints a
+result code instead; <tt>--interactive</tt> asks for the window back.
+
+<p>Run it with <tt>--help</tt> to see all the options. Here is the
+<tt>--help</tt> output:
 <pre>
-usage: disparPDF [options] [file1.pdf [file2.pdf]]
+Usage: disparPDF [OPTION]... [FILE1 [FILE2]]
+  or:  disparPDF --batch [OPTION]... FILE1 FILE2
+  or:  disparPDFc [OPTION]... FILE1 FILE2
+Compare two PDF files and show their differences.
 
-A GUI program that compares two PDF files and shows
-their differences that can be scripted.
+The files are optional and are normally chosen in the window.  With --batch,
+they are compared without a window, and the result code (see below) is
+printed.
 
-The files are optional and are normally set through
-the user interface.
+Options:
+  -a, --appearance       compare the appearance of the pages (the default in
+                           batch mode)
+  -c, --characters       compare the text character by character
+  -w, --words            compare the text word by word (the default otherwise)
+      --any-extension    accept files whose names do not end in .pdf
+      --box=BOX          compare only what is inside the page box BOX: media,
+                           crop, bleed, trim or art (none, the default,
+                           compares whole pages)
+      --box-clip=CLIP    clip that box to the media box (media, the default),
+                           to the media and crop boxes (crop), or not at all
+                           (none)
+      --language=LANG    use the given translation language, e.g., en for
+                           English, cz for Czech; English is used if there is
+                           no translation
+      --debug=2          write the text fed to the sequence matcher into
+                           files in the temporary directory (e.g., page1-1.txt
+                           and page1-2.txt) when highlighting
+      --debug=3          as --debug=2, but also with the coordinates, in y, x
+                           order
+  -h, --help             display this help and exit
+      --version          output version information and exit
 
-options:
---help             show this usage text and terminate (run the
-                   program without this option and press F1 for
-                   online help)
---version          show the version and terminate
---any-extension    accept files whose names do not end in .pdf
-                   (also an option in the Options dialog)
---appearance  -a   set the initial comparison mode to Appearance
---characters  -c   set the initial comparison mode to Characters
---words       -w   set the initial comparison mode to Words
---language=xx      set the program to use the given translation
-                   language, e.g., en for English, cz for Czech;
-                   English will be used if there is no translation
-                   available
---debug=2          write the text fed to the sequence matcher into
-                   temporary files (e.g., /tmp/page1.txt etc.)
---debug=3          as --debug=2 but also includes coordinates in
-                    y, x order
---batch -b         activates the batch mode
---outType=0        prints only the return code in batch mode
---outType=1        prints the return code and a description in batch mode
---pages=nn         the number of pages to compare (default all)
---startPage1=nn    the stating page number for file 1
---startPage2=nn    the stating page number for file 2
---pdfdiff=path     generates a pdf with differences
---xmlResult=path   generates file with the comparison result in XML
---key=aKey         a key to be recorded in the result file
---settings=file    settings (in INI format) to override default parameters
---compareFonts     compare the fonts
+Batch mode options:
+  -b, --batch            compare without a window
+      --interactive      show the window (the default, except as disparPDFc)
+      --outType=0        print only the result code (the default)
+      --outType=1        print the result code and a description
+      --pages=N          compare N pages (default all)
+      --startPage1=N     start at page N of FILE1
+      --startPage2=N     start at page N of FILE2
+      --pdfdiff=FILE     save the pages that differ, highlighted, to FILE
+      --xmlResult=FILE   write the result, in XML, to FILE
+      --key=KEY          record KEY in the XML result
+      --settings=FILE    read settings (zoom, margins, tolerances, colors,
+                           etc.) from FILE, in INI format, instead of using
+                           the defaults
+      --compareFonts     also compare the fonts the files use
+
+Result codes, printed in batch mode and also the exit status (modulo 256):
+   0  the files are the same
+   1  the files differ
+   2  the files have different numbers of pages
+   3  a start page is beyond the end of its file
+   4  a file has fewer pages than --pages asks for
+   5  the same file was given twice
+   6  the files use different fonts (with --compareFonts)
+  -1  a command line error
+  -3, -4  FILE1 or FILE2 cannot be read
+  -5  a page cannot be read
+  -6, -7  the --pdfdiff or --xmlResult file cannot be written
+
+In the window, press F1 for the full documentation, and click About for the
+copyright and license details.
 </pre>
 
 A typical command line for automated checks is:
@@ -225,36 +313,22 @@ or:
 disparPDFc -b --pdfdiff=file_diff.pdf --xmlResult=file_results.xml --key=opkey file1.pdf file2.pdf
 </pre>
 
-Return codes when invoked in batch:
-
-<ul>
-<li>0: no difference discovered between the documents</li>
-<li>1: documents are different</li>
-<li>2: the page count differs</li>
-<li>3: error in the initial page specification</li>
-<li>4: error in the final page specification</li>
-<li>5: the same file has been specified as candidate and reference</li>
-<li>6: fonts differ</li>
-<li>-1: invocation parameters error</li>
-<li>-2: unexpected error</li>
-<li>-3: unable to load first PDF</li>
-<li>-4: unable to load second PDF</li>
-<li>-5: error loading a page</li>
-<li>-6: error writing the PDF difference file</li>
-<li>-7: error writing the XML results file</li>
-<li>-8: error loading a document</li>
-</ul>
+The result codes are those listed at the end of the <tt>--help</tt>
+output above.
 
 <p>
 The text reordering is done by the
 <tt>TextItems::columnZoneYxOrder()</tt> method in the
 <tt>textitem.cpp</tt> file: suggestions for improvement are welcome!
-(Note that when using <tt>--debug3</tt> coordinates are output in
+(Note that when using <tt>--debug=3</tt> coordinates are output in
 <i>y</i>, <i>x</i> order.)
 
 <p>
-This project is a fork of DiffPDF, that was created and maintained by Mark
-Summerfield 2008-2013. This fork, by Luca Bellonda &lt;lbellonda@gmail.com&gt;, begun in 2015.
+<font color="darkgreen">disparPDF</font> is a port to Qt&nbsp;6, by
+Yuwsuke Kieda in 2026, of ConfrontaPDF, a fork by Luca Bellonda, begun in
+2015, of DiffPDF, which was created and maintained by Mark Summerfield
+2008-2013. Its source is at
+<a href="https://github.com/yuw/disparPDF">https://github.com/yuw/disparPDF</a>.
 
 The source for the last release of Mark's open source version is
 available from: <a href="http://www.qtrac.eu/diffpdf-foss.html">http://www.qtrac.eu/diffpdf-foss.html</a>

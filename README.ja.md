@@ -12,7 +12,9 @@
 - 単語単位・文字単位の比較
 - ページ範囲の指定と，一方の文書にだけページがある場合のページオフセット
 - マージン除外
-- フォントの比較（`--compareFonts`）
+- ページボックス（MediaBox，CropBox，BleedBox，TrimBox，ArtBox）の中だけの
+  比較（`--box`）．ページはボックスの角を基準に重ねる
+- フォントの比較（`--compareFonts`．バッチモードのみ）
 - コアごとに1スレッドでのページの並列比較
 - バッチ・コマンドラインモード（`disparPDFc`）．`--interactive`でウィンドウも表示できる
 - manページ（`man disparPDF`）とbash／zshの補完
@@ -45,8 +47,8 @@ macOSのApp Management保護により，`/Applications`にある既存の.appバ
 | 場所 | 説明 |
 |---|---|
 | `/Applications/disparPDF.app` | GUIアプリ（Finder用） |
-| `/opt/homebrew/opt/disparPDF/disparPDF.app` | Homebrew管理下のコピー |
-| `/opt/homebrew/bin/disparPDF` | CLIラッパー（GUIを起動） |
+| `/opt/homebrew/opt/disparpdf/disparPDF.app` | Homebrew管理下のコピー |
+| `/opt/homebrew/bin/disparPDF` | ウィンドウを開く．`--batch`・`--help`・`--version`のときは端末で実行する |
 | `/opt/homebrew/bin/disparPDFc` | CLIバッチモード |
 
 ## アップグレード
@@ -106,7 +108,7 @@ ditto /opt/homebrew/opt/disparpdf/disparPDF.app /Applications/disparPDF.app
 
 # 5. 動作確認
 open /Applications/disparPDF.app
-disparPDFc -b 2>&1 | head -1
+disparPDFc --version
 ```
 
 ## ソースからのビルド
@@ -115,9 +117,10 @@ disparPDFc -b 2>&1 | head -1
 
 Homebrewの`poppler`はQt6バインディングを含まないため，
 このリポジトリの`packaging/homebrew/poppler-qt6.rb`を使って個人tapからインストールします．
+ページボックスの読み取りと書き換えのために，[qpdf](https://qpdf.sourceforge.io/)も必要です．
 
 ```sh
-brew install qt@6
+brew install qt@6 qpdf
 
 mkdir -p ~/homebrew-disparPDF/Formula
 cp packaging/homebrew/poppler-qt6.rb ~/homebrew-disparPDF/Formula/
@@ -133,16 +136,17 @@ brew install yuw/disparPDF/poppler-qt6
 
 ### ビルド
 
-macOSではHomebrewのkeg-onlyな`qt@6` / `poppler-qt6`をCMakeが自動的に
-探索するため，環境変数の設定は不要です:
+macOSではHomebrewのkeg-onlyな`qt@6` / `poppler-qt6`と，`qpdf`をCMakeが自動的に
+探索するため，環境変数の設定は不要です．ほかの環境では，qpdfをpkg-config（`libqpdf`）で
+探します（DebianやUbuntuでは`libqpdf-dev`パッケージなど）：
 
 ```sh
 cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j$(sysctl -n hw.logicalcpu)
+cmake --build build --parallel
 ```
 
 別の場所にあるQt / Popplerを使う場合は明示的に指定します．明示指定した`CMAKE_PREFIX_PATH`は
-自動探索したパスより優先されます:
+自動探索したパスより優先されます：
 
 ```sh
 cmake -B build -DCMAKE_BUILD_TYPE=Release \
@@ -151,7 +155,9 @@ cmake -B build -DCMAKE_BUILD_TYPE=Release \
 
 ### テスト
 
-テストは小さなPDFに対してバッチモードを実行するもので，ディスプレイを必要としません:
+テストには，ページボックスの単体テスト，小さなPDFでのバッチモードの比較，描画とウィンドウの
+テスト（Qtのoffscreenプラットフォームで動かす），シェル補完のテスト（bash-completionやzshが
+なければ飛ばす）があります．どれもディスプレイを必要としません：
 
 ```sh
 ctest --test-dir build
@@ -174,14 +180,14 @@ codesign --force --sign - /usr/local/disparPDF.app/Contents/MacOS/disparPDF
 # （cp -rだと古いバンドルの中に入れ子でコピーされてしまう）
 ditto /usr/local/disparPDF.app /Applications/disparPDF.app
 
-# CLIから呼び出せるようにシンボリックリンクを作成（任意）
+# CLIから呼び出せるようにシンボリックリンクを作成（任意．bin/disparPDFcは既に入る）
 sudo ln -sf /usr/local/disparPDF.app/Contents/MacOS/disparPDF /usr/local/bin/disparPDF
 ```
 
-LinuxとBSDでは`cmake --install`がmanページ（`man disparPDF`または
-`man disparPDFc`），bashとzshの補完（置き場所は`BASH_COMPLETION_DIR`と
-`ZSH_COMPLETION_DIR`で指定できます），アプリケーションメニュー用のdesktop
-ファイルとアイコン，READMEもインストールします．パッケージ作成時は`DESTDIR`と
+`cmake --install`は，`disparPDFc`（シンボリックリンク．Windowsではコピー），manページ
+（`man disparPDF`または`man disparPDFc`），bashとzshの補完（置き場所は`BASH_COMPLETION_DIR`と
+`ZSH_COMPLETION_DIR`で指定できます），READMEとCHANGESもインストールします．LinuxとBSDでは，
+アプリケーションメニュー用のdesktopファイルとアイコンも入れます．パッケージ作成時は`DESTDIR`と
 通常の`CMAKE_INSTALL_*`ディレクトリが使えます．manページは`--help`の出力から
 `help2man`が生成します．`help2man`がない場合やクロスコンパイル時は`doc_man/`に
 あるコピーがインストールされます（このコピーは
@@ -212,10 +218,80 @@ disparPDFc -b --outType=1 a.pdf b.pdf
 disparPDFc -b --xmlResult=result.xml a.pdf b.pdf
 ```
 
+```sh
+# TrimBoxの中だけを比較する．トンボ，カラーバー，塗り足しは無視され，
+# 塗り足しのあるページは，塗り足しのない同じページと一致する
+disparPDFc -b --box=trim a.pdf b.pdf
+```
+
 `disparPDFc`は別のプログラムではなく，`disparPDF`へのシンボリックリンク
 （Windowsではそのコピー）です．この名前で起動するとバッチモードになるので
 `-b`は省略でき，ディスプレイも不要です．`disparPDF -b`でも同じです．
 `disparPDFc --interactive`では`disparPDF`と同様にウィンドウを表示します．
+
+### ページボックスの中だけを比較する
+
+PDFのページには，最大で5つの境界があります（ISO 32000-2:2020，14.11.2）．
+
+- **MediaBox**：物理的な媒体の範囲
+- **CropBox**：表示・印刷のときに内容を切り抜く範囲
+- **BleedBox**：製版・印刷の工程で内容を切り抜く範囲
+- **TrimBox**：断裁後の仕上がりの大きさ
+- **ArtBox**：作成者が意図したページの意味のある内容の範囲
+
+`--box=BOX`（GUIでは**Page Box**のドック）で，このうち1つの中だけを比較します．
+`none`はページ全体を比べ，オプションを付けないときと同じです．
+
+- **ページにそのボックスがないとき**は，規格の表31の既定値を使い，警告を出します．
+  既定値は，BleedBox・TrimBox・ArtBoxならCropBox，CropBoxならMediaBoxです．
+- **切り抜き方**は`--box-clip=CLIP`で選びます．
+
+  | `CLIP` | 比較する範囲 |
+  |---|---|
+  | `media`（既定） | ボックスをMediaBoxで切り抜いた範囲．14.11.2.1が処理系に求めるとおり |
+  | `crop` | ボックスをMediaBoxとCropBoxで切り抜いた範囲．ビューアに見える範囲だけ |
+  | `none` | 書かれたとおりのボックス．MediaBoxやCropBoxの外に出ていてもそのまま |
+
+- **テキスト**は文字ごとに判定します．
+  - ボックスの辺にまたがる語は，ボックスの中にある文字だけを対象にします．
+  - 辺の上にある文字や，辺にかかる文字は，中にあるとみなします．
+  - 判定に使うのはpopplerが返す字の枠で，字面ではありません．
+- **外観**は，ボックスの中の画素で比較します．
+- **ページは，ボックスの左上の角を基準に重ねます**（CropBoxの角ではありません．
+  角は`/Rotate`を適用した後のものです）．そのため，塗り足しのあるページは，
+  断裁した同じページと一致します．
+- **除外するマージンは，ボックスの辺から測ります．**
+- **画面と保存した差分には，ページ全体を表示します**（MediaBoxの中のCropBoxとボックスを合わせた範囲）．
+  ボックスの外は淡く表示して青い枠線を引き，ボックスの外にはハイライトを付けません．
+- **警告**は，次の場合に，ファイルごと（または2つの組に対して）1回まとめ，
+  該当するページを添えて出します．括弧内は警告の種類の名前です．
+  - ボックスがない（`absent`）
+  - `crop`でボックスがCropBoxの外に出る（`beyond-crop`）
+  - `none`でボックスがMediaBoxの外に出る（`beyond-media`）
+  - 切り抜くと何も残らない（`empty`）
+  - 2つのファイルで，ページ上のボックスの大きさか位置が0.01ptを超えて違う
+    （`differ`．組に対して1回）
+  - `--box`なしで`--box-clip`を指定した．この指定は無視する（`clip-without-box`）
+
+  出し先は次のとおりです．
+  - `disparPDFc`：標準エラー．終了コードは変えません．`--xmlResult`を指定したときは
+    XMLにも書きます．`<warnings>`要素の中に，種類とファイルごとに1つの`<warning>`を置きます．
+    - `kind`：上の括弧内の名前
+    - `file`：1か2．組に対する警告と`clip-without-box`では省きます
+    - `pages`：ページの一覧．たとえば`1-3, 5`．`clip-without-box`では省きます．
+      `differ`では，比べた組のどれか1つでも2つのファイルでページ番号が違えば，
+      すべての項目を`3/4`のようにFILE1/FILE2の組で書きます
+    - `message`：警告の文
+  - GUI：ログ．状態表示にも件数を出します．
+- **GUIでは**，ボックスや切り抜き方を変えると，それまでの比較結果を破棄します．
+  別のボックスの中で比べた結果だからです．Compareを押し直してください．
+  選んだものは次回に引き継ぎます．ただし，起動時に`--box`や`--box-clip`で
+  指定したものは，その回だけ使い，保存しません（ウィンドウで変えた場合は保存します）．
+- ボックスはマージンと同じく既定のユーザー空間の単位で扱い，`/UserUnit`（PDF 1.6）は
+  適用しません．
+- ボックスの読み取りと，ボックスに合わせたページの書き換えには，
+  [qpdf](https://qpdf.sourceforge.io/)を使います．qpdfで読めないファイルは，
+  ページ全体で比較するのではなく，読めないファイル（`-3`か`-4`）として報告します．
 
 ## 設定
 
@@ -230,42 +306,46 @@ GUIはユーザーごとに設定を保存します．macOSでは
 disparPDFc -a --settings=mysettings.ini a.pdf b.pdf
 ```
 
-以下のうち大半はGUIにも操作個所があります．`disparPDFc`向けのINIファイルを
-手で書けるように一覧にしてあります．最後の2つだけはGUIに操作個所がありません．
+以下のうち大半はGUIにも操作箇所があります．`disparPDFc`向けのINIファイルを
+手で書けるように一覧にしてあります．最後の表のものはGUIに操作箇所がありません．このほかGUIはウィンドウの配置
+（`MainWindow/`と`HelpForm/`の下のキー）も保存しますが，バッチモードは使いません．
 
 ### 比較
 
 | キー | 既定値 | GUI | 意味 |
 |---|---|---|---|
-| `InitialComparisonMode` | `2` | 比較モードの選択 | GUIの起動時モード．0=外観，1=文字，2=単語．バッチモードはこれを見ず，`-a`・`-c`・`-w`のいずれも指定しなければ外観比較になる |
-| `Margins/Exclude` | `false` | マージンを除外 | 下記マージンの外側を比較対象から外す |
-| `Margins/Top`・`/Bottom`・`/Left`・`/Right` | `0` | マージンのドック | マージンの大きさ（ポイント） |
-| `Zoning/Enable` | `false` | ゾーニング | 比較前にテキストをゾーンにまとめる |
-| `Columns` | `1` | 段数 | ページの段数．ゾーニングの精度が上がる |
+| `InitialComparisonMode` | `2` | Compare（比較モード） | GUIの起動時モード．0=外観，1=文字，2=単語．バッチモードはこれを見ず，`-a`・`-c`・`-w`のいずれも指定しなければ外観比較になる |
+| `Margins/Exclude` | `false` | Exclude Margins（マージンを除外） | 下記マージンの外側を比較対象から外す |
+| `Margins/Top`・`/Bottom`・`/Left`・`/Right` | `0` | Marginsのドック | マージンの大きさ（ポイント）．ページボックスの中で比べるときは，ボックスの辺から測る．GUIでは，それぞれ最後に選んだファイルの1ページ目（ページボックスの中で比べるときは，2つのファイルのボックスの小さいほう）の幅か高さの半分から10ptを引いた値までにできる |
+| `PageBox/Box` | `none` | Page Boxのドック ▸ Page boundary（ページボックス） | このページボックスの中だけを比較する．`none`・`media`・`crop`・`bleed`・`trim`・`art`のいずれか（[ページボックスの中だけを比較する](#ページボックスの中だけを比較する)を参照）．`--box`で上書きできる |
+| `PageBox/Clip` | `media` | Page Boxのドック ▸ Clipped to（切り抜き方） | そのボックスを何で切り抜くか．`media`・`crop`・`none`のいずれか．`--box-clip`で上書きできる |
+| `Zoning/Enable` | `false` | Zoning（ゾーニング） | 比較前にテキストをゾーンにまとめる |
+| `Columns` | `1` | Columns（段数） | ページの段数．ゾーニングの精度が上がる |
 | `Tolerance/R` | `8` | Tolerance/R | 同一ゾーンとみなす単語矩形間の最大距離（4〜144） |
-| `Tolerance/Y` | `10` | Tolerance/Y | ゾーニング時にテキストの*y*座標を丸める単位（0〜32） |
-| `RequirePdfExtension` | `true` | オプション ▸ 比較するファイル | コマンドラインで名前が`*.pdf`のファイルだけを受け付け，ファイルダイアログにもそれだけを表示する．バッチモードはこれを見ず，`--any-extension`を指定しない限り常に`*.pdf`が必要 |
+| `Tolerance/Y` | `10` | Tolerance/Y | ゾーニング時に，テキストの*y*座標をこの値の倍数に切り上げる（0〜32） |
+| `RequirePdfExtension` | `true` | Options ▸ Files to compare（比較するファイル） | コマンドラインで名前が`*.pdf`のファイルだけを受け付け，ファイルダイアログにもそれだけを表示する（ウィンドウで名前を打ち込んだファイルや，ドロップしたファイルは名前を問わない）．バッチモードはこれを見ず，`--any-extension`を指定しない限り常に`*.pdf`が必要 |
 
 ### 表示とハイライト
 
 | キー | 既定値 | GUI | 意味 |
 |---|---|---|---|
-| `Zoom` | `100` | ズーム | 表示倍率（パーセント） |
-| `Outline`・`Fill` | — | オプション ▸ ハイライト | ハイライトのペンとブラシ．Qtの値をシリアライズしたものなので，手で書かずダイアログから設定する |
-| `Opacity` | `13` | オプション ▸ 塗りの不透明度 | 塗りの不透明度（パーセント） |
-| `RuleWidth` | `1.5` | オプション ▸ 線幅 | ハイライトの輪郭線の太さ |
-| `SquareSize` | `10` | オプション ▸ 四角のサイズ | ハイライトの四角の大きさ（ピクセル） |
-| `CombineTextHighlighting` | `true` | オプション ▸ ハイライトを結合 | テキストモードで隣接するハイライトをまとめる |
-| `Overlap` | `5` | — | ハイライト矩形を結合する重なりの許容量 |
-| `ShowToolTips` | `true` | オプション ▸ ツールチップを表示 | メインウィンドウでツールチップを表示する |
-| `CacheSizeMB` | `25` | オプション ▸ キャッシュサイズ | レンダリング済みページのキャッシュ上限（MB） |
+| `Zoom` | `100` | Zoom（ズーム） | 表示倍率（パーセント） |
+| `Outline`・`Fill` | — | Options ▸ Highlighting（ハイライト） | ハイライトのペンとブラシ．Qtの値をシリアライズしたものなので，手で書かずダイアログから設定する |
+| `Opacity` | `13` | Options ▸ Fill Opacity（塗りの不透明度） | 塗りの不透明度（パーセント，1〜100） |
+| `RuleWidth` | `1.5` | Options ▸ Rule width（罫線の幅） | 差異の横，ページの左端に引く罫線の幅（0〜10）．`0`で罫線を引かない |
+| `SquareSize` | `10` | Options ▸ Square Size（四角のサイズ） | 外観の差異を探してハイライトする四角の大きさ（ピクセル，2〜40） |
+| `CombineTextHighlighting` | `true` | Options ▸ Combine Highlighting in Text Modes（ハイライトを結合） | テキストモードで隣接するハイライトをまとめる |
+| `ShowToolTips` | `true` | Options ▸ Show Tooltips in the Main Window（ツールチップを表示） | メインウィンドウでツールチップを表示する |
+| `CacheSizeMB` | `25` | Options ▸ Cache Size（キャッシュサイズ） | レンダリング済みページのキャッシュ上限（MB，1〜100） |
 
-### GUIに操作個所がない設定
+### GUIに操作箇所がない設定
 
 | キー | 既定値 | 意味 |
 |---|---|---|
-| `CompareThreads` | `0` | 比較に使うワーカースレッド数の上限．`0`はコア数分．各ワーカーが2つの文書を個別に開くため，値を下げるとピークメモリも下がる．1536ページの外観比較を8コアで実行した場合，最大RSSは`0`で223MB，`4`で152MB，`1`で89MB（並列化前は74MB）．所要時間は1.4秒に対し2.8秒 |
-| `compositionMode` | `-1` | 外観比較の差異を描画する`QPainter::CompositionMode`の値．`-1`で通常のハイライトになる．GUIのハイライトモード選択に相当する．22=Difference，23=Exclusion，26=Src Xor Dest，29=Not Src Xor Dest |
+| `Overlap` | `5` | `CombineTextHighlighting`のとき，テキストのハイライトをまとめる距離（ピクセル）．GUIも自分の設定から読む |
+| `CompareThreads` | `0` | 比較に使うワーカースレッド数の上限．`0`はコア数分．各ワーカーが2つの文書を個別に開くため，値を下げるとピークメモリも下がる．1536ページの外観比較を8コアで実行した場合，最大RSSは`0`で223MB，`4`で152MB，`1`で89MB（並列化前は74MB）．所要時間は`0`で1.4秒，`1`で2.8秒．GUIも自分の設定から読む |
+| `compositionMode` | `-1` | 外観比較の差異を描画する`QPainter::CompositionMode`の値．`-1`で通常のハイライトになる．GUIの**Show**の選択に相当する（GUIはこのキーを読まず，Showの選択も保存しない）．22=Difference，23=Exclusion，26=Src Xor Dest，29=Not Src Xor Dest |
+| `ShowHighlight` | `-1` | 読み込んで`--xmlResult`のパラメーターに書き写すが，何にも効かない |
 
 ## ライセンス
 

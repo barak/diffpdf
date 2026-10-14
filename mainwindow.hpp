@@ -48,6 +48,8 @@ class QSplitter;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+    // The GUI tests (test/guitest.cpp) look at and drive its widgets
+    friend class MainWindowTest;
 
 public:
     MainWindow(const Debug debug,
@@ -90,6 +92,8 @@ private slots:
     void showZones();
     void showMargins();
     void setAMargin(const QPoint &pos);
+    void pageBoxChanged();
+    void restoreDefaultPageBox();
 
 private:
     void createWidgets(const QString &filename1, const QString &filename2);
@@ -103,23 +107,33 @@ private:
     void comparePrepareUi();
     void compareUpdateUi(const QPair<int, int> &pair, const int millisec,
             const int pairIndexToShow);
+    void comparisonFailed(const char *reason);
     void forgetComparison();
     PagePair pairAt(const int pairIndex) const;
     bool isComparedPair(const int pairIndex) const;
     void showPair(const int pairIndex);
     int differingPairNear(const int pairIndex, const bool after) const;
     void stepPage(const int which, const int delta);
+    bool filesMustBePdf() const;
     QString pdfFileFilter() const;
     int writeFileInfo(const QString &filename);
     void writeLine(const QString &text);
     void writeError(const QString &text);
     PdfDocument getPdf(const QString &filename);
+    PageBox pageBox() const;
+    BoxClip boxClip() const;
+    PdfDocument comparedPdf(const int which, const QString &filename);
+    bool boxedViews(BoxedView *view1, BoxedView *view2);
+    void prepareBoxedFiles();
+    void updateMarginRanges();
+    void logBoxWarnings(const QList<int> &pages1, const QList<int> &pages2,
+                        const bool verbose);
     RenderSettings renderSettings() const;
     QList<int> getPageList(int which, const PdfDocument &pdf);
     void showZones(const int Width, const TextBoxList &list,
-            QLabel *label);
-    void showMargins(QLabel *label);
-    void saveAsPdf(const int start, const int end, const PdfDocument &pdf1,
+            QLabel *label, const QPoint &origin);
+    void showMargins(QLabel *label, const QRect &box);
+    bool saveAsPdf(const int start, const int end, const PdfDocument &pdf1,
             const PdfDocument &pdf2, const QString &header);
     void saveAsImages(const int start, const int end,
             const PdfDocument &pdf1, const PdfDocument &pdf2,
@@ -189,6 +203,12 @@ private:
     QSpinBox *rightMarginSpinBox;
     QBoxLayout *marginsLayout;
     QDockWidget *marginsDockWidget;
+    QLabel *pageBoxLabel;
+    QComboBox *pageBoxComboBox;
+    QLabel *boxClipLabel;
+    QComboBox *boxClipComboBox;
+    QPushButton *defaultPageBoxButton;
+    QDockWidget *pageBoxDockWidget;
 
     QBrush brush;
     QPen pen;
@@ -197,8 +217,15 @@ private:
     Qt::DockWidgetArea actionDockArea;
     Qt::DockWidgetArea marginsDockArea;
     Qt::DockWidgetArea zoningDockArea;
-    Qt::DockWidgetArea logDockArea;
     std::atomic<bool> cancel;
+    // True from the start of a comparison until comparePages() returns,
+    // including after Cancel while the workers finish their current pairs.
+    // The comparison processes events, and starting another one then
+    // would change fingerprints while the first one's workers read it.
+    bool comparing;
+    // Set when the window is closed during a comparison: the close is
+    // deferred until the workers have stopped, and done then
+    bool closeRequested = false;
     // Page fingerprints, kept between comparisons
     PageFingerprintCache fingerprints;
     // The last comparison: page pairIndex of comparedPages1 was paired with
@@ -223,6 +250,21 @@ private:
     StartupParameters *_startupParameters;
     Status *_status;
     int currentCompareIndex;
+    // Comparing inside a page box: the two files rewritten to it, made
+    // when first needed for the box chosen, and kept while it is
+    BoxedFile boxedFiles[2];
+    // The page box warnings of the last comparison
+    int boxWarningCount = 0;
+    // Where the box is in each page view's pixmap, in pixels (null when
+    // the whole page is compared): margins are measured from it
+    QRect shownBox[2];
+    // Set while the page box and clip are the ones --box and --box-clip
+    // gave, which are used but not saved
+    bool pageBoxFromCommandLine = false;
+    bool boxClipFromCommandLine = false;
+    // The first page of the file chosen last, from which the margins'
+    // ranges come when the whole page is compared
+    QSize marginPageSize;
 };
 
 #endif // MAINWINDOW_HPP

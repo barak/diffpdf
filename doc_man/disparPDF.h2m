@@ -20,13 +20,28 @@ The differences can be saved as a PDF file, with the pages side by side
 and the differences highlighted.
 .PP
 With
-.BR \-\-batch ,
-the files are compared without a window, which needs no display, and the
-result code is printed; by default the appearance of the pages is
-compared.  Settings such as the zoom, the tolerances and the margins to
-leave out can be given in a file
+.BR \-\-box ,
+only what is inside one of the page boundaries of ISO 32000-2 (the
+MediaBox, CropBox, BleedBox, TrimBox or ArtBox) is compared, and the
+pages are lined up on its corner, so that, for example, crop marks and
+bleed outside the trim box are ignored.  A page without the box uses its
+default (the CropBox, or for the CropBox the MediaBox); the box is
+clipped to the MediaBox unless
+.B \-\-box\-clip
+says otherwise
+.RB ( \-\-box\-clip
+without
+.B \-\-box
+is ignored, with a warning).  Warnings, such as a missing box or boxes that differ
+between the files, go to standard error and into the
+.B \-\-xmlResult
+file, and do not change the result code.
+.PP
+In batch mode the appearance of the pages is compared by default, and it
+needs no display.  Settings such as the zoom, the tolerances and the
+margins to leave out can be given in an INI file
 .RB ( \-\-settings ),
-in the same format as the configuration file (see
+whose keys are those of the configuration file (see
 .BR FILES ).
 .PP
 .B disparPDFc
@@ -65,12 +80,27 @@ and a detailed result, in XML, to
 disparPDF \-\-batch \-\-words \-\-pdfdiff=diff.pdf \-\-xmlResult=result.xml a.pdf b.pdf
 .RE
 
+Compare only what is inside the trim boxes:
+.PP
+.RS
+disparPDFc \-\-box=trim a.pdf b.pdf
+.RE
+
 [FILES]
 .TP
 .I ~/.config/disparPDF/disparPDF.conf
-Settings of the window (layout, zoom, margins, highlighting, etc.).
-Batch mode does not use them; see
+Settings of the window (layout, zoom, margins, page box, highlighting,
+etc.) on Linux and the BSDs, in INI format.  Batch mode does not use
+them; see
 .BR \-\-settings .
+.TP
+.I ~/Library/Preferences/com.disparpdf.disparPDF.plist
+The same on macOS, as a property list.
+
+[COPYRIGHT]
+Copyright \(co 2026 Yuwsuke Kieda; ConfrontaPDF \(co 2015 Luca Bellonda;
+DiffPDF \(co 2008\(en2013 Qtrac Ltd.
+License GPLv2+: GNU GPL version 2 or later <https://gnu.org/licenses/gpl.html>.
 
 [AUTHORS]
 DiffPDF was written by Mark Summerfield (2008\(en2013).  ConfrontaPDF,
