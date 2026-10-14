@@ -1,13 +1,11 @@
-diffpdf (1:1.0.10-1) UNRELEASED; urgency=medium
+diffpdf (1:1.1.1-1) UNRELEASED; urgency=medium
 
+  * New upstream release
   * All quilt patches upstreamed, test PDFs included, so drop
     debian/test-data and debian/source/include-binaries; their copyright
     stanza now covers test/data.
-  * Patch: in the GUI, no second comparison while one is still running,
-    which since 1.0.8 could change the page fingerprint cache while the
-    first comparison's worker threads read it (Cancel, then Compare).
 
- -- Barak A. Pearlmutter <bap@debian.org>  Sat, 10 Oct 2026 10:34:11 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Wed, 14 Oct 2026 13:30:41 +0100
 
 diffpdf (1:1.0.6-1) unstable; urgency=medium
 

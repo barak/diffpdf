@@ -18,8 +18,8 @@ Vcs-Browser: https://salsa.debian.org/debian/diffpdf
 Package: disparpdf
 Architecture: any
 Provides: diffpdf (= ${binary:Version})
-Breaks: diffpdf (<< 1:1.0.6-1~)
-Replaces: diffpdf (<< 1:1.0.6-1~)
+Breaks: diffpdf (<< 1:1.1.1-1~)
+Replaces: diffpdf (<< 1:1.1.1-1~)
 Description: compare two PDF files textually or visually
  disparPDF compares two PDF files, page by page, and shows their
  differences side by side.  By default the comparison is of the words on
