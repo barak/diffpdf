@@ -36,6 +36,8 @@
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QContextMenuEvent>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPainter>
 #include <QPixmapCache>
@@ -1181,6 +1183,38 @@ void MainWindow::updateViews(int index)
         showZones();
     if (marginsGroupBox->isChecked())
         showMargins();
+}
+
+
+// Reopen a closed dock window from a right click anywhere in the window.
+//
+// QMainWindow::createPopupMenu() builds the list of dock windows with a
+// checkbox each, which is the only way the program offers to reopen one: it
+// has no menu bar, and the docks' toggleViewAction()s are not put anywhere
+// else.  QMainWindow::contextMenuEvent() only opens that list when the click
+// lands on a dock window, a toolbar or the bare gap between docks, and
+// returns without a menu when it lands on the central widget.
+//
+// Close the last docked window, which Margins, Page Box, Zoning and Log all
+// allow, and every point in the window is the central widget.  The list
+// cannot be reached from anywhere, so the closed panels cannot come back.
+// The layout is saved on exit, so they stay gone across restarts too, and
+// the only remaining cure is editing the saved state out of the settings by
+// hand.
+//
+// Answering the click wherever it lands takes nothing away.  A widget with a
+// context menu of its own, such as the filename fields or the log, accepts
+// the event itself and is unaffected; what reaches here is what no widget
+// wanted.  Over the page views that is every right click, since they act on
+// the left button only (Label::mousePressEvent).
+void MainWindow::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu *menu = createPopupMenu();
+    if (!menu)
+        return;
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+    menu->popup(event->globalPos());
+    event->accept();
 }
 
 

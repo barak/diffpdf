@@ -61,6 +61,7 @@ public:
 
 protected:
     void closeEvent(QCloseEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
     bool eventFilter(QObject *object, QEvent *event);
     QString finalFileName(const QString &filename);
     DocInfo *docInfo(const PdfDocument &pdf, const QString &fileName);
